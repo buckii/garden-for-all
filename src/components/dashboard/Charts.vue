@@ -1,0 +1,224 @@
+<template>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Production Trends Chart -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Production Trends (Last 30 Days)</h3>
+      <div class="h-64 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg">
+        <div class="text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          <p class="mt-2 text-sm text-gray-500">Line chart showing daily production trends</p>
+          <div class="mt-4">
+            <div v-if="productionTrends.length > 0" class="space-y-2">
+              <div v-for="(trend, index) in productionTrends.slice(-7)" :key="index" class="flex justify-between text-sm">
+                <span class="text-gray-600">{{ formatDate(trend.date) }}</span>
+                <span class="font-medium text-garden-green-600">${{ trend.value.toFixed(2) }}</span>
+              </div>
+            </div>
+            <p v-else class="text-sm text-gray-400">No trend data available</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Produce Breakdown Chart -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Produce This Month</h3>
+      <div class="h-64 flex items-center justify-center">
+        <div class="w-full">
+          <div v-if="produceBreakdown.length > 0" class="space-y-3">
+            <div 
+              v-for="(item, index) in produceBreakdown.slice(0, 8)" 
+              :key="index"
+              class="flex items-center"
+            >
+              <div class="flex-1 flex items-center">
+                <div 
+                  :class="[
+                    'w-4 h-4 rounded-full mr-3',
+                    getColorClass(index)
+                  ]"
+                ></div>
+                <span class="text-sm font-medium text-gray-700">{{ item.name }}</span>
+              </div>
+              <div class="flex-shrink-0 flex items-center space-x-3">
+                <span class="text-sm text-gray-500">{{ item.quantity.toFixed(1) }}</span>
+                <span class="text-sm font-medium text-garden-green-600 w-16 text-right">
+                  ${{ item.value.toFixed(2) }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-center text-gray-400">
+            <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+            </svg>
+            <p class="mt-2 text-sm">No produce data available</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Value Distribution -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Value Distribution</h3>
+      <div class="space-y-4">
+        <div v-if="summary.year.value > 0" class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Today vs Year Target</span>
+            <span class="text-sm font-medium">
+              {{ ((summary.today.value / summary.year.value) * 100).toFixed(1) }}%
+            </span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              :style="{ width: `${Math.min(100, (summary.today.value / summary.year.value) * 100)}%` }"
+            ></div>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Week vs Year Target</span>
+            <span class="text-sm font-medium">
+              {{ ((summary.week.value / summary.year.value) * 100).toFixed(1) }}%
+            </span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              class="bg-green-600 h-2 rounded-full transition-all duration-300"
+              :style="{ width: `${Math.min(100, (summary.week.value / summary.year.value) * 100)}%` }"
+            ></div>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Month vs Year Target</span>
+            <span class="text-sm font-medium">
+              {{ ((summary.month.value / summary.year.value) * 100).toFixed(1) }}%
+            </span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              class="bg-yellow-600 h-2 rounded-full transition-all duration-300"
+              :style="{ width: `${Math.min(100, (summary.month.value / summary.year.value) * 100)}%` }"
+            ></div>
+          </div>
+        </div>
+        <div v-else class="text-center text-gray-400 py-8">
+          <p>No data available for comparison</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+      <div class="space-y-3 max-h-64 overflow-y-auto">
+        <div v-if="recentEntries.length > 0">
+          <div 
+            v-for="(entry, index) in recentEntries.slice(0, 10)"
+            :key="index"
+            class="flex items-center space-x-3 py-2"
+          >
+            <div class="flex-shrink-0 w-8 h-8 bg-garden-green-100 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">
+                {{ entry.quantity }} {{ entry.unit }} of {{ getProduceName(entry.produce_type_id) }}
+              </p>
+              <p class="text-xs text-gray-500">
+                {{ formatTimeAgo(entry.created_at) }}
+                <span v-if="entry.harvester_name"> • {{ entry.harvester_name }}</span>
+              </p>
+            </div>
+            <div class="flex-shrink-0 text-sm font-medium text-garden-green-600">
+              ${{ getEntryValue(entry).toFixed(2) }}
+            </div>
+          </div>
+        </div>
+        <div v-else class="text-center text-gray-400 py-8">
+          <svg class="mx-auto h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          <p class="mt-2 text-sm">No recent activity</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { Database } from '@/lib/supabase'
+
+type HarvestEntry = Database['public']['Tables']['harvest_entries']['Row']
+type ProduceType = Database['public']['Tables']['produce_types']['Row']
+
+interface DashboardSummary {
+  today: { quantity: number; value: number }
+  week: { quantity: number; value: number }
+  month: { quantity: number; value: number }
+  year: { quantity: number; value: number }
+}
+
+interface Props {
+  summary: DashboardSummary
+  recentEntries: HarvestEntry[]
+  produceBreakdown: { name: string; quantity: number; value: number }[]
+  productionTrends: { date: string; quantity: number; value: number }[]
+  produceTypes: ProduceType[]
+}
+
+const props = defineProps<Props>()
+
+const colorClasses = [
+  'bg-blue-500',
+  'bg-green-500',
+  'bg-yellow-500',
+  'bg-red-500',
+  'bg-purple-500',
+  'bg-indigo-500',
+  'bg-pink-500',
+  'bg-gray-500'
+]
+
+const getColorClass = (index: number) => {
+  return colorClasses[index % colorClasses.length]
+}
+
+const getProduceName = (produceTypeId: string) => {
+  const produceType = props.produceTypes.find(p => p.id === produceTypeId)
+  return produceType?.name || 'Unknown'
+}
+
+const getEntryValue = (entry: HarvestEntry) => {
+  const produceType = props.produceTypes.find(p => p.id === entry.produce_type_id)
+  return entry.quantity * (produceType?.conversion_factor || 0)
+}
+
+const formatDate = (dateStr: string) => {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
+const formatTimeAgo = (timestamp: string) => {
+  const now = new Date()
+  const date = new Date(timestamp)
+  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+  
+  if (diffInHours < 1) {
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    return `${diffInMinutes}m ago`
+  } else if (diffInHours < 24) {
+    return `${diffInHours}h ago`
+  } else {
+    const diffInDays = Math.floor(diffInHours / 24)
+    return `${diffInDays}d ago`
+  }
+}
+</script>
