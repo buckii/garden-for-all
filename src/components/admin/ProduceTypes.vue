@@ -254,12 +254,13 @@ const filteredProduceTypes = computed(() => {
   return produceTypes.filter(pt => pt.category_id === selectedCategoryId.value)
 })
 
-onMounted(async () => {
-  await Promise.all([
-    adminStore.fetchCategories(),
-    adminStore.fetchProduceTypes()
-  ])
-})
+// Data is fetched by parent AdminView, no need to fetch again
+// onMounted(async () => {
+//   await Promise.all([
+//     adminStore.fetchCategories(),
+//     adminStore.fetchProduceTypes()
+//   ])
+// })
 
 const getCategoryName = (categoryId: string) => {
   const category = categories.find(c => c.id === categoryId)

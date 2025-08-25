@@ -2,26 +2,56 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { HarvestEntry, ProduceType, Database } from '@/types/database'
 
-// Temporary placeholder API - will be replaced with actual Netlify Functions
+// Harvest API functions
+const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
+
 const api = {
   async getProduceTypes() {
-    console.warn('API not implemented: getProduceTypes')
-    return { data: [], error: null }
+    try {
+      const response = await fetch(`${API_BASE}/produce-types-list`)
+      const result = await response.json()
+      return { data: result.data || [], error: null }
+    } catch (error: any) {
+      return { data: [], error: error.message }
+    }
   },
+  
   async getHarvestEntries(date?: string) {
-    console.warn('API not implemented: getHarvestEntries')
-    return { data: [], error: null }
+    try {
+      const url = new URL(`${API_BASE}/harvest-list`, window.location.origin)
+      if (date) url.searchParams.set('date', date)
+      
+      const response = await fetch(url.toString())
+      const result = await response.json()
+      return { data: result.data || [], error: null }
+    } catch (error: any) {
+      return { data: [], error: error.message }
+    }
   },
+  
   async createHarvestEntry(data: any) {
-    console.warn('API not implemented: createHarvestEntry')
-    return { data: null, error: null }
+    try {
+      const response = await fetch(`${API_BASE}/harvest-create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
   },
+  
   async updateHarvestEntry(id: string, data: any) {
-    console.warn('API not implemented: updateHarvestEntry')
+    // TODO: Implement harvest update function
+    console.warn('API not yet implemented: updateHarvestEntry')
     return { data: null, error: null }
   },
+  
   async deleteHarvestEntry(id: string) {
-    console.warn('API not implemented: deleteHarvestEntry')
+    // TODO: Implement harvest delete function
+    console.warn('API not yet implemented: deleteHarvestEntry')
     return { error: null }
   }
 }

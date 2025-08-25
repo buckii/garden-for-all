@@ -1,269 +1,167 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import type { HarvestEntry, FoodPantry } from '@/types/database'
 
+// Dashboard API functions
+const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
 
-
-type HarvestEntry = Database['public']['Tables']['harvest_entries']['Row']
-type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
-type ProduceType = Database['public']['Tables']['produce_types']['Row']
-
-interface DashboardSummary {
-  today: { quantity: number; value: number }
-  week: { quantity: number; value: number }
-  month: { quantity: number; value: number }
-  year: { quantity: number; value: number }
+const getAuthHeader = () => {
+  const token = localStorage.getItem('auth_token')
+  return token ? { 'Authorization': `Bearer ${token}` } : {}
 }
 
-interface PantryProgress {
-  pantry: FoodPantry
-  committed: number
-  delivered: number
-  remaining: number
-  percentage: number
+const dashboardAPI = {
+  async getSummary() {
+    try {
+      const response = await fetch(`${API_BASE}/dashboard-summary`, {
+        headers: getAuthHeader()
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+  
+  async getHarvestData() {
+    try {
+      const response = await fetch(`${API_BASE}/harvest-list`, {
+        headers: getAuthHeader()
+      })
+      const result = await response.json()
+      return { data: result.data || [], error: null }
+    } catch (error: any) {
+      return { data: [], error: error.message }
+    }
+  },
+  
+  async getPantryProgress() {
+    // TODO: Implement pantry progress function
+    console.warn('API not yet implemented: getPantryProgress')
+    return { data: [], error: null }
+  }
+}
+
+interface DashboardSummary {
+  daily: { totalQuantity: number; totalValue: number; count: number }
+  weekly: { totalQuantity: number; totalValue: number; count: number }
+  monthly: { totalQuantity: number; totalValue: number; count: number }
+  yearly: { totalQuantity: number; totalValue: number; count: number }
+}
+
+const defaultSummary: DashboardSummary = {
+  daily: { totalQuantity: 0, totalValue: 0, count: 0 },
+  weekly: { totalQuantity: 0, totalValue: 0, count: 0 },
+  monthly: { totalQuantity: 0, totalValue: 0, count: 0 },
+  yearly: { totalQuantity: 0, totalValue: 0, count: 0 }
 }
 
 export const useDashboardStore = defineStore('dashboard', () => {
-  const summary = ref<DashboardSummary>({
-    today: { quantity: 0, value: 0 },
-    week: { quantity: 0, value: 0 },
-    month: { quantity: 0, value: 0 },
-    year: { quantity: 0, value: 0 }
-  })
-  
-  const recentEntries = ref<HarvestEntry[]>([])
-  const pantryProgress = ref<PantryProgress[]>([])
-  const produceBreakdown = ref<{ name: string; quantity: number; value: number }[]>([])
-  const productionTrends = ref<{ date: string; quantity: number; value: number }[]>([])
+  const summary = ref<DashboardSummary>(defaultSummary)
+  const harvestData = ref<HarvestEntry[]>([])
+  const pantryProgress = ref<any[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const lastUpdated = ref<Date>(new Date())
 
-  // Computed
-  const formattedLastUpdated = computed(() => {
-    return lastUpdated.value.toLocaleTimeString()
+  const totalHarvestedToday = computed(() => summary.value.daily.totalQuantity)
+  const totalValueToday = computed(() => summary.value.daily.totalValue)
+  const totalHarvestedThisWeek = computed(() => summary.value.weekly.totalQuantity)
+  const totalHarvestedThisMonth = computed(() => summary.value.monthly.totalQuantity)
+
+  // Backward compatibility for existing components
+  const summaryFormatted = computed(() => ({
+    today: {
+      quantity: summary.value.daily.totalQuantity,
+      value: summary.value.daily.totalValue
+    },
+    week: {
+      quantity: summary.value.weekly.totalQuantity,
+      value: summary.value.weekly.totalValue
+    },
+    month: {
+      quantity: summary.value.monthly.totalQuantity,
+      value: summary.value.monthly.totalValue
+    },
+    year: {
+      quantity: summary.value.yearly.totalQuantity,
+      value: summary.value.yearly.totalValue
+    }
+  }))
+
+  // Additional computed properties for Charts component
+  const recentEntries = computed(() => harvestData.value.slice(0, 10))
+  
+  const produceBreakdown = computed(() => {
+    const breakdown = new Map()
+    harvestData.value.forEach(entry => {
+      const name = entry.produceType?.name || 'Unknown'
+      const existing = breakdown.get(name) || { name, quantity: 0, value: 0 }
+      existing.quantity += entry.quantity
+      existing.value += entry.quantity * (entry.produceType?.conversionFactor || 0)
+      breakdown.set(name, existing)
+    })
+    return Array.from(breakdown.values()).sort((a, b) => b.value - a.value)
   })
 
-  // Actions
-  const fetchDashboardData = async () => {
-    loading.value = true
+  const productionTrends = computed(() => {
+    const trends = new Map()
+    harvestData.value.forEach(entry => {
+      const date = new Date(entry.harvestDate).toISOString().split('T')[0]
+      const existing = trends.get(date) || { date, quantity: 0, value: 0 }
+      existing.quantity += entry.quantity
+      existing.value += entry.quantity * (entry.produceType?.conversionFactor || 0)
+      trends.set(date, existing)
+    })
+    return Array.from(trends.values())
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .slice(-30) // Last 30 days
+  })
+
+  const fetchSummary = async () => {
     try {
-      await Promise.all([
-        fetchSummaryStats(),
-        fetchRecentEntries(),
-        fetchPantryProgress(),
-        fetchProduceBreakdown(),
-        fetchProductionTrends()
-      ])
-      lastUpdated.value = new Date()
+      const { data, error: fetchError } = await dashboardAPI.getSummary()
+      if (fetchError) throw new Error(fetchError)
+      summary.value = data || defaultSummary
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch dashboard data'
-    } finally {
-      loading.value = false
+      error.value = err instanceof Error ? err.message : 'Unknown error'
     }
   }
 
-  const fetchSummaryStats = async () => {
-    const today = new Date()
-    const weekStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay())
-    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
-    const yearStart = new Date(today.getFullYear(), 0, 1)
-
-    // Fetch harvest entries with produce type info
-    const { data: entries, error: entriesError } = await supabase
-      .from('harvest_entries')
-      .select(`
-        *,
-        produce_type:produce_types(*)
-      `)
-      .gte('harvest_date', yearStart.toISOString().split('T')[0])
-
-    if (entriesError) throw entriesError
-
-    // Calculate summaries
-    const todayStr = today.toISOString().split('T')[0]
-    const weekStartStr = weekStart.toISOString().split('T')[0]
-    const monthStartStr = monthStart.toISOString().split('T')[0]
-    const yearStartStr = yearStart.toISOString().split('T')[0]
-
-    console.log('Dashboard Debug:', {
-      totalEntries: entries?.length || 0,
-      todayStr,
-      weekStartStr,
-      monthStartStr,
-      yearStartStr,
-      sampleEntry: entries?.[0]
-    })
-
-    summary.value = {
-      today: calculatePeriodSummary(entries || [], todayStr),
-      week: calculatePeriodSummary(entries || [], weekStartStr),
-      month: calculatePeriodSummary(entries || [], monthStartStr),
-      year: calculatePeriodSummary(entries || [], yearStartStr)
+  const fetchHarvestData = async () => {
+    try {
+      const { data, error: fetchError } = await dashboardAPI.getHarvestData()
+      if (fetchError) throw new Error(fetchError)
+      harvestData.value = data || []
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
     }
-
-    console.log('Calculated Summary:', summary.value)
-  }
-
-  const calculatePeriodSummary = (entries: any[], startDate: string) => {
-    const periodEntries = entries.filter(entry => entry.harvest_date >= startDate)
-    
-    console.log(`Period calculation for ${startDate}:`, {
-      totalEntries: entries.length,
-      filteredEntries: periodEntries.length,
-      periodEntries: periodEntries.map(e => ({ 
-        date: e.harvest_date, 
-        quantity: e.quantity, 
-        conversionFactor: e.produce_type?.conversion_factor 
-      }))
-    })
-    
-    return periodEntries.reduce((acc, entry) => {
-      const conversionFactor = entry.produce_type?.conversion_factor || 0
-      return {
-        quantity: acc.quantity + entry.quantity,
-        value: acc.value + (entry.quantity * conversionFactor)
-      }
-    }, { quantity: 0, value: 0 })
-  }
-
-  const fetchRecentEntries = async () => {
-    const { data, error: fetchError } = await supabase
-      .from('harvest_entries')
-      .select(`
-        *,
-        produce_type:produce_types(
-          *,
-          category:produce_categories(*)
-        )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(20)
-
-    if (fetchError) throw fetchError
-    recentEntries.value = data || []
   }
 
   const fetchPantryProgress = async () => {
-    // Fetch pantries and their commitments
-    const { data: pantries, error: pantriesError } = await supabase
-      .from('food_pantries')
-      .select('*')
-
-    if (pantriesError) throw pantriesError
-
-    // Fetch distributions for current year
-    const yearStart = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]
-    const { data: distributions, error: distributionsError } = await supabase
-      .from('pantry_distributions')
-      .select(`
-        *,
-        harvest_entry:harvest_entries(
-          *,
-          produce_type:produce_types(*)
-        )
-      `)
-      .gte('distribution_date', yearStart)
-
-    if (distributionsError) throw distributionsError
-
-    // Calculate progress for each pantry
-    pantryProgress.value = (pantries || []).map(pantry => {
-      const pantryDistributions = (distributions || []).filter(d => d.pantry_id === pantry.id)
-      const delivered = pantryDistributions.reduce((sum, dist) => {
-        const conversionFactor = dist.harvest_entry?.produce_type?.conversion_factor || 0
-        return sum + (dist.quantity_distributed * conversionFactor)
-      }, 0)
-      
-      const committed = pantry.commitment_amounts?.total || 0
-      const remaining = Math.max(0, committed - delivered)
-      const percentage = committed > 0 ? Math.min(100, (delivered / committed) * 100) : 0
-
-      return {
-        pantry,
-        committed,
-        delivered,
-        remaining,
-        percentage
-      }
-    })
+    try {
+      const { data, error: fetchError } = await dashboardAPI.getPantryProgress()
+      if (fetchError) throw new Error(fetchError)
+      pantryProgress.value = data || []
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    }
   }
 
-  const fetchProduceBreakdown = async () => {
-    const monthStart = new Date()
-    monthStart.setDate(1)
-    const monthStartStr = monthStart.toISOString().split('T')[0]
-
-    const { data, error: fetchError } = await supabase
-      .from('harvest_entries')
-      .select(`
-        quantity,
-        produce_type:produce_types(
-          name,
-          conversion_factor,
-          category:produce_categories(name)
-        )
-      `)
-      .gte('harvest_date', monthStartStr)
-
-    if (fetchError) throw fetchError
-
-    // Group by produce type
-    const breakdown = (data || []).reduce((acc: any, entry: any) => {
-      const name = entry.produce_type?.name || 'Unknown'
-      const conversionFactor = entry.produce_type?.conversion_factor || 0
-      
-      if (!acc[name]) {
-        acc[name] = { name, quantity: 0, value: 0 }
-      }
-      
-      acc[name].quantity += entry.quantity
-      acc[name].value += entry.quantity * conversionFactor
-      
-      return acc
-    }, {})
-
-    produceBreakdown.value = (Object.values(breakdown) as { name: string; quantity: number; value: number }[])
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 10) // Top 10
-  }
-
-  const fetchProductionTrends = async () => {
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    const startDate = thirtyDaysAgo.toISOString().split('T')[0]
-
-    const { data, error: fetchError } = await supabase
-      .from('harvest_entries')
-      .select(`
-        harvest_date,
-        quantity,
-        produce_type:produce_types(conversion_factor)
-      `)
-      .gte('harvest_date', startDate)
-      .order('harvest_date')
-
-    if (fetchError) throw fetchError
-
-    // Group by date
-    const trends = (data || []).reduce((acc: any, entry: any) => {
-      const date = entry.harvest_date
-      const conversionFactor = entry.produce_type?.conversion_factor || 0
-      
-      if (!acc[date]) {
-        acc[date] = { date, quantity: 0, value: 0 }
-      }
-      
-      acc[date].quantity += entry.quantity
-      acc[date].value += entry.quantity * conversionFactor
-      
-      return acc
-    }, {})
-
-    productionTrends.value = Object.values(trends) as { date: string; quantity: number; value: number }[]
-  }
-
-  const refreshData = async () => {
-    await fetchDashboardData()
+  const fetchAll = async () => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      await Promise.all([
+        fetchSummary(),
+        fetchHarvestData(),
+        fetchPantryProgress()
+      ])
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    } finally {
+      loading.value = false
+    }
   }
 
   const clearError = () => {
@@ -271,22 +169,32 @@ export const useDashboardStore = defineStore('dashboard', () => {
   }
 
   return {
-    // State
-    summary,
-    recentEntries,
+    // State (backward compatible)
+    summary: summaryFormatted,
+    harvestData,
     pantryProgress,
-    produceBreakdown,
-    productionTrends,
     loading,
     error,
-    lastUpdated,
+    
+    // Chart data
+    recentEntries,
+    produceBreakdown,
+    productionTrends,
+    
+    // Raw summary data
+    rawSummary: summary,
     
     // Computed
-    formattedLastUpdated,
+    totalHarvestedToday,
+    totalValueToday,
+    totalHarvestedThisWeek,
+    totalHarvestedThisMonth,
     
     // Actions
-    fetchDashboardData,
-    refreshData,
+    fetchSummary,
+    fetchHarvestData,
+    fetchPantryProgress,
+    fetchAll,
     clearError,
   }
 })

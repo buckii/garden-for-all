@@ -330,9 +330,10 @@ const formData = ref({
 
 const { foodPantries, loading, error } = adminStore
 
-onMounted(() => {
-  adminStore.fetchFoodPantries()
-})
+// Data is fetched by parent AdminView, no need to fetch again
+// onMounted(() => {
+//   adminStore.fetchFoodPantries()
+// })
 
 const editPantry = (pantry: FoodPantry) => {
   pantryToEdit.value = pantry

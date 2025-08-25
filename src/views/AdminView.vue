@@ -84,9 +84,35 @@
 
           <!-- Tab Content -->
           <div class="p-6">
-            <ProduceCategories v-if="activeTab === 'categories'" />
-            <ProduceTypes v-if="activeTab === 'types'" />
-            <FoodPantries v-if="activeTab === 'pantries'" />
+            <!-- Loading state for admin data -->
+            <div v-if="adminStore.loading && (activeTab === 'categories' || activeTab === 'types' || activeTab === 'pantries')" 
+                 class="flex justify-center items-center py-12">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-garden-green-600 mx-auto mb-4"></div>
+                <p class="text-gray-500">Loading {{ activeTab === 'categories' ? 'categories' : activeTab === 'types' ? 'produce types' : 'food pantries' }}...</p>
+              </div>
+            </div>
+            
+            <!-- Error state for admin data -->
+            <div v-else-if="adminStore.error && (activeTab === 'categories' || activeTab === 'types' || activeTab === 'pantries')" 
+                 class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium">Error loading data</h3>
+                  <p class="text-sm">{{ adminStore.error }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Tab components -->
+            <ProduceCategories v-else-if="activeTab === 'categories'" />
+            <ProduceTypes v-else-if="activeTab === 'types'" />
+            <FoodPantries v-else-if="activeTab === 'pantries'" />
             <div v-if="activeTab === 'export'" class="space-y-8">
               <div class="text-center">
                 <svg class="mx-auto h-12 w-12 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,9 +267,10 @@ const exportOptions = ref({
 
 // Initialize stores
 onMounted(async () => {
+  // Fetch all admin data in parallel
   await Promise.all([
-    harvestStore.fetchProduceTypes(),
     adminStore.fetchCategories(),
+    adminStore.fetchProduceTypes(),
     adminStore.fetchFoodPantries()
   ])
 })

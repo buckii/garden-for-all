@@ -152,9 +152,18 @@
 
         <!-- Step Content -->
         <div class="bg-white rounded-lg shadow-sm border p-6">
+          <!-- Loading State for Produce Data -->
+          <div v-if="(currentStep === 'select') && (!produceTypes.length || !categories.length)" 
+               class="flex justify-center items-center py-12">
+            <div class="text-center">
+              <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-garden-green-600 mx-auto mb-4"></div>
+              <p class="text-gray-500">Loading produce types...</p>
+            </div>
+          </div>
+          
           <!-- Step 1: Select Produce -->
           <ProduceSelector
-            v-if="currentStep === 'select'"
+            v-else-if="currentStep === 'select'"
             :produce-types="produceTypes"
             :categories="categories"
             :loading="loading"

@@ -112,23 +112,55 @@
       <!-- Dashboard Components -->
       <div v-else class="space-y-8">
         <!-- Production Summary Cards -->
-        <ProductionSummary :summary="summary" />
+        <div class="space-y-4">
+          <div v-if="loading" class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex justify-center items-center py-8">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-garden-green-600 mx-auto mb-3"></div>
+                <p class="text-gray-500 text-sm">Loading production summary...</p>
+              </div>
+            </div>
+          </div>
+          <ProductionSummary v-else :summary="summary" />
+        </div>
 
         <!-- Charts and Visualizations -->
-        <Charts
-          :summary="summary"
-          :recent-entries="recentEntries"
-          :produce-breakdown="produceBreakdown"
-          :production-trends="productionTrends"
-          :produce-types="produceTypes"
-        />
+        <div class="space-y-4">
+          <div v-if="loading" class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex justify-center items-center py-8">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-garden-green-600 mx-auto mb-3"></div>
+                <p class="text-gray-500 text-sm">Loading charts and analytics...</p>
+              </div>
+            </div>
+          </div>
+          <Charts
+            v-else
+            :summary="summary"
+            :recent-entries="recentEntries"
+            :produce-breakdown="produceBreakdown"
+            :production-trends="productionTrends"
+            :produce-types="produceTypes"
+          />
+        </div>
 
         <!-- Pantry Commitment Tracker -->
-        <CommitmentTracker
-          :pantry-progress="pantryProgress"
-          :loading="loading"
-          @view-details="viewPantryDetails"
-        />
+        <div class="space-y-4">
+          <div v-if="loading" class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex justify-center items-center py-8">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-garden-green-600 mx-auto mb-3"></div>
+                <p class="text-gray-500 text-sm">Loading pantry commitments...</p>
+              </div>
+            </div>
+          </div>
+          <CommitmentTracker
+            v-else
+            :pantry-progress="pantryProgress"
+            :loading="loading"
+            @view-details="viewPantryDetails"
+          />
+        </div>
       </div>
     </div>
 
@@ -224,8 +256,7 @@ const {
   produceBreakdown,
   productionTrends,
   loading,
-  error,
-  formattedLastUpdated
+  error
 } = dashboardStore
 
 const { produceTypes } = harvestStore
@@ -242,18 +273,18 @@ const currentDate = computed(() => {
 onMounted(async () => {
   // Initial data load
   await Promise.all([
-    dashboardStore.fetchDashboardData(),
+    dashboardStore.fetchAll(),
     harvestStore.fetchProduceTypes()
   ])
 
   // Set up real-time updates
   subscribeToHarvestUpdates(() => {
-    dashboardStore.refreshData()
+    dashboardStore.fetchAll()
   })
 
   // Auto-refresh every 30 seconds
   refreshInterval.value = setInterval(() => {
-    dashboardStore.refreshData()
+    dashboardStore.fetchAll()
     currentTime.value = new Date().toLocaleTimeString()
   }, 30000)
 
@@ -270,7 +301,7 @@ onUnmounted(() => {
 })
 
 const refreshData = async () => {
-  await dashboardStore.refreshData()
+  await dashboardStore.fetchAll()
 }
 
 const viewPantryDetails = (pantry: FoodPantry) => {

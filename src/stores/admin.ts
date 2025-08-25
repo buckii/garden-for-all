@@ -2,20 +2,162 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { ProduceCategory, ProduceType, FoodPantry } from '@/types/database'
 
-// Placeholder API for admin operations
+// Admin API functions
+const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
+
+const getAuthHeader = () => {
+  const token = localStorage.getItem('auth_token')
+  return token ? { 'Authorization': `Bearer ${token}` } : {}
+}
+
 const adminAPI = {
-  async getCategories() { return { data: [], error: null } },
-  async getProduceTypes() { return { data: [], error: null } },
-  async getPantries() { return { data: [], error: null } },
-  async createCategory(data: any) { return { data: null, error: null } },
-  async updateCategory(id: string, data: any) { return { data: null, error: null } },
-  async deleteCategory(id: string) { return { error: null } },
-  async createProduceType(data: any) { return { data: null, error: null } },
-  async updateProduceType(id: string, data: any) { return { data: null, error: null } },
-  async deleteProduceType(id: string) { return { error: null } },
-  async createPantry(data: any) { return { data: null, error: null } },
-  async updatePantry(id: string, data: any) { return { data: null, error: null } },
-  async deletePantry(id: string) { return { error: null } }
+  async getCategories() {
+    try {
+      const response = await fetch(`${API_BASE}/admin-categories`)
+      const result = await response.json()
+      return { data: result.data || [], error: null }
+    } catch (error: any) {
+      return { data: [], error: error.message }
+    }
+  },
+  
+  async getProduceTypes() {
+    try {
+      const response = await fetch(`${API_BASE}/admin-produce-types`)
+      const result = await response.json()
+      return { data: result.data || [], error: null }
+    } catch (error: any) {
+      return { data: [], error: error.message }
+    }
+  },
+  
+  async getPantries() {
+    try {
+      const response = await fetch(`${API_BASE}/admin-food-pantries`)
+      const result = await response.json()
+      return { data: result.data || [], error: null }
+    } catch (error: any) {
+      return { data: [], error: error.message }
+    }
+  },
+  
+  async createCategory(data: any) {
+    try {
+      const response = await fetch(`${API_BASE}/admin-categories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify(data)
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+  
+  async updateCategory(id: string, data: any) {
+    try {
+      const response = await fetch(`${API_BASE}/admin-categories/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify(data)
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+  
+  async deleteCategory(id: string) {
+    try {
+      const response = await fetch(`${API_BASE}/admin-categories/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeader()
+      })
+      const result = await response.json()
+      return { error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { error: error.message }
+    }
+  },
+  
+  async createProduceType(data: any) {
+    try {
+      const response = await fetch(`${API_BASE}/admin-produce-types`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify(data)
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+  async updateProduceType(id: string, data: any) {
+    try {
+      const response = await fetch(`${API_BASE}/admin-produce-types/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify(data)
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+  async deleteProduceType(id: string) {
+    try {
+      const response = await fetch(`${API_BASE}/admin-produce-types/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeader()
+      })
+      const result = await response.json()
+      return { error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { error: error.message }
+    }
+  },
+  async createPantry(data: any) {
+    try {
+      const response = await fetch(`${API_BASE}/admin-food-pantries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify(data)
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+  async updatePantry(id: string, data: any) {
+    try {
+      const response = await fetch(`${API_BASE}/admin-food-pantries/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify(data)
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+  async deletePantry(id: string) {
+    try {
+      const response = await fetch(`${API_BASE}/admin-food-pantries/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeader()
+      })
+      const result = await response.json()
+      return { error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { error: error.message }
+    }
+  }
 }
 
 export const useAdminStore = defineStore('admin', () => {
@@ -34,12 +176,8 @@ export const useAdminStore = defineStore('admin', () => {
   const fetchCategories = async () => {
     loading.value = true
     try {
-      const { data, error: fetchError } = await supabase
-        .from('produce_categories')
-        .select('*')
-        .order('display_order', { ascending: true })
-      
-      if (fetchError) throw fetchError
+      const { data, error: fetchError } = await adminAPI.getCategories()
+      if (fetchError) throw new Error(fetchError)
       categories.value = data || []
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
@@ -48,15 +186,10 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  const createCategory = async (categoryData: Database['public']['Tables']['produce_categories']['Insert']) => {
+  const createCategory = async (categoryData: any) => {
     try {
-      const { data, error: createError } = await supabase
-        .from('produce_categories')
-        .insert(categoryData)
-        .select()
-        .single()
-      
-      if (createError) throw createError
+      const { data, error: createError } = await adminAPI.createCategory(categoryData)
+      if (createError) throw new Error(createError)
       if (data) categories.value.push(data)
       return data
     } catch (err) {
@@ -65,16 +198,10 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  const updateCategory = async (id: string, updates: Database['public']['Tables']['produce_categories']['Update']) => {
+  const updateCategory = async (id: string, updates: any) => {
     try {
-      const { data, error: updateError } = await supabase
-        .from('produce_categories')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single()
-      
-      if (updateError) throw updateError
+      const { data, error: updateError } = await adminAPI.updateCategory(id, updates)
+      if (updateError) throw new Error(updateError)
       if (data) {
         const index = categories.value.findIndex(c => c.id === id)
         if (index !== -1) categories.value[index] = data
@@ -88,12 +215,8 @@ export const useAdminStore = defineStore('admin', () => {
 
   const deleteCategory = async (id: string) => {
     try {
-      const { error: deleteError } = await supabase
-        .from('produce_categories')
-        .delete()
-        .eq('id', id)
-      
-      if (deleteError) throw deleteError
+      const { error: deleteError } = await adminAPI.deleteCategory(id)
+      if (deleteError) throw new Error(deleteError)
       categories.value = categories.value.filter(c => c.id !== id)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
@@ -105,15 +228,8 @@ export const useAdminStore = defineStore('admin', () => {
   const fetchProduceTypes = async () => {
     loading.value = true
     try {
-      const { data, error: fetchError } = await supabase
-        .from('produce_types')
-        .select(`
-          *,
-          category:produce_categories(*)
-        `)
-        .order('name')
-      
-      if (fetchError) throw fetchError
+      const { data, error: fetchError } = await adminAPI.getProduceTypes()
+      if (fetchError) throw new Error(fetchError)
       produceTypes.value = data || []
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
@@ -122,15 +238,10 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  const createProduceType = async (produceTypeData: Database['public']['Tables']['produce_types']['Insert']) => {
+  const createProduceType = async (produceTypeData: any) => {
     try {
-      const { data, error: createError } = await supabase
-        .from('produce_types')
-        .insert(produceTypeData)
-        .select()
-        .single()
-      
-      if (createError) throw createError
+      const { data, error: createError } = await adminAPI.createProduceType(produceTypeData)
+      if (createError) throw new Error(createError)
       if (data) produceTypes.value.push(data)
       return data
     } catch (err) {
@@ -139,16 +250,10 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  const updateProduceType = async (id: string, updates: Database['public']['Tables']['produce_types']['Update']) => {
+  const updateProduceType = async (id: string, updates: any) => {
     try {
-      const { data, error: updateError } = await supabase
-        .from('produce_types')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single()
-      
-      if (updateError) throw updateError
+      const { data, error: updateError } = await adminAPI.updateProduceType(id, updates)
+      if (updateError) throw new Error(updateError)
       if (data) {
         const index = produceTypes.value.findIndex(p => p.id === id)
         if (index !== -1) produceTypes.value[index] = data
@@ -162,12 +267,8 @@ export const useAdminStore = defineStore('admin', () => {
 
   const deleteProduceType = async (id: string) => {
     try {
-      const { error: deleteError } = await supabase
-        .from('produce_types')
-        .delete()
-        .eq('id', id)
-      
-      if (deleteError) throw deleteError
+      const { error: deleteError } = await adminAPI.deleteProduceType(id)
+      if (deleteError) throw new Error(deleteError)
       produceTypes.value = produceTypes.value.filter(p => p.id !== id)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
@@ -179,12 +280,8 @@ export const useAdminStore = defineStore('admin', () => {
   const fetchFoodPantries = async () => {
     loading.value = true
     try {
-      const { data, error: fetchError } = await supabase
-        .from('food_pantries')
-        .select('*')
-        .order('name')
-      
-      if (fetchError) throw fetchError
+      const { data, error: fetchError } = await adminAPI.getPantries()
+      if (fetchError) throw new Error(fetchError)
       foodPantries.value = data || []
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
@@ -193,15 +290,10 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  const createFoodPantry = async (pantryData: Database['public']['Tables']['food_pantries']['Insert']) => {
+  const createFoodPantry = async (pantryData: any) => {
     try {
-      const { data, error: createError } = await supabase
-        .from('food_pantries')
-        .insert(pantryData)
-        .select()
-        .single()
-      
-      if (createError) throw createError
+      const { data, error: createError } = await adminAPI.createPantry(pantryData)
+      if (createError) throw new Error(createError)
       if (data) foodPantries.value.push(data)
       return data
     } catch (err) {
@@ -210,16 +302,10 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  const updateFoodPantry = async (id: string, updates: Database['public']['Tables']['food_pantries']['Update']) => {
+  const updateFoodPantry = async (id: string, updates: any) => {
     try {
-      const { data, error: updateError } = await supabase
-        .from('food_pantries')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single()
-      
-      if (updateError) throw updateError
+      const { data, error: updateError } = await adminAPI.updatePantry(id, updates)
+      if (updateError) throw new Error(updateError)
       if (data) {
         const index = foodPantries.value.findIndex(f => f.id === id)
         if (index !== -1) foodPantries.value[index] = data
@@ -233,12 +319,8 @@ export const useAdminStore = defineStore('admin', () => {
 
   const deleteFoodPantry = async (id: string) => {
     try {
-      const { error: deleteError } = await supabase
-        .from('food_pantries')
-        .delete()
-        .eq('id', id)
-      
-      if (deleteError) throw deleteError
+      const { error: deleteError } = await adminAPI.deletePantry(id)
+      if (deleteError) throw new Error(deleteError)
       foodPantries.value = foodPantries.value.filter(f => f.id !== id)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'

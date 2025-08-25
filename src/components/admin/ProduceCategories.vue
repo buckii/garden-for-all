@@ -198,9 +198,10 @@ const formData = ref({
 
 const { categories, categoriesByDisplayOrder, loading, error } = adminStore
 
-onMounted(() => {
-  adminStore.fetchCategories()
-})
+// Data is fetched by parent AdminView, no need to fetch again
+// onMounted(() => {
+//   adminStore.fetchCategories()
+// })
 
 const editCategory = (category: ProduceCategory) => {
   categoryToEdit.value = category
