@@ -21,10 +21,20 @@ export interface ProduceCategory {
 
 export interface ProduceType {
   _id: string
+  id?: string // API also returns string id
   categoryId: string
+  category_id?: string // API also returns snake_case
   name: string
   unitType: 'pounds' | 'pints' | 'bunches'
+  unit_type?: 'pounds' | 'pints' | 'bunches' // API also returns snake_case
   conversionFactor: number
+  conversion_factor?: number // API also returns snake_case
+  pricePerLb?: number
+  price_per_lb?: number // API also returns snake_case
+  servingWeightOz?: number
+  serving_weight_oz?: number // API also returns snake_case
+  servingsPerLb?: number
+  servings_per_lb?: number // API also returns snake_case
   createdAt: string
   updatedAt: string
   // Populated fields

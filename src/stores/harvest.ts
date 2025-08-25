@@ -82,13 +82,21 @@ export const useHarvestStore = defineStore('harvest', () => {
 
   // Actions
   const fetchProduceTypes = async () => {
+    console.log('🚀 fetchProduceTypes called')
+    loading.value = true
     try {
       const { data, error: fetchError } = await api.getProduceTypes()
+      console.log('📦 API response:', { data, error: fetchError })
       
       if (fetchError) throw fetchError
       produceTypes.value = data || []
+      console.log('✅ produceTypes set to:', produceTypes.value.length, 'items')
     } catch (err) {
+      console.error('❌ fetchProduceTypes error:', err)
       error.value = err instanceof Error ? err.message : 'Unknown error'
+    } finally {
+      loading.value = false
+      console.log('🏁 fetchProduceTypes finished, loading:', loading.value)
     }
   }
 
