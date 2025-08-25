@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "mongoose": "^8.0.3",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "joi": "^17.11.0"
+  }
+}

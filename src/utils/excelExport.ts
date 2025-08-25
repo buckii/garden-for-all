@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx'
-import type { Database } from '@/lib/supabase'
+
 
 type HarvestEntry = Database['public']['Tables']['harvest_entries']['Row']
 type ProduceType = Database['public']['Tables']['produce_types']['Row']

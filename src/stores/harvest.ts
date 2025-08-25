@@ -1,10 +1,30 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { supabase } from '@/lib/supabase'
-import type { Database } from '@/lib/supabase'
+import type { HarvestEntry, ProduceType, Database } from '@/types/database'
 
-type HarvestEntry = Database['public']['Tables']['harvest_entries']['Row']
-type ProduceType = Database['public']['Tables']['produce_types']['Row']
+// Temporary placeholder API - will be replaced with actual Netlify Functions
+const api = {
+  async getProduceTypes() {
+    console.warn('API not implemented: getProduceTypes')
+    return { data: [], error: null }
+  },
+  async getHarvestEntries(date?: string) {
+    console.warn('API not implemented: getHarvestEntries')
+    return { data: [], error: null }
+  },
+  async createHarvestEntry(data: any) {
+    console.warn('API not implemented: createHarvestEntry')
+    return { data: null, error: null }
+  },
+  async updateHarvestEntry(id: string, data: any) {
+    console.warn('API not implemented: updateHarvestEntry')
+    return { data: null, error: null }
+  },
+  async deleteHarvestEntry(id: string) {
+    console.warn('API not implemented: deleteHarvestEntry')
+    return { error: null }
+  }
+}
 
 export const useHarvestStore = defineStore('harvest', () => {
   const harvestEntries = ref<HarvestEntry[]>([])
@@ -16,7 +36,7 @@ export const useHarvestStore = defineStore('harvest', () => {
   // Computed
   const todaysEntries = computed(() => {
     const today = new Date().toISOString().split('T')[0]
-    return harvestEntries.value.filter(entry => entry.harvest_date === today)
+    return harvestEntries.value.filter(entry => entry.harvestDate === today)
   })
 
   const totalQuantityToday = computed(() => {
@@ -25,21 +45,15 @@ export const useHarvestStore = defineStore('harvest', () => {
 
   const totalValueToday = computed(() => {
     return todaysEntries.value.reduce((total, entry) => {
-      const produceType = produceTypes.value.find(p => p.id === entry.produce_type_id)
-      return total + (entry.quantity * (produceType?.conversion_factor || 0))
+      const produceType = produceTypes.value.find(p => p._id === entry.produceTypeId)
+      return total + (entry.quantity * (produceType?.conversionFactor || 0))
     }, 0)
   })
 
   // Actions
   const fetchProduceTypes = async () => {
     try {
-      const { data, error: fetchError } = await supabase
-        .from('produce_types')
-        .select(`
-          *,
-          category:produce_categories(*)
-        `)
-        .order('name')
+      const { data, error: fetchError } = await api.getProduceTypes()
       
       if (fetchError) throw fetchError
       produceTypes.value = data || []
@@ -52,17 +66,7 @@ export const useHarvestStore = defineStore('harvest', () => {
     loading.value = true
     try {
       const today = new Date().toISOString().split('T')[0]
-      const { data, error: fetchError } = await supabase
-        .from('harvest_entries')
-        .select(`
-          *,
-          produce_type:produce_types(
-            *,
-            category:produce_categories(*)
-          )
-        `)
-        .eq('harvest_date', today)
-        .order('created_at', { ascending: false })
+      const { data, error: fetchError } = await api.getHarvestEntries(today)
       
       if (fetchError) throw fetchError
       harvestEntries.value = data || []
@@ -75,41 +79,21 @@ export const useHarvestStore = defineStore('harvest', () => {
 
   const fetchRecentEntries = async (limit = 10) => {
     try {
-      const { data, error: fetchError } = await supabase
-        .from('harvest_entries')
-        .select(`
-          *,
-          produce_type:produce_types(
-            *,
-            category:produce_categories(*)
-          )
-        `)
-        .order('created_at', { ascending: false })
-        .limit(limit)
+      const { data, error: fetchError } = await api.getHarvestEntries()
       
       if (fetchError) throw fetchError
-      recentEntries.value = data || []
+      recentEntries.value = (data || []).slice(0, limit)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
     }
   }
 
-  const createHarvestEntry = async (entryData: Database['public']['Tables']['harvest_entries']['Insert']) => {
+  const createHarvestEntry = async (entryData: Partial<HarvestEntry>) => {
     try {
-      const { data, error: createError } = await supabase
-        .from('harvest_entries')
-        .insert({
-          ...entryData,
-          harvest_date: entryData.harvest_date || new Date().toISOString().split('T')[0]
-        })
-        .select(`
-          *,
-          produce_type:produce_types(
-            *,
-            category:produce_categories(*)
-          )
-        `)
-        .single()
+      const { data, error: createError } = await api.createHarvestEntry({
+        ...entryData,
+        harvestDate: entryData.harvestDate || new Date().toISOString().split('T')[0]
+      })
       
       if (createError) throw createError
       if (data) {
@@ -127,27 +111,16 @@ export const useHarvestStore = defineStore('harvest', () => {
     }
   }
 
-  const updateHarvestEntry = async (id: string, updates: Database['public']['Tables']['harvest_entries']['Update']) => {
+  const updateHarvestEntry = async (id: string, updates: Partial<HarvestEntry>) => {
     try {
-      const { data, error: updateError } = await supabase
-        .from('harvest_entries')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select(`
-          *,
-          produce_type:produce_types(
-            *,
-            category:produce_categories(*)
-          )
-        `)
-        .single()
+      const { data, error: updateError } = await api.updateHarvestEntry(id, updates)
       
       if (updateError) throw updateError
       if (data) {
-        const harvestIndex = harvestEntries.value.findIndex(e => e.id === id)
+        const harvestIndex = harvestEntries.value.findIndex(e => e._id === id)
         if (harvestIndex !== -1) harvestEntries.value[harvestIndex] = data
         
-        const recentIndex = recentEntries.value.findIndex(e => e.id === id)
+        const recentIndex = recentEntries.value.findIndex(e => e._id === id)
         if (recentIndex !== -1) recentEntries.value[recentIndex] = data
       }
       return data
@@ -159,14 +132,11 @@ export const useHarvestStore = defineStore('harvest', () => {
 
   const deleteHarvestEntry = async (id: string) => {
     try {
-      const { error: deleteError } = await supabase
-        .from('harvest_entries')
-        .delete()
-        .eq('id', id)
+      const { error: deleteError } = await api.deleteHarvestEntry(id)
       
       if (deleteError) throw deleteError
-      harvestEntries.value = harvestEntries.value.filter(e => e.id !== id)
-      recentEntries.value = recentEntries.value.filter(e => e.id !== id)
+      harvestEntries.value = harvestEntries.value.filter(e => e._id !== id)
+      recentEntries.value = recentEntries.value.filter(e => e._id !== id)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
       throw err

@@ -299,7 +299,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAdminStore } from '@/stores/admin'
-import type { Database } from '@/lib/supabase'
+
 
 type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
 

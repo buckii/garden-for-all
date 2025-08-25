@@ -105,7 +105,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { Database } from '@/lib/supabase'
+
 
 type ProduceType = Database['public']['Tables']['produce_types']['Row']
 type ProduceCategory = Database['public']['Tables']['produce_categories']['Row']

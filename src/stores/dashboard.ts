@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { supabase } from '@/lib/supabase'
-import type { Database } from '@/lib/supabase'
+
+
 
 type HarvestEntry = Database['public']['Tables']['harvest_entries']['Row']
 type FoodPantry = Database['public']['Tables']['food_pantries']['Row']

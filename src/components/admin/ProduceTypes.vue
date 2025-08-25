@@ -226,7 +226,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useAdminStore } from '@/stores/admin'
-import type { Database } from '@/lib/supabase'
+
 
 type ProduceType = Database['public']['Tables']['produce_types']['Row']
 

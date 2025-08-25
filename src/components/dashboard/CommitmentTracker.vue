@@ -151,7 +151,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Database } from '@/lib/supabase'
+
 
 type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
 

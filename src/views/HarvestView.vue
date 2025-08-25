@@ -198,7 +198,7 @@ import { useAuth } from '@/composables/useAuth'
 import ProduceSelector from '@/components/harvest/ProduceSelector.vue'
 import QuantityInput from '@/components/harvest/QuantityInput.vue'
 import HarvestHistory from '@/components/harvest/HarvestHistory.vue'
-import type { Database } from '@/lib/supabase'
+
 
 type ProduceType = Database['public']['Tables']['produce_types']['Row']
 type HarvestEntry = Database['public']['Tables']['harvest_entries']['Row']

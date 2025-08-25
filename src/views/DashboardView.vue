@@ -196,7 +196,7 @@ import { useAuth } from '@/composables/useAuth'
 import ProductionSummary from '@/components/dashboard/ProductionSummary.vue'
 import Charts from '@/components/dashboard/Charts.vue'
 import CommitmentTracker from '@/components/dashboard/CommitmentTracker.vue'
-import type { Database } from '@/lib/supabase'
+
 
 type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
 

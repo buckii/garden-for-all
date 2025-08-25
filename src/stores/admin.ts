@@ -1,11 +1,22 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { supabase } from '@/lib/supabase'
-import type { Database } from '@/lib/supabase'
+import type { ProduceCategory, ProduceType, FoodPantry } from '@/types/database'
 
-type ProduceCategory = Database['public']['Tables']['produce_categories']['Row']
-type ProduceType = Database['public']['Tables']['produce_types']['Row']
-type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
+// Placeholder API for admin operations
+const adminAPI = {
+  async getCategories() { return { data: [], error: null } },
+  async getProduceTypes() { return { data: [], error: null } },
+  async getPantries() { return { data: [], error: null } },
+  async createCategory(data: any) { return { data: null, error: null } },
+  async updateCategory(id: string, data: any) { return { data: null, error: null } },
+  async deleteCategory(id: string) { return { error: null } },
+  async createProduceType(data: any) { return { data: null, error: null } },
+  async updateProduceType(id: string, data: any) { return { data: null, error: null } },
+  async deleteProduceType(id: string) { return { error: null } },
+  async createPantry(data: any) { return { data: null, error: null } },
+  async updatePantry(id: string, data: any) { return { data: null, error: null } },
+  async deletePantry(id: string) { return { error: null } }
+}
 
 export const useAdminStore = defineStore('admin', () => {
   const categories = ref<ProduceCategory[]>([])
