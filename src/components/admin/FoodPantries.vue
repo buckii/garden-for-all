@@ -81,13 +81,13 @@
               <p class="text-sm font-medium text-gray-700 mb-2">Annual Commitment</p>
               <div class="space-y-1">
                 <p class="text-sm text-gray-600">
-                  Total: <span class="font-medium text-garden-green-600">${{ pantry.commitment_amounts.total || 0 }}</span>
+                  Total: <span class="font-medium text-garden-green-600">{{ pantry.commitment_amounts.total || 0 }} lbs</span>
                 </p>
                 <div class="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                  <span>Vegetables: ${{ pantry.commitment_amounts.vegetables || 0 }}</span>
-                  <span>Fruits: ${{ pantry.commitment_amounts.fruits || 0 }}</span>
-                  <span>Herbs: ${{ pantry.commitment_amounts.herbs || 0 }}</span>
-                  <span>Flowers: ${{ pantry.commitment_amounts.flowers || 0 }}</span>
+                  <span>Vegetables: {{ pantry.commitment_amounts.vegetables || 0 }} lbs</span>
+                  <span>Fruits: {{ pantry.commitment_amounts.fruits || 0 }} lbs</span>
+                  <span>Herbs: {{ pantry.commitment_amounts.herbs || 0 }} lbs</span>
+                  <span>Flowers: {{ pantry.commitment_amounts.flowers || 0 }} lbs</span>
                 </div>
               </div>
             </div>
@@ -173,7 +173,7 @@
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Vegetables
+                    Vegetables (lbs)
                   </label>
                   <input
                     v-model.number="formData.commitment_amounts.vegetables"
@@ -186,7 +186,7 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Fruits
+                    Fruits (lbs)
                   </label>
                   <input
                     v-model.number="formData.commitment_amounts.fruits"
@@ -199,7 +199,7 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Herbs
+                    Herbs (lbs)
                   </label>
                   <input
                     v-model.number="formData.commitment_amounts.herbs"
@@ -212,7 +212,7 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Flowers
+                    Flowers (lbs)
                   </label>
                   <input
                     v-model.number="formData.commitment_amounts.flowers"
@@ -234,7 +234,7 @@
                   min="0"
                   step="0.01"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
-                  placeholder="Total annual commitment value"
+                  placeholder="Total annual commitment (lbs)"
                 />
               </div>
             </div>

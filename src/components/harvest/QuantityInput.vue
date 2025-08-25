@@ -85,10 +85,11 @@
       </div>
     </div>
 
-    <!-- Value Display -->
+    <!-- Quantity Summary -->
     <div v-if="quantity > 0" class="bg-gray-50 rounded-lg p-4 text-center">
-      <p class="text-lg text-gray-600">Estimated Value</p>
-      <p class="text-2xl font-bold text-garden-green-600">${{ estimatedValue.toFixed(2) }}</p>
+      <p class="text-lg text-gray-600">Total Harvest</p>
+      <p class="text-2xl font-bold text-garden-green-600">{{ quantity }} {{ selectedProduce.unit_type }}</p>
+      <p class="text-sm text-gray-500 mt-1">Est. value: ${{ estimatedValue.toFixed(2) }}</p>
     </div>
 
     <!-- Harvester Name (Optional) -->

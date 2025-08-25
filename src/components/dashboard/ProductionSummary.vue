@@ -12,10 +12,10 @@
         <div class="ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">Today</div>
           <div class="text-2xl font-bold text-gray-900">
-            {{ summary.today.quantity.toFixed(1) }}
+            {{ summary.today.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
-          <div class="text-sm text-green-600 font-medium">
-            ${{ summary.today.value.toFixed(2) }}
+          <div class="text-sm text-gray-500 font-medium">
+            ${{ summary.today.value.toFixed(2) }} value
           </div>
         </div>
       </div>
@@ -33,10 +33,10 @@
         <div class="ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">This Week</div>
           <div class="text-2xl font-bold text-gray-900">
-            {{ summary.week.quantity.toFixed(1) }}
+            {{ summary.week.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
-          <div class="text-sm text-green-600 font-medium">
-            ${{ summary.week.value.toFixed(2) }}
+          <div class="text-sm text-gray-500 font-medium">
+            ${{ summary.week.value.toFixed(2) }} value
           </div>
         </div>
       </div>
@@ -54,10 +54,10 @@
         <div class="ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">This Month</div>
           <div class="text-2xl font-bold text-gray-900">
-            {{ summary.month.quantity.toFixed(1) }}
+            {{ summary.month.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
-          <div class="text-sm text-green-600 font-medium">
-            ${{ summary.month.value.toFixed(2) }}
+          <div class="text-sm text-gray-500 font-medium">
+            ${{ summary.month.value.toFixed(2) }} value
           </div>
         </div>
       </div>
@@ -75,10 +75,10 @@
         <div class="ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">Year to Date</div>
           <div class="text-2xl font-bold text-gray-900">
-            {{ summary.year.quantity.toFixed(1) }}
+            {{ summary.year.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
-          <div class="text-sm text-green-600 font-medium">
-            ${{ summary.year.value.toFixed(2) }}
+          <div class="text-sm text-gray-500 font-medium">
+            ${{ summary.year.value.toFixed(2) }} value
           </div>
         </div>
       </div>

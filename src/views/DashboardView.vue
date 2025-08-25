@@ -172,11 +172,11 @@
             <div v-if="selectedPantry.commitment_amounts">
               <h4 class="font-medium text-gray-700">Annual Commitments</h4>
               <div class="text-sm text-gray-600 space-y-1">
-                <p>Total: ${{ selectedPantry.commitment_amounts.total || 0 }}</p>
-                <p>Vegetables: ${{ selectedPantry.commitment_amounts.vegetables || 0 }}</p>
-                <p>Fruits: ${{ selectedPantry.commitment_amounts.fruits || 0 }}</p>
-                <p>Herbs: ${{ selectedPantry.commitment_amounts.herbs || 0 }}</p>
-                <p>Flowers: ${{ selectedPantry.commitment_amounts.flowers || 0 }}</p>
+                <p>Total: {{ selectedPantry.commitment_amounts.total || 0 }} lbs</p>
+                <p>Vegetables: {{ selectedPantry.commitment_amounts.vegetables || 0 }} lbs</p>
+                <p>Fruits: {{ selectedPantry.commitment_amounts.fruits || 0 }} lbs</p>
+                <p>Herbs: {{ selectedPantry.commitment_amounts.herbs || 0 }} lbs</p>
+                <p>Flowers: {{ selectedPantry.commitment_amounts.flowers || 0 }} lbs</p>
               </div>
             </div>
           </div>

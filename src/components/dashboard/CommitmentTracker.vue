@@ -44,7 +44,7 @@
           </div>
           <div class="text-right">
             <div class="text-sm font-medium text-gray-900">
-              ${{ progress.delivered.toFixed(2) }} / ${{ progress.committed.toFixed(2) }}
+              {{ progress.delivered.toFixed(1) }} / {{ progress.committed.toFixed(1) }} lbs
             </div>
             <div class="text-xs text-gray-500">
               {{ progress.percentage.toFixed(1) }}% complete
@@ -67,11 +67,11 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <span class="text-gray-500">Delivered:</span>
-            <div class="font-medium text-green-600">${{ progress.delivered.toFixed(2) }}</div>
+            <div class="font-medium text-green-600">{{ progress.delivered.toFixed(1) }} lbs</div>
           </div>
           <div>
             <span class="text-gray-500">Remaining:</span>
-            <div class="font-medium text-gray-900">${{ progress.remaining.toFixed(2) }}</div>
+            <div class="font-medium text-gray-900">{{ progress.remaining.toFixed(1) }} lbs</div>
           </div>
           <div v-if="progress.pantry.contact_info?.phone">
             <span class="text-gray-500">Contact:</span>

@@ -198,13 +198,13 @@ INSERT INTO produce_types (category_id, name, unit_type, conversion_factor) VALU
 INSERT INTO food_pantries (name, contact_info, commitment_amounts) VALUES
     ('New Albany Food Pantry', 
      '{"phone": "614-555-0101", "email": "contact@nafoodpantry.org", "address": "123 Main St, New Albany, OH"}',
-     '{"total": 5000, "vegetables": 3000, "fruits": 1500, "herbs": 300, "flowers": 200}'),
+     '{"total": 1500, "vegetables": 800, "fruits": 400, "herbs": 200, "flowers": 100}'),
     ('Licking County Food Pantry',
      '{"phone": "614-555-0202", "email": "info@lickingcountyfood.org", "address": "456 Oak Ave, Newark, OH"}',
-     '{"total": 3500, "vegetables": 2500, "fruits": 800, "herbs": 150, "flowers": 50}'),
+     '{"total": 1000, "vegetables": 600, "fruits": 250, "herbs": 100, "flowers": 50}'),
     ('Community Kitchen',
      '{"phone": "614-555-0303", "email": "help@communitykitchen.org", "address": "789 Pine St, Granville, OH"}',
-     '{"total": 2500, "vegetables": 2000, "fruits": 400, "herbs": 100, "flowers": 0}');
+     '{"total": 750, "vegetables": 500, "fruits": 150, "herbs": 75, "flowers": 25}');
 
 -- Create database functions for reporting
 CREATE OR REPLACE FUNCTION get_daily_summary(target_date DATE DEFAULT CURRENT_DATE)

@@ -13,7 +13,7 @@
             <div v-if="productionTrends.length > 0" class="space-y-2">
               <div v-for="(trend, index) in productionTrends.slice(-7)" :key="index" class="flex justify-between text-sm">
                 <span class="text-gray-600">{{ formatDate(trend.date) }}</span>
-                <span class="font-medium text-garden-green-600">${{ trend.value.toFixed(2) }}</span>
+                <span class="font-medium text-garden-green-600">{{ trend.quantity.toFixed(1) }} lbs</span>
               </div>
             </div>
             <p v-else class="text-sm text-gray-400">No trend data available</p>
@@ -43,9 +43,8 @@
                 <span class="text-sm font-medium text-gray-700">{{ item.name }}</span>
               </div>
               <div class="flex-shrink-0 flex items-center space-x-3">
-                <span class="text-sm text-gray-500">{{ item.quantity.toFixed(1) }}</span>
-                <span class="text-sm font-medium text-garden-green-600 w-16 text-right">
-                  ${{ item.value.toFixed(2) }}
+                <span class="text-sm font-medium text-garden-green-600 w-20 text-right">
+                  {{ item.quantity.toFixed(1) }} lbs
                 </span>
               </div>
             </div>
@@ -135,8 +134,8 @@
                 <span v-if="entry.harvester_name"> • {{ entry.harvester_name }}</span>
               </p>
             </div>
-            <div class="flex-shrink-0 text-sm font-medium text-garden-green-600">
-              ${{ getEntryValue(entry).toFixed(2) }}
+            <div class="flex-shrink-0 text-sm text-gray-500">
+              {{ getApproximateWeight(entry).toFixed(1) }} lbs
             </div>
           </div>
         </div>
@@ -197,6 +196,21 @@ const getProduceName = (produceTypeId: string) => {
 const getEntryValue = (entry: HarvestEntry) => {
   const produceType = props.produceTypes.find(p => p.id === entry.produce_type_id)
   return entry.quantity * (produceType?.conversion_factor || 0)
+}
+
+const getApproximateWeight = (entry: HarvestEntry) => {
+  // Convert different units to approximate pounds
+  if (entry.unit === 'pounds') {
+    return entry.quantity
+  } else if (entry.unit === 'pints') {
+    // Approximate: 1 pint ≈ 0.5 pounds (varies by produce)
+    return entry.quantity * 0.5
+  } else if (entry.unit === 'bunches') {
+    // Approximate: 1 bunch ≈ 0.25 pounds (varies by produce)
+    return entry.quantity * 0.25
+  }
+  // Default fallback
+  return entry.quantity * 0.3
 }
 
 const formatDate = (dateStr: string) => {
