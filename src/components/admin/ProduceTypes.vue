@@ -14,31 +14,48 @@
     </div>
 
     <!-- Category Filter -->
-    <div class="flex space-x-4">
-      <button
-        @click="selectedCategoryId = null"
-        :class="[
-          'px-3 py-2 rounded-md text-sm font-medium',
-          !selectedCategoryId 
-            ? 'bg-garden-green-100 text-garden-green-800' 
-            : 'text-gray-500 hover:text-gray-700'
-        ]"
-      >
-        All Categories
-      </button>
-      <button
-        v-for="category in categories"
-        :key="category.id"
-        @click="selectedCategoryId = category.id"
-        :class="[
-          'px-3 py-2 rounded-md text-sm font-medium',
-          selectedCategoryId === category.id 
-            ? 'bg-garden-green-100 text-garden-green-800' 
-            : 'text-gray-500 hover:text-gray-700'
-        ]"
-      >
-        {{ category.name }}
-      </button>
+    <div class="space-y-3">
+      <!-- Desktop Category Filter -->
+      <div class="hidden sm:flex flex-wrap gap-2">
+        <button
+          @click="selectedCategoryId = null"
+          :class="[
+            'px-3 py-2 rounded-md text-sm font-medium',
+            !selectedCategoryId 
+              ? 'bg-garden-green-100 text-garden-green-800' 
+              : 'text-gray-500 hover:text-gray-700'
+          ]"
+        >
+          All Categories
+        </button>
+        <button
+          v-for="category in categories"
+          :key="category.id || category._id"
+          @click="selectedCategoryId = String(category.id || category._id)"
+          :class="[
+            'px-3 py-2 rounded-md text-sm font-medium',
+            selectedCategoryId === String(category.id || category._id) 
+              ? 'bg-garden-green-100 text-garden-green-800' 
+              : 'text-gray-500 hover:text-gray-700'
+          ]"
+        >
+          {{ category.name }}
+        </button>
+      </div>
+
+      <!-- Mobile Category Dropdown -->
+      <div class="sm:hidden">
+        <select
+          :value="selectedCategoryId || ''"
+          @change="handleCategoryChange"
+          class="block w-full rounded-lg border-2 border-gray-200 py-2 pl-3 pr-10 text-sm focus:border-garden-green-500 focus:ring-garden-green-500 text-gray-900"
+        >
+          <option value="">All Categories</option>
+          <option v-for="category in categories" :key="category.id || category._id" :value="String(category.id || category._id)">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <div v-if="loading" class="flex justify-center py-8">
@@ -64,7 +81,8 @@
                   <p class="text-sm font-medium text-gray-900">{{ produceType.name }}</p>
                   <p class="text-sm text-gray-500">
                     Unit: {{ produceType.unit_type }} • 
-                    Value: ${{ produceType.conversion_factor }}/{{ produceType.unit_type === 'pounds' ? 'lb' : produceType.unit_type === 'pints' ? 'pt' : 'bunch' }}
+                    Price: ${{ (produceType.price_per_lb || 0).toFixed(2) }}/{{ produceType.unit_type === 'pounds' ? 'lb' : produceType.unit_type === 'pints' ? 'pt' : 'bunch' }} •
+                    Serving: {{ (produceType.serving_weight_oz || 0).toFixed(1) }}oz ({{ (produceType.servings_per_lb || 0).toFixed(1) }}/lb)
                   </p>
                 </div>
               </div>
@@ -153,16 +171,58 @@
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Conversion Factor ($ per unit) *
+                Price Per Pound ($) *
               </label>
               <input
-                v-model.number="formData.conversion_factor"
+                v-model.number="formData.price_per_lb"
                 type="number"
                 step="0.01"
                 min="0"
                 required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
                 placeholder="e.g., 3.50"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Serving Weight (oz)
+              </label>
+              <input
+                v-model.number="formData.serving_weight_oz"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
+                placeholder="e.g., 3.52"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Servings Per Pound
+              </label>
+              <input
+                v-model.number="formData.servings_per_lb"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
+                placeholder="e.g., 4.55"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Conversion Factor
+              </label>
+              <input
+                v-model.number="formData.conversion_factor"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
+                placeholder="e.g., 1.0 for pounds, 0.33 for pints"
               />
             </div>
             
@@ -244,14 +304,27 @@ const formData = ref({
   name: '',
   category_id: '',
   unit_type: '',
-  conversion_factor: 0
+  conversion_factor: 0,
+  price_per_lb: 0,
+  serving_weight_oz: 0,
+  servings_per_lb: 0
 })
 
-const { categories, produceTypes, loading, error } = adminStore
+// Use computed properties to maintain reactivity
+const categories = computed(() => adminStore.categories)
+const produceTypes = computed(() => adminStore.produceTypes)
+const loading = computed(() => adminStore.loading)
+const error = computed(() => adminStore.error)
 
 const filteredProduceTypes = computed(() => {
-  if (!selectedCategoryId.value) return produceTypes
-  return produceTypes.filter(pt => pt.category_id === selectedCategoryId.value)
+  if (!selectedCategoryId.value) return produceTypes.value
+  
+  return produceTypes.value.filter(pt => {
+    // Ensure string comparison - handle both camelCase and snake_case
+    const ptCategoryId = String(pt.category_id || pt.categoryId || '')
+    const selectedId = String(selectedCategoryId.value)
+    return ptCategoryId === selectedId
+  })
 })
 
 // Data is fetched by parent AdminView, no need to fetch again
@@ -263,7 +336,7 @@ const filteredProduceTypes = computed(() => {
 // })
 
 const getCategoryName = (categoryId: string) => {
-  const category = categories.find(c => c.id === categoryId)
+  const category = categories.value.find(c => String(c.id || c._id) === String(categoryId))
   return category?.name || 'Unknown'
 }
 
@@ -273,7 +346,10 @@ const editProduceType = (produceType: ProduceType) => {
     name: produceType.name,
     category_id: produceType.category_id,
     unit_type: produceType.unit_type,
-    conversion_factor: produceType.conversion_factor
+    conversion_factor: produceType.conversion_factor,
+    price_per_lb: produceType.price_per_lb || 0,
+    serving_weight_oz: produceType.serving_weight_oz || 0,
+    servings_per_lb: produceType.servings_per_lb || 0
   }
   showEditModal.value = true
 }
@@ -314,6 +390,12 @@ const handleDelete = async () => {
   }
 }
 
+const handleCategoryChange = (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const value = target.value
+  selectedCategoryId.value = value === '' ? null : value
+}
+
 const closeModal = () => {
   showAddModal.value = false
   showEditModal.value = false
@@ -322,7 +404,10 @@ const closeModal = () => {
     name: '',
     category_id: '',
     unit_type: '',
-    conversion_factor: 0
+    conversion_factor: 0,
+    price_per_lb: 0,
+    serving_weight_oz: 0,
+    servings_per_lb: 0
   }
 }
 </script>

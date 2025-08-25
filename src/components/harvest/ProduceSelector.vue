@@ -1,31 +1,48 @@
 <template>
   <div class="space-y-6">
     <!-- Category Filter -->
-    <div class="flex flex-wrap gap-2">
-      <button
-        @click="selectedCategoryId = null"
-        :class="[
-          'px-6 py-3 rounded-lg text-lg font-medium transition-colors min-h-[44px]',
-          !selectedCategoryId 
-            ? 'bg-garden-green-600 text-white shadow-lg' 
-            : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-garden-green-300'
-        ]"
-      >
-        All
-      </button>
-      <button
-        v-for="category in categories"
-        :key="category.id"
-        @click="selectedCategoryId = category.id"
-        :class="[
-          'px-6 py-3 rounded-lg text-lg font-medium transition-colors min-h-[44px]',
-          selectedCategoryId === category.id 
-            ? 'bg-garden-green-600 text-white shadow-lg' 
-            : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-garden-green-300'
-        ]"
-      >
-        {{ category.name }}
-      </button>
+    <div class="space-y-3">
+      <!-- Desktop Category Filter -->
+      <div class="hidden sm:flex flex-wrap gap-2">
+        <button
+          @click="selectedCategoryId = null"
+          :class="[
+            'px-4 py-2 rounded-lg text-base font-medium transition-colors',
+            !selectedCategoryId 
+              ? 'bg-garden-green-600 text-white shadow-lg' 
+              : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-garden-green-300'
+          ]"
+        >
+          All
+        </button>
+        <button
+          v-for="category in categories"
+          :key="category.id || category._id"
+          @click="selectedCategoryId = String(category.id || category._id)"
+          :class="[
+            'px-4 py-2 rounded-lg text-base font-medium transition-colors',
+            selectedCategoryId === String(category.id || category._id) 
+              ? 'bg-garden-green-600 text-white shadow-lg' 
+              : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-garden-green-300'
+          ]"
+        >
+          {{ category.name }}
+        </button>
+      </div>
+
+      <!-- Mobile Category Dropdown -->
+      <div class="sm:hidden">
+        <select
+          :value="selectedCategoryId || ''"
+          @change="handleCategoryChange"
+          class="block w-full rounded-lg border-2 border-gray-200 py-3 pl-4 pr-10 text-base focus:border-garden-green-500 focus:ring-garden-green-500 text-gray-900"
+        >
+          <option value="">All Categories</option>
+          <option v-for="category in categories" :key="category.id || category._id" :value="String(category.id || category._id)">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <!-- Search -->
@@ -51,7 +68,7 @@
           v-for="produce in recentlyUsed"
           :key="`recent-${produce.id}`"
           @click="selectProduce(produce)"
-          class="bg-garden-green-50 border-2 border-garden-green-200 rounded-lg p-4 text-center hover:bg-garden-green-100 hover:border-garden-green-300 transition-colors min-h-[100px] flex flex-col justify-center"
+          class="bg-garden-green-50 border-2 border-garden-green-200 rounded-lg p-3 text-center hover:bg-garden-green-100 hover:border-garden-green-300 transition-colors min-h-[70px] flex flex-col justify-center"
         >
           <div class="text-base font-medium text-gray-900">{{ produce.name }}</div>
           <div class="text-sm text-gray-500">{{ produce.unit_type }}</div>
@@ -84,19 +101,11 @@
           v-for="produce in filteredProduce"
           :key="produce.id"
           @click="selectProduce(produce)"
-          class="bg-white border-2 border-gray-200 rounded-lg p-6 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[120px] flex flex-col justify-center touch-manipulation"
+          class="bg-white border-2 border-gray-200 rounded-lg p-4 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[80px] flex flex-col justify-center touch-manipulation"
         >
-          <!-- Placeholder for produce image -->
-          <div class="w-12 h-12 mx-auto mb-3 bg-garden-green-100 rounded-full flex items-center justify-center">
-            <svg class="w-8 h-8 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-            </svg>
-          </div>
-          
           <div class="text-lg font-medium text-gray-900">{{ produce.name }}</div>
-          <div class="text-sm text-gray-500">{{ produce.unit_type }}</div>
-          <div class="text-xs text-garden-green-600 mt-1">${{ produce.conversion_factor }}/{{ getUnitAbbr(produce.unit_type) }}</div>
+          <div class="text-sm text-gray-500">{{ produce.unitType }}</div>
+          <div class="text-xs text-garden-green-600 mt-1">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</div>
         </button>
       </div>
     </div>
@@ -104,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 
 type ProduceType = Database['public']['Tables']['produce_types']['Row']
@@ -133,9 +142,13 @@ const searchQuery = ref('')
 const filteredProduce = computed(() => {
   let filtered = props.produceTypes
 
-  // Filter by category
+  // Filter by category - ensure string comparison
   if (selectedCategoryId.value) {
-    filtered = filtered.filter(p => p.category_id === selectedCategoryId.value)
+    filtered = filtered.filter(p => {
+      const pCategoryId = String(p.category_id || p.categoryId || '')
+      const selectedId = String(selectedCategoryId.value)
+      return pCategoryId === selectedId
+    })
   }
 
   // Filter by search query
@@ -151,7 +164,7 @@ const filteredProduce = computed(() => {
 })
 
 const getCategoryName = (categoryId: string) => {
-  const category = props.categories.find(c => c.id === categoryId)
+  const category = props.categories.find(c => String(c.id || c._id) === String(categoryId))
   return category?.name || 'Unknown'
 }
 
@@ -162,6 +175,12 @@ const getUnitAbbr = (unitType: string) => {
     case 'bunches': return 'bunch'
     default: return unitType
   }
+}
+
+const handleCategoryChange = (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const value = target.value
+  selectedCategoryId.value = value === '' ? null : value
 }
 
 const selectProduce = (produce: ProduceType) => {
