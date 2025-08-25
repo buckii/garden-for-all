@@ -6,9 +6,31 @@ const { validateToken, extractToken, createResponse, createErrorResponse, handle
 const produceTypeSchema = Joi.object({
   name: Joi.string().required(),
   categoryId: Joi.string().required(),
-  unitType: Joi.string().valid('weight', 'count', 'volume').required(),
-  conversionFactor: Joi.number().min(0).required()
+  category_id: Joi.string().optional(), // Allow snake_case from frontend
+  unitType: Joi.string().valid('pounds', 'pints', 'bunches').required(),
+  unit_type: Joi.string().valid('pounds', 'pints', 'bunches').optional(), // Allow snake_case from frontend
+  conversionFactor: Joi.number().min(0).required(),
+  conversion_factor: Joi.number().min(0).optional(), // Allow snake_case from frontend
+  pricePerLb: Joi.number().min(0).optional(),
+  price_per_lb: Joi.number().min(0).optional(), // Allow snake_case from frontend
+  servingWeightOz: Joi.number().min(0).optional(),
+  serving_weight_oz: Joi.number().min(0).optional(), // Allow snake_case from frontend
+  servingsPerLb: Joi.number().min(0).optional(),
+  servings_per_lb: Joi.number().min(0).optional() // Allow snake_case from frontend
 });
+
+// Transform snake_case fields to camelCase for database
+function transformFieldNames(data) {
+  return {
+    name: data.name,
+    categoryId: data.categoryId || data.category_id,
+    unitType: data.unitType || data.unit_type,
+    conversionFactor: data.conversionFactor || data.conversion_factor,
+    pricePerLb: data.pricePerLb || data.price_per_lb || 0,
+    servingWeightOz: data.servingWeightOz || data.serving_weight_oz || 0,
+    servingsPerLb: data.servingsPerLb || data.servings_per_lb || 0
+  };
+}
 
 exports.handler = async function(event, context) {
   if (event.httpMethod === 'OPTIONS') {
@@ -28,9 +50,18 @@ exports.handler = async function(event, context) {
         _id: type._id,
         id: type._id.toString(),
         categoryId: type.categoryId._id,
+        category_id: type.categoryId._id.toString(), // Add snake_case for frontend compatibility
         name: type.name,
         unitType: type.unitType,
+        unit_type: type.unitType, // Add snake_case for frontend compatibility
         conversionFactor: type.conversionFactor,
+        conversion_factor: type.conversionFactor, // Add snake_case for frontend compatibility
+        pricePerLb: type.pricePerLb || 0,
+        price_per_lb: type.pricePerLb || 0, // Add snake_case for frontend compatibility
+        servingWeightOz: type.servingWeightOz || 0,
+        serving_weight_oz: type.servingWeightOz || 0, // Add snake_case for frontend compatibility
+        servingsPerLb: type.servingsPerLb || 0,
+        servings_per_lb: type.servingsPerLb || 0, // Add snake_case for frontend compatibility
         createdAt: type.createdAt,
         updatedAt: type.updatedAt,
         category: {
@@ -69,7 +100,8 @@ exports.handler = async function(event, context) {
           return createErrorResponse(400, `Validation error: ${error.details[0].message}`);
         }
 
-        const produceType = new ProduceType(body);
+        const transformedBody = transformFieldNames(body);
+        const produceType = new ProduceType(transformedBody);
         await produceType.save();
         
         // Populate the category for response
@@ -96,9 +128,10 @@ exports.handler = async function(event, context) {
           return createErrorResponse(400, `Validation error: ${updateError.details[0].message}`);
         }
 
+        const transformedUpdateBody = transformFieldNames(updateBody);
         const updatedProduceType = await ProduceType.findByIdAndUpdate(
           id,
-          updateBody,
+          transformedUpdateBody,
           { new: true, runValidators: true }
         ).populate('categoryId');
 

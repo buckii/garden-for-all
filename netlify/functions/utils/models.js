@@ -12,7 +12,10 @@ const produceTypeSchema = new mongoose.Schema({
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceCategory', required: true },
   name: { type: String, required: true, trim: true },
   unitType: { type: String, required: true, enum: ['pounds', 'pints', 'bunches'] },
-  conversionFactor: { type: Number, required: true, default: 0, min: 0 }
+  conversionFactor: { type: Number, required: true, default: 0, min: 0 },
+  pricePerLb: { type: Number, default: 0, min: 0 },
+  servingWeightOz: { type: Number, default: 0, min: 0 },
+  servingsPerLb: { type: Number, default: 0, min: 0 }
 }, { timestamps: true });
 
 // Food Pantry Schema
