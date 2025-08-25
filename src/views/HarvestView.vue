@@ -1,52 +1,104 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Navigation Header -->
-    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+    <nav class="bg-gray-900 shadow-lg sticky top-0 z-10">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
             <router-link to="/" class="flex items-center">
-              <div class="w-8 h-8 bg-garden-green-600 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
-                </svg>
-              </div>
-              <h1 class="ml-3 text-xl font-semibold text-gray-900">Garden For All</h1>
+              <img 
+                src="https://content.app-sources.com/s/79642463807075583/uploads/logo_options/2025_Horizontal_Logo_Color_-9406719.png?format=webp" 
+                alt="Garden For All"
+                class="h-10 w-auto"
+              />
             </router-link>
           </div>
           
-          <div class="flex items-center space-x-4">
+          <!-- Desktop Navigation -->
+          <div class="hidden md:flex items-center space-x-4">
             <router-link 
               to="/dashboard"
-              class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Dashboard
             </router-link>
             <router-link 
               to="/admin"
-              class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Admin
             </router-link>
             
             <!-- User Info & Logout (only show if authenticated) -->
-            <div v-if="isAuthenticated" class="flex items-center space-x-3 pl-4 border-l border-gray-300">
+            <div v-if="isAuthenticated" class="flex items-center space-x-3 pl-4 border-l border-gray-600">
               <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-garden-green-100 rounded-full flex items-center justify-center">
-                  <svg class="w-4 h-4 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-8 h-8 bg-garden-green-600 rounded-full flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                   </svg>
                 </div>
                 <div class="text-sm">
-                  <p class="text-gray-700 font-medium">{{ userDisplayName }}</p>
-                  <p class="text-gray-500 text-xs" v-if="isAdmin">Admin</p>
+                  <p class="text-gray-100 font-medium">{{ userDisplayName }}</p>
+                  <p class="text-gray-400 text-xs" v-if="isAdmin">Admin</p>
                 </div>
               </div>
               <button
                 @click="handleSignOut"
-                class="text-gray-500 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium hover:bg-red-50 transition-colors"
+                class="text-gray-300 hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
                 title="Sign Out"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile menu button -->
+          <div class="md:hidden flex items-center">
+            <button
+              @click="mobileMenuOpen = !mobileMenuOpen"
+              class="text-gray-300 hover:text-white p-2 rounded-md"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div v-if="mobileMenuOpen" class="md:hidden">
+          <div class="px-2 pt-2 pb-3 space-y-1 border-t border-gray-600">
+            <router-link 
+              to="/dashboard"
+              @click="mobileMenuOpen = false"
+              class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors"
+            >
+              Dashboard
+            </router-link>
+            <router-link 
+              to="/admin"
+              @click="mobileMenuOpen = false"
+              class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors"
+            >
+              Admin
+            </router-link>
+            
+            <div v-if="isAuthenticated" class="border-t border-gray-600 pt-3 mt-3">
+              <div class="flex items-center px-3 py-2">
+                <div class="w-8 h-8 bg-garden-green-600 rounded-full flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-gray-100 text-sm font-medium">{{ userDisplayName }}</p>
+                  <p class="text-gray-400 text-xs" v-if="isAdmin">Admin</p>
+                </div>
+              </div>
+              <button
+                @click="handleSignOut(); mobileMenuOpen = false"
+                class="text-gray-300 hover:text-red-400 block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-gray-800 transition-colors"
               >
                 Logout
               </button>
@@ -56,7 +108,7 @@
       </div>
     </nav>
 
-    <div class="max-w-4xl mx-auto px-4 py-6">
+    <div class="max-w-4xl mx-auto px-4 py-4">
       <!-- Success Message -->
       <div 
         v-if="successMessage" 
@@ -92,78 +144,12 @@
       </div>
 
       <!-- Main Content -->
-      <div class="space-y-8">
-        <!-- Step Indicator -->
-        <div class="flex justify-center">
-          <div class="flex items-center space-x-4">
-            <div class="flex items-center">
-              <div 
-                :class="[
-                  'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium',
-                  currentStep === 'select' 
-                    ? 'bg-garden-green-600 text-white' 
-                    : selectedProduce
-                    ? 'bg-garden-green-100 text-garden-green-600'
-                    : 'bg-gray-200 text-gray-500'
-                ]"
-              >
-                1
-              </div>
-              <span class="ml-2 text-sm font-medium text-gray-700">Select Produce</span>
-            </div>
-            
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-            
-            <div class="flex items-center">
-              <div 
-                :class="[
-                  'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium',
-                  currentStep === 'quantity' 
-                    ? 'bg-garden-green-600 text-white' 
-                    : 'bg-gray-200 text-gray-500'
-                ]"
-              >
-                2
-              </div>
-              <span class="ml-2 text-sm font-medium text-gray-700">Enter Quantity</span>
-            </div>
-
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-            
-            <div class="flex items-center">
-              <div 
-                :class="[
-                  'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium',
-                  currentStep === 'history' 
-                    ? 'bg-garden-green-600 text-white' 
-                    : 'bg-gray-200 text-gray-500'
-                ]"
-              >
-                3
-              </div>
-              <span class="ml-2 text-sm font-medium text-gray-700">Review & Continue</span>
-            </div>
-          </div>
-        </div>
-
+      <div class="space-y-6">
         <!-- Step Content -->
         <div class="bg-white rounded-lg shadow-sm border p-6">
-          <!-- Loading State for Produce Data -->
-          <div v-if="(currentStep === 'select') && (!produceTypes.length || !categories.length)" 
-               class="flex justify-center items-center py-12">
-            <div class="text-center">
-              <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-garden-green-600 mx-auto mb-4"></div>
-              <p class="text-gray-500">Loading produce types...</p>
-            </div>
-          </div>
-          
           <!-- Step 1: Select Produce -->
           <ProduceSelector
-            v-else-if="currentStep === 'select'"
+            v-if="currentStep === 'select'"
             :produce-types="produceTypes"
             :categories="categories"
             :loading="loading"
@@ -198,7 +184,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useHarvestStore } from '@/stores/harvest'
 import { useAdminStore } from '@/stores/admin'
@@ -223,21 +209,27 @@ const selectedProduce = ref<ProduceType | null>(null)
 const submitting = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
+const mobileMenuOpen = ref(false)
 
-// Computed properties from stores
-const { 
-  todaysEntries, 
-  produceTypes, 
-  recentEntries,
-  loading: harvestLoading 
-} = harvestStore
+// Access stores through computed properties to ensure reactivity
+const todaysEntries = computed(() => harvestStore.todaysEntries)
+const produceTypes = computed(() => harvestStore.produceTypes)
+const recentEntries = computed(() => harvestStore.recentEntries)
+const harvestLoading = computed(() => harvestStore.loading)
 
-const { 
-  categories,
-  loading: adminLoading 
-} = adminStore
+const categories = computed(() => adminStore.categories)
+const adminLoading = computed(() => adminStore.loading)
 
-const loading = computed(() => harvestLoading || adminLoading)
+// Add watchers for debugging
+watch(() => produceTypes.value.length, (newLength, oldLength) => {
+  console.log('🔄 produceTypes length changed:', oldLength, '->', newLength)
+}, { immediate: true })
+
+watch(() => categories.value.length, (newLength, oldLength) => {
+  console.log('🔄 categories length changed:', oldLength, '->', newLength)
+}, { immediate: true })
+
+const loading = computed(() => harvestLoading.value || adminLoading.value)
 
 // User display name
 const userDisplayName = computed(() => {
@@ -249,10 +241,12 @@ const userDisplayName = computed(() => {
 const recentlyUsedProduce = computed(() => {
   const recentProduceIds = new Set()
   const recentProduce: ProduceType[] = []
+  const entries = harvestStore.recentEntries || []
+  const produces = harvestStore.produceTypes || []
   
-  for (const entry of recentEntries.slice(0, 6)) {
+  for (const entry of entries.slice(0, 6)) {
     if (!recentProduceIds.has(entry.produce_type_id)) {
-      const produce = produceTypes.find(p => p.id === entry.produce_type_id)
+      const produce = produces.find(p => p.id === entry.produce_type_id)
       if (produce) {
         recentProduce.push(produce)
         recentProduceIds.add(entry.produce_type_id)
@@ -264,6 +258,9 @@ const recentlyUsedProduce = computed(() => {
 })
 
 onMounted(async () => {
+  // Wait for the next tick to ensure all reactive connections are established
+  await nextTick()
+  
   await Promise.all([
     harvestStore.fetchProduceTypes(),
     adminStore.fetchCategories(),
