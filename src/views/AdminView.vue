@@ -1,52 +1,104 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Navigation Header -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
+    <nav class="bg-gray-900 shadow-lg sticky top-0 z-10">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <div class="flex-shrink-0 flex items-center">
-              <div class="w-8 h-8 bg-garden-green-600 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
-                </svg>
-              </div>
-              <h1 class="ml-3 text-xl font-semibold text-gray-900">Garden For All - Admin</h1>
-            </div>
+            <router-link to="/" class="flex items-center">
+              <img 
+                src="https://content.app-sources.com/s/79642463807075583/uploads/logo_options/2025_Horizontal_Logo_Color_-9406719.png?format=webp" 
+                alt="Garden For All"
+                class="h-10 w-auto"
+              />
+            </router-link>
           </div>
           
-          <div class="flex items-center space-x-4">
+          <!-- Desktop Navigation -->
+          <div class="hidden md:flex items-center space-x-4">
             <router-link 
               to="/dashboard"
-              class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Dashboard
             </router-link>
             <router-link 
               to="/harvest"
-              class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Harvest
             </router-link>
             
             <!-- User Info & Logout -->
-            <div class="flex items-center space-x-3 pl-4 border-l border-gray-300">
+            <div class="flex items-center space-x-3 pl-4 border-l border-gray-600">
               <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-garden-green-100 rounded-full flex items-center justify-center">
-                  <svg class="w-4 h-4 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-8 h-8 bg-garden-green-600 rounded-full flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                   </svg>
                 </div>
                 <div class="text-sm">
-                  <p class="text-gray-700 font-medium">{{ userDisplayName }}</p>
-                  <p class="text-gray-500 text-xs">Admin</p>
+                  <p class="text-gray-100 font-medium">{{ userDisplayName }}</p>
+                  <p class="text-gray-400 text-xs">Admin</p>
                 </div>
               </div>
               <button
                 @click="handleSignOut"
-                class="text-gray-500 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium hover:bg-red-50 transition-colors"
+                class="text-gray-300 hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
                 title="Sign Out"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile menu button -->
+          <div class="md:hidden flex items-center">
+            <button
+              @click="mobileMenuOpen = !mobileMenuOpen"
+              class="text-gray-300 hover:text-white p-2 rounded-md"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div v-if="mobileMenuOpen" class="md:hidden">
+          <div class="px-2 pt-2 pb-3 space-y-1 border-t border-gray-600">
+            <router-link 
+              to="/dashboard"
+              @click="mobileMenuOpen = false"
+              class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors"
+            >
+              Dashboard
+            </router-link>
+            <router-link 
+              to="/harvest"
+              @click="mobileMenuOpen = false"
+              class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors"
+            >
+              Harvest
+            </router-link>
+            
+            <div class="border-t border-gray-600 pt-3 mt-3">
+              <div class="flex items-center px-3 py-2">
+                <div class="w-8 h-8 bg-garden-green-600 rounded-full flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-gray-100 text-sm font-medium">{{ userDisplayName }}</p>
+                  <p class="text-gray-400 text-xs">Admin</p>
+                </div>
+              </div>
+              <button
+                @click="handleSignOut(); mobileMenuOpen = false"
+                class="text-gray-300 hover:text-red-400 block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-gray-800 transition-colors"
               >
                 Logout
               </button>
@@ -63,7 +115,8 @@
           <!-- Tab Navigation -->
           <div class="bg-white">
             <div class="border-b border-gray-200">
-              <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+              <!-- Desktop Tab Navigation -->
+              <nav class="-mb-px hidden sm:flex space-x-8 px-6" aria-label="Tabs">
                 <button
                   v-for="tab in tabs"
                   :key="tab.id"
@@ -79,6 +132,18 @@
                   {{ tab.name }}
                 </button>
               </nav>
+              
+              <!-- Mobile Tab Dropdown -->
+              <div class="sm:hidden px-4 py-2">
+                <select
+                  v-model="activeTab"
+                  class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-garden-green-500 focus:outline-none focus:ring-garden-green-500"
+                >
+                  <option v-for="tab in tabs" :key="tab.id" :value="tab.id">
+                    {{ tab.name }}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -252,6 +317,7 @@ const adminStore = useAdminStore()
 const activeTab = ref('categories')
 const exporting = ref(false)
 const exportResult = ref<any>(null)
+const mobileMenuOpen = ref(false)
 
 // User display name
 const userDisplayName = computed(() => {
