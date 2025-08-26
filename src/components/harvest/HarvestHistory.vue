@@ -55,26 +55,28 @@
                 </div>
                 <div>
                   <h3 class="font-semibold text-gray-900">{{ getProduceName(entry.produce_type_id) }}</h3>
-                  <p class="text-sm text-gray-500">{{ getCategoryName(entry.produce_type_id) }}</p>
+                  <p class="text-sm text-gray-500">{{ getCategoryName(entry) }}</p>
                 </div>
               </div>
               
-              <div class="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span class="text-gray-500">Quantity:</span>
-                  <span class="font-medium ml-1">{{ entry.quantity }} {{ entry.unit }}</span>
+              <div class="space-y-2 text-sm">
+                <div class="flex flex-wrap gap-x-6 gap-y-2">
+                  <div class="flex items-center">
+                    <span class="text-gray-500">Quantity:</span>
+                    <span class="font-medium ml-1 whitespace-nowrap">{{ entry.quantity }} {{ entry.unit }}</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-gray-500">Value:</span>
+                    <span class="font-medium text-garden-green-600 ml-1 whitespace-nowrap">${{ getEntryValue(entry).toFixed(2) }}</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-gray-500">Time:</span>
+                    <span class="font-medium ml-1 whitespace-nowrap">{{ formatTime(entry.created_at) }}</span>
+                  </div>
                 </div>
-                <div>
-                  <span class="text-gray-500">Value:</span>
-                  <span class="font-medium text-garden-green-600 ml-1">${{ getEntryValue(entry).toFixed(2) }}</span>
-                </div>
-                <div v-if="entry.harvester_name">
+                <div v-if="entry.harvester_name" class="flex items-center">
                   <span class="text-gray-500">Harvester:</span>
                   <span class="font-medium ml-1">{{ entry.harvester_name }}</span>
-                </div>
-                <div>
-                  <span class="text-gray-500">Time:</span>
-                  <span class="font-medium ml-1">{{ formatTime(entry.created_at) }}</span>
                 </div>
               </div>
               
@@ -168,9 +170,32 @@ const getProduceName = (produceTypeId: string) => {
   return produceType?.name || 'Unknown'
 }
 
-const getCategoryName = (_produceTypeId: string) => {
-  // This would need to be expanded to include category information
-  return 'Category' // Placeholder
+const getCategoryName = (entry: HarvestEntry) => {
+  // First try to get category from the populated produceType
+  if (entry.produceType?.category?.name) {
+    return entry.produceType.category.name
+  }
+  
+  // Fallback to finding the produce type and getting its category
+  const produceType = props.produceTypes.find(p => p.id === entry.produce_type_id || p._id === entry.produceTypeId)
+  if (produceType?.category?.name) {
+    return produceType.category.name
+  }
+  
+  // Map category ID to name if category object is not populated
+  if (produceType?.category_id || produceType?.categoryId) {
+    const categoryId = produceType.category_id || produceType.categoryId
+    // Common category mappings based on the seed data
+    const categoryMap: Record<string, string> = {
+      'fruit': 'Fruit',
+      'greens': 'Greens', 
+      'herbs': 'Herbs',
+      'vegetables': 'Vegetables'
+    }
+    return categoryMap[categoryId] || 'Produce'
+  }
+  
+  return 'Produce'
 }
 
 const getEntryValue = (entry: HarvestEntry) => {
