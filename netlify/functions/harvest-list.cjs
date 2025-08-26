@@ -37,29 +37,54 @@ exports.handler = async function(event, context) {
       .limit(parseInt(limit));
 
     // Transform data to match frontend expectations
-    const transformedEntries = entries.map(entry => ({
-      _id: entry._id,
-      produceTypeId: entry.produceTypeId._id,
-      quantity: entry.quantity,
-      unit: entry.unit,
-      harvestDate: entry.harvestDate.toISOString().split('T')[0],
-      harvesterName: entry.harvesterName,
-      notes: entry.notes,
-      createdAt: entry.createdAt,
-      updatedAt: entry.updatedAt,
-      produceType: {
-        _id: entry.produceTypeId._id,
-        name: entry.produceTypeId.name,
-        unitType: entry.produceTypeId.unitType,
-        conversionFactor: entry.produceTypeId.conversionFactor,
-        categoryId: entry.produceTypeId.categoryId._id,
-        category: {
-          _id: entry.produceTypeId.categoryId._id,
-          name: entry.produceTypeId.categoryId.name,
-          description: entry.produceTypeId.categoryId.description
-        }
+    const transformedEntries = entries.map(entry => {
+      // Check if produceTypeId was populated
+      if (!entry.produceTypeId) {
+        console.warn('Harvest entry missing produce type:', entry._id);
+        return {
+          _id: entry._id,
+          produce_type_id: null,
+          produceTypeId: null,
+          quantity: entry.quantity,
+          unit: entry.unit,
+          harvestDate: entry.harvestDate.toISOString().split('T')[0],
+          harvester_name: entry.harvesterName,
+          harvesterName: entry.harvesterName,
+          notes: entry.notes,
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt,
+          produceType: null
+        };
       }
-    }));
+
+      return {
+        _id: entry._id,
+        produce_type_id: entry.produceTypeId._id,
+        produceTypeId: entry.produceTypeId._id, // Include both for compatibility
+        quantity: entry.quantity,
+        unit: entry.unit,
+        harvestDate: entry.harvestDate.toISOString().split('T')[0],
+        harvester_name: entry.harvesterName,
+        harvesterName: entry.harvesterName, // Include both for compatibility
+        notes: entry.notes,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt,
+        produceType: {
+          _id: entry.produceTypeId._id,
+          name: entry.produceTypeId.name,
+          unitType: entry.produceTypeId.unitType,
+          unit_type: entry.produceTypeId.unitType, // Include both for compatibility
+          conversionFactor: entry.produceTypeId.conversionFactor,
+          conversion_factor: entry.produceTypeId.conversionFactor, // Include both for compatibility
+          categoryId: entry.produceTypeId.categoryId?._id,
+          category: entry.produceTypeId.categoryId ? {
+            _id: entry.produceTypeId.categoryId._id,
+            name: entry.produceTypeId.categoryId.name,
+            description: entry.produceTypeId.categoryId.description
+          } : null
+        }
+      };
+    });
 
     return createResponse(200, {
       success: true,
