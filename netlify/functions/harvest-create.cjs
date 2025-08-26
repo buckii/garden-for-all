@@ -43,23 +43,11 @@ exports.handler = async function(event, context) {
     const harvesterName = body.harvester_name || body.harvesterName;
     const notes = body.notes;
 
-    console.log('Received harvest data:', {
-      produceTypeId,
-      quantity,
-      unit,
-      harvestDate,
-      harvesterName,
-      notes,
-      bodyKeys: Object.keys(body)
-    });
-
     // Verify produce type exists
     const produceType = await ProduceType.findById(produceTypeId);
     if (!produceType) {
-      console.error('Produce type not found:', produceTypeId);
-      return createErrorResponse(400, `Invalid produce type: ${produceTypeId}`);
+      return createErrorResponse(400, 'Invalid produce type');
     }
-    console.log('Found produce type:', produceType.name);
 
     // Create harvest entry
     const entry = new HarvestEntry({
@@ -72,12 +60,6 @@ exports.handler = async function(event, context) {
     });
 
     await entry.save();
-    console.log('Saved harvest entry:', {
-      _id: entry._id,
-      produceTypeId: entry.produceTypeId,
-      quantity: entry.quantity,
-      unit: entry.unit
-    });
 
     // Populate the saved entry for response
     await entry.populate({
