@@ -99,7 +99,9 @@ exports.handler = async function(event, context) {
       harvester_name: entry.harvesterName,
       harvesterName: entry.harvesterName,
       notes: entry.notes,
+      created_at: entry.createdAt,
       createdAt: entry.createdAt,
+      updated_at: entry.updatedAt,
       updatedAt: entry.updatedAt,
       produceType: {
         _id: entry.produceTypeId._id,
