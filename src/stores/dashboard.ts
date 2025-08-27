@@ -193,7 +193,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   })
 
   const productionTrends = computed(() => {
-    const trends = new Map()
+    const trends = []
     const entries = Array.isArray(harvestData.value) ? harvestData.value : []
     entries.forEach(entry => {
       // Use actual weight if available, otherwise calculate from quantity
@@ -202,15 +202,18 @@ export const useDashboardStore = defineStore('dashboard', () => {
       // Only include entries with either quantity > 0 or weight > 0
       if (entry.quantity > 0 || weightInPounds > 0) {
         const date = new Date(entry.harvestDate).toISOString().split('T')[0]
-        const existing = trends.get(date) || { date, quantity: 0, value: 0 }
-        existing.quantity += weightInPounds
-        existing.value += weightInPounds * (entry.produceType?.pricePerLb || 0)
-        trends.set(date, existing)
+        const produceTypeId = entry.produceTypeId || entry.produce_type_id
+        trends.push({
+          date,
+          quantity: weightInPounds,
+          value: weightInPounds * (entry.produceType?.pricePerLb || 0),
+          produce_type_id: produceTypeId
+        })
       }
     })
-    return Array.from(trends.values())
+    return trends
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .slice(-30) // Last 30 days
+      .slice(-500) // Get more data for 12 weeks of trends
   })
 
   const fetchSummary = async () => {

@@ -2,10 +2,10 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
     <!-- Production Trends Chart -->
     <div class="bg-white rounded-lg shadow-sm border p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Production Trends (Last 30 Days)</h3>
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Production Trends (Last 12 Weeks)</h3>
       <div class="h-64">
         <div v-if="productionTrends.length > 0" class="h-full">
-          <Line
+          <Bar
             :data="chartData"
             :options="chartOptions"
           />
@@ -163,19 +163,17 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js'
-import { Line } from 'vue-chartjs'
+import { Bar } from 'vue-chartjs'
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
@@ -196,33 +194,104 @@ interface Props {
   summary: DashboardSummary
   recentEntries: HarvestEntry[]
   produceBreakdown: { name: string; quantity: number; value: number }[]
-  productionTrends: { date: string; quantity: number; value: number }[]
+  productionTrends: { date: string; quantity: number; value: number; produce_type_id?: string }[]
   produceTypes: ProduceType[]
 }
 
 const props = defineProps<Props>()
 
 const chartData = computed(() => {
-  const trends = props.productionTrends.slice(-30) // Last 30 days
+  // Group trends by week and product (last 12 weeks)
+  const weeklyData = new Map<string, Map<string, number>>()
+  const productTotals = new Map<string, number>()
+  const now = new Date()
+  
+  // Generate labels for the last 12 weeks
+  const weeks = []
+  for (let i = 11; i >= 0; i--) {
+    const weekStart = new Date(now)
+    weekStart.setDate(now.getDate() - (i * 7 + now.getDay()))
+    const weekKey = formatWeek(weekStart)
+    weeks.push(weekKey)
+    weeklyData.set(weekKey, new Map())
+  }
+  
+  // Aggregate daily trends into weekly totals by product and calculate totals
+  props.productionTrends.forEach(trend => {
+    // Find the produce type for this trend
+    const produceType = props.produceTypes.find(p => 
+      p.id === trend.produce_type_id || p._id === trend.produce_type_id
+    )
+    const productName = produceType?.name || 'Unknown Product'
+    
+    const date = new Date(trend.date + 'T00:00:00')
+    const weekStart = new Date(date)
+    weekStart.setDate(date.getDate() - date.getDay()) // Get start of week (Sunday)
+    const weekKey = formatWeek(weekStart)
+    
+    if (weeklyData.has(weekKey)) {
+      const weekProducts = weeklyData.get(weekKey)!
+      weekProducts.set(productName, (weekProducts.get(productName) || 0) + trend.quantity)
+    }
+    
+    // Track total production for each product over the 12-week period
+    productTotals.set(productName, (productTotals.get(productName) || 0) + trend.quantity)
+  })
+  
+  // Get top 5 products by total production
+  const sortedProducts = Array.from(productTotals.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(entry => entry[0])
+  
+  // Generate colors for products
+  const productColors = {
+    0: '#10b981', // green-500
+    1: '#f59e0b', // amber-500
+    2: '#8b5cf6', // violet-500
+    3: '#ef4444', // red-500
+    4: '#3b82f6', // blue-500
+    'Other': '#6b7280' // gray-500
+  }
+  
+  // Create datasets for top 5 products
+  const datasets = sortedProducts.map((product, index) => ({
+    label: product,
+    data: weeks.map(week => {
+      const weekProducts = weeklyData.get(week)!
+      return weekProducts.get(product) || 0
+    }),
+    backgroundColor: productColors[index as keyof typeof productColors],
+    borderWidth: 0,
+    borderRadius: 2,
+  }))
+  
+  // Add "Other" dataset for all remaining products
+  const otherData = weeks.map(week => {
+    const weekProducts = weeklyData.get(week)!
+    let otherTotal = 0
+    weekProducts.forEach((quantity, product) => {
+      if (!sortedProducts.includes(product)) {
+        otherTotal += quantity
+      }
+    })
+    return otherTotal
+  })
+  
+  // Only add "Other" dataset if there's actually other data
+  if (otherData.some(value => value > 0)) {
+    datasets.push({
+      label: 'Other',
+      data: otherData,
+      backgroundColor: productColors['Other'],
+      borderWidth: 0,
+      borderRadius: 2,
+    })
+  }
   
   return {
-    labels: trends.map(trend => formatDate(trend.date)),
-    datasets: [
-      {
-        label: 'Daily Production (lbs)',
-        data: trends.map(trend => trend.quantity),
-        borderColor: '#10b981', // garden-green-500
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.1,
-        pointBackgroundColor: '#10b981',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-      }
-    ]
+    labels: weeks,
+    datasets
   }
 })
 
@@ -231,7 +300,17 @@ const chartOptions = computed(() => ({
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      display: false
+      display: true,
+      position: 'bottom' as const,
+      labels: {
+        usePointStyle: true,
+        pointStyle: 'rect',
+        padding: 15,
+        color: '#6b7280',
+        font: {
+          size: 12
+        }
+      }
     },
     tooltip: {
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -239,23 +318,44 @@ const chartOptions = computed(() => ({
       bodyColor: '#ffffff',
       borderColor: '#10b981',
       borderWidth: 1,
-      displayColors: false,
+      displayColors: true,
       callbacks: {
-        label: (context: any) => `${context.parsed.y.toFixed(1)} lbs`
+        label: (context: any) => `${context.dataset.label}: ${context.parsed.y.toFixed(1)} lbs`,
+        title: (context: any) => `Week of ${context[0].label}`,
+        footer: (tooltipItems: any) => {
+          const weekTotal = tooltipItems.reduce((sum: number, item: any) => sum + item.parsed.y, 0)
+          const weekIndex = tooltipItems[0].dataIndex
+          
+          // Calculate 12-week totals for comparison
+          const allWeeksTotal = tooltipItems[0].chart.data.datasets.reduce((sum: number, dataset: any) => {
+            return sum + dataset.data.reduce((dataSum: number, value: number) => dataSum + value, 0)
+          }, 0)
+          
+          const weekPercentage = allWeeksTotal > 0 ? ((weekTotal / allWeeksTotal) * 100).toFixed(1) : '0.0'
+          
+          return [
+            `Week Total: ${weekTotal.toFixed(1)} lbs`,
+            `12-Week Total: ${allWeeksTotal.toFixed(1)} lbs`,
+            `Week is ${weekPercentage}% of 12-week total`
+          ]
+        }
       }
     }
   },
   scales: {
     x: {
+      stacked: true,
       grid: {
         display: false
       },
       ticks: {
-        maxTicksLimit: 8,
-        color: '#6b7280'
+        color: '#6b7280',
+        maxRotation: 45,
+        minRotation: 0
       }
     },
     y: {
+      stacked: true,
       beginAtZero: true,
       grid: {
         color: 'rgba(107, 114, 128, 0.1)'
@@ -315,6 +415,14 @@ const getApproximateWeight = (entry: HarvestEntry) => {
 const formatDate = (dateStr: string) => {
   // Parse date as local date to avoid timezone conversion
   const date = new Date(dateStr + 'T00:00:00')
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC'
+  })
+}
+
+const formatWeek = (date: Date) => {
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
