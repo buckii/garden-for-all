@@ -161,6 +161,7 @@
           <QuantityInput
             v-if="currentStep === 'quantity'"
             :selected-produce="selectedProduce"
+            :pantries="pantries"
             :submitting="submitting"
             @submit="handleHarvestSubmit"
             @back="currentStep = 'select'"
@@ -218,6 +219,7 @@ const recentEntries = computed(() => harvestStore.recentEntries)
 const harvestLoading = computed(() => harvestStore.loading)
 
 const categories = computed(() => adminStore.categories)
+const pantries = computed(() => adminStore.foodPantries)
 const adminLoading = computed(() => adminStore.loading)
 
 // Add watchers for debugging
@@ -264,6 +266,7 @@ onMounted(async () => {
   await Promise.all([
     harvestStore.fetchProduceTypes(),
     adminStore.fetchCategories(),
+    adminStore.fetchFoodPantries(),
     harvestStore.fetchTodaysHarvest(),
     harvestStore.fetchRecentEntries()
   ])

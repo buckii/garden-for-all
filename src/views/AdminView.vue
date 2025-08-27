@@ -178,6 +178,7 @@
             <ProduceCategories v-else-if="activeTab === 'categories'" />
             <ProduceTypes v-else-if="activeTab === 'types'" />
             <FoodPantries v-else-if="activeTab === 'pantries'" />
+            <HarvestEntries v-else-if="activeTab === 'entries'" />
             <div v-if="activeTab === 'export'" class="space-y-8">
               <div class="text-center">
                 <svg class="mx-auto h-12 w-12 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,6 +309,7 @@ import { exportHarvestData } from '@/utils/excelExport'
 import ProduceCategories from '@/components/admin/ProduceCategories.vue'
 import ProduceTypes from '@/components/admin/ProduceTypes.vue'
 import FoodPantries from '@/components/admin/FoodPantries.vue'
+import HarvestEntries from '@/components/admin/HarvestEntries.vue'
 
 const router = useRouter()
 const { signOut, user } = useAuth()
@@ -356,6 +358,11 @@ const tabs = [
   { 
     id: 'pantries', 
     name: 'Food Pantries',
+    icon: 'svg'
+  },
+  { 
+    id: 'entries', 
+    name: 'Harvest Entries',
     icon: 'svg'
   },
   { 

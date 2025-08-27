@@ -11,7 +11,7 @@ const produceCategorySchema = new mongoose.Schema({
 const produceTypeSchema = new mongoose.Schema({
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceCategory', required: true },
   name: { type: String, required: true, trim: true },
-  unitType: { type: String, required: true, enum: ['pounds', 'pints', 'bunches'] },
+  unitType: { type: String, required: true, enum: ['items', 'pints', 'bunches', 'bags', 'boxes'] },
   conversionFactor: { type: Number, required: true, default: 0, min: 0 },
   pricePerLb: { type: Number, default: 0, min: 0 },
   servingWeightOz: { type: Number, default: 0, min: 0 },
@@ -40,6 +40,9 @@ const harvestEntrySchema = new mongoose.Schema({
   produceTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceType', required: true },
   quantity: { type: Number, required: true, min: 0 },
   unit: { type: String, required: true, trim: true },
+  weight: { type: Number, required: true, min: 0 }, // Weight in pounds
+  weightEstimated: { type: Boolean, default: false }, // True if weight was calculated, false if manually entered
+  pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: true }, // Which pantry will receive this harvest
   harvestDate: { type: Date, required: true },
   harvesterName: { type: String, trim: true },
   notes: { type: String, trim: true }

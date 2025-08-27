@@ -177,12 +177,17 @@ export const useDashboardStore = defineStore('dashboard', () => {
     const breakdown = new Map()
     const entries = Array.isArray(harvestData.value) ? harvestData.value : []
     entries.forEach(entry => {
-      const name = entry.produceType?.name || 'Unknown'
-      const existing = breakdown.get(name) || { name, quantity: 0, value: 0 }
-      const quantityInPounds = entry.quantity * (entry.produceType?.conversionFactor || 1)
-      existing.quantity += quantityInPounds
-      existing.value += quantityInPounds * (entry.produceType?.pricePerLb || 0)
-      breakdown.set(name, existing)
+      // Use actual weight if available, otherwise calculate from quantity
+      const weightInPounds = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
+      
+      // Only include entries with either quantity > 0 or weight > 0
+      if (entry.quantity > 0 || weightInPounds > 0) {
+        const name = entry.produceType?.name || 'Unknown'
+        const existing = breakdown.get(name) || { name, quantity: 0, value: 0 }
+        existing.quantity += weightInPounds
+        existing.value += weightInPounds * (entry.produceType?.pricePerLb || 0)
+        breakdown.set(name, existing)
+      }
     })
     return Array.from(breakdown.values()).sort((a, b) => b.quantity - a.quantity)
   })
@@ -191,12 +196,17 @@ export const useDashboardStore = defineStore('dashboard', () => {
     const trends = new Map()
     const entries = Array.isArray(harvestData.value) ? harvestData.value : []
     entries.forEach(entry => {
-      const date = new Date(entry.harvestDate).toISOString().split('T')[0]
-      const existing = trends.get(date) || { date, quantity: 0, value: 0 }
-      const quantityInPounds = entry.quantity * (entry.produceType?.conversionFactor || 1)
-      existing.quantity += quantityInPounds
-      existing.value += quantityInPounds * (entry.produceType?.pricePerLb || 0)
-      trends.set(date, existing)
+      // Use actual weight if available, otherwise calculate from quantity
+      const weightInPounds = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
+      
+      // Only include entries with either quantity > 0 or weight > 0
+      if (entry.quantity > 0 || weightInPounds > 0) {
+        const date = new Date(entry.harvestDate).toISOString().split('T')[0]
+        const existing = trends.get(date) || { date, quantity: 0, value: 0 }
+        existing.quantity += weightInPounds
+        existing.value += weightInPounds * (entry.produceType?.pricePerLb || 0)
+        trends.set(date, existing)
+      }
     })
     return Array.from(trends.values())
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())

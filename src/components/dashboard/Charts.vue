@@ -125,16 +125,24 @@
               </svg>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate">
-                {{ entry.quantity }} {{ entry.unit }} of {{ getProduceName(entry.produce_type_id) }}
+              <p class="text-sm font-medium text-gray-900">
+                <span v-if="entry.quantity > 0">
+                  {{ entry.quantity }} {{ entry.unit }} of 
+                </span>
+                {{ getProduceName(entry.produce_type_id || entry.produceTypeId) }}
               </p>
               <p class="text-xs text-gray-500">
                 {{ formatTimeAgo(entry.harvestDate || entry.harvest_date) }}
                 <span v-if="entry.harvester_name || entry.harvesterName"> • {{ entry.harvester_name || entry.harvesterName }}</span>
               </p>
             </div>
-            <div class="flex-shrink-0 text-sm text-gray-500">
-              {{ getApproximateWeight(entry).toFixed(1) }} lbs
+            <div class="flex-shrink-0 text-right">
+              <p class="text-sm font-medium text-gray-900">
+                {{ (entry.weight || 0).toFixed(1) }} lbs
+              </p>
+              <p v-if="entry.weightEstimated || entry.weight_estimated" class="text-xs text-gray-400">
+                estimated
+              </p>
             </div>
           </div>
         </div>

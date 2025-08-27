@@ -12,6 +12,44 @@ const categories = [
   { name: 'Vegetables', description: 'General vegetables and root crops', displayOrder: 4 }
 ];
 
+function parseQuantityAndUnit(quantityStr) {
+  if (!quantityStr) {
+    return { quantity: 0, unit: 'items' };
+  }
+  
+  // Clean the string and convert to lowercase for matching
+  const cleaned = quantityStr.toLowerCase().trim();
+  
+  // Extract number from the beginning of the string
+  const numberMatch = cleaned.match(/^(\d+(?:\.\d+)?)/);
+  const quantity = numberMatch ? parseFloat(numberMatch[1]) : 0;
+  
+  // Common unit patterns (ignoring size descriptors like "large" and "small")
+  if (cleaned.includes('bag')) {
+    return { quantity, unit: 'bags' };
+  }
+  if (cleaned.includes('box')) {
+    return { quantity, unit: 'boxes' };
+  }
+  if (cleaned.includes('bunch')) {
+    return { quantity, unit: 'bunches' };
+  }
+  if (cleaned.includes('pint')) {
+    return { quantity, unit: 'pints' };
+  }
+  if (cleaned.includes('pound') || cleaned.includes('lb')) {
+    return { quantity, unit: 'items' };
+  }
+  
+  // If it's just a number with no unit, assume items/pieces
+  if (/^\d+(?:\.\d+)?$/.test(cleaned)) {
+    return { quantity, unit: 'items' };
+  }
+  
+  // Default fallback
+  return { quantity, unit: 'items' };
+}
+
 function loadDataFromCSV() {
   try {
     const csvPath = path.resolve('data/harvestentries.csv');
@@ -22,7 +60,7 @@ function loadDataFromCSV() {
     // Find column indices (header has extra spaces due to tab separation)
     const typeIndex = header.findIndex(col => col.trim() === 'Type');
     const productIndex = header.findIndex(col => col.trim() === 'Product');
-    const notesIndex = header.findIndex(col => col.trim() === 'Notes');
+    const quantityIndex = header.findIndex(col => col.trim() === 'Quantity');
     const weightIndex = header.findIndex(col => col.trim() === 'Weight (lbs)');
     const dateIndex = header.findIndex(col => col.trim() === 'Delivery Date');
     const pantryIndex = header.findIndex(col => col.trim() === 'Pantry');
@@ -45,10 +83,10 @@ function loadDataFromCSV() {
     
     // Default values for missing nutritional/pricing data
     const defaultValues = {
-      'Fruit': { servingWeightOz: 5.0, servingsPerLb: 3.2, pricePerLb: 2.0, conversionFactor: 1.0, unitType: 'pounds' },
+      'Fruit': { servingWeightOz: 5.0, servingsPerLb: 3.2, pricePerLb: 2.0, conversionFactor: 1.0, unitType: 'items' },
       'Greens': { servingWeightOz: 3.0, servingsPerLb: 5.33, pricePerLb: 2.5, conversionFactor: 0.19, unitType: 'bunches' },
       'Herbs': { servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.0, conversionFactor: 0.03, unitType: 'bunches' },
-      'Vegetables': { servingWeightOz: 4.0, servingsPerLb: 4.0, pricePerLb: 1.5, conversionFactor: 1.0, unitType: 'pounds' }
+      'Vegetables': { servingWeightOz: 4.0, servingsPerLb: 4.0, pricePerLb: 1.5, conversionFactor: 1.0, unitType: 'items' }
     };
     
     // Process each line
@@ -59,12 +97,16 @@ function loadDataFromCSV() {
       const columns = line.split('\t');
       const type = columns[typeIndex]?.trim();
       const product = columns[productIndex]?.trim();
-      const notes = columns[notesIndex]?.trim() || '';
-      const weight = parseFloat(columns[weightIndex]?.trim()) || 0;
+      const quantityStr = columns[quantityIndex]?.trim() || '';
+      const weightStr = columns[weightIndex]?.trim();
+      const weight = weightStr ? parseFloat(weightStr) : 0;
       const dateStr = columns[dateIndex]?.trim();
       const pantry = columns[pantryIndex]?.trim() || '';
       
-      if (!type || !product || !weight || !dateStr) continue;
+      if (!type || !product || !dateStr) continue;
+      
+      // Parse quantity and unit from quantity string
+      const { quantity, unit } = parseQuantityAndUnit(quantityStr);
       
       // Parse date (format appears to be M/D/YY)
       let harvestDate;
@@ -114,12 +156,12 @@ function loadDataFromCSV() {
       harvestEntries.push({
         type: type,
         product: product,
-        notes: notes,
+        notes: quantityStr, // Store original quantity string as notes
         weight: weight,
         harvestDate: harvestDate,
         pantry: pantry,
-        quantity: 1, // Default quantity
-        unit: weight > 0 ? 'pounds' : 'items'
+        quantity: quantity,
+        unit: unit
       });
     }
     
@@ -450,12 +492,16 @@ exports.handler = async function(event, context) {
       // Use first pantry as default for entries without pantry specified
       const defaultPantryId = createdPantries.length > 0 ? createdPantries[0]._id : null;
       
+      // Prepare batch insert data
+      const harvestEntriesToInsert = [];
+      let skippedCount = 0;
+      
       for (const entry of harvestEntries) {
         const productKey = `${entry.type}:${entry.product}`;
         const produceTypeId = produceTypeMap[productKey];
         
         if (!produceTypeId) {
-          console.warn(`No produce type found for: ${productKey}`);
+          skippedCount++;
           continue;
         }
         
@@ -469,25 +515,32 @@ exports.handler = async function(event, context) {
         }
         
         if (!pantryId) {
-          console.warn(`No pantry found, skipping entry: ${productKey}`);
+          skippedCount++;
           continue;
         }
         
-        try {
-          await HarvestEntry.create({
-            produceTypeId: produceTypeId,
-            quantity: entry.quantity,
-            unit: entry.unit,
-            weight: entry.weight,
-            weightEstimated: false,
-            pantryId: pantryId,
-            harvestDate: entry.harvestDate,
-            notes: entry.notes
-          });
-          createdHarvestEntries++;
-        } catch (error) {
-          console.warn(`Failed to create harvest entry: ${error.message}`);
-        }
+        harvestEntriesToInsert.push({
+          produceTypeId: produceTypeId,
+          quantity: entry.quantity,
+          unit: entry.unit,
+          weight: entry.weight,
+          weightEstimated: false,
+          pantryId: pantryId,
+          harvestDate: entry.harvestDate,
+          notes: entry.notes
+        });
+      }
+      
+      // Batch insert in chunks of 500 for better performance
+      const chunkSize = 500;
+      for (let i = 0; i < harvestEntriesToInsert.length; i += chunkSize) {
+        const chunk = harvestEntriesToInsert.slice(i, i + chunkSize);
+        await HarvestEntry.insertMany(chunk, { ordered: false });
+        createdHarvestEntries += chunk.length;
+      }
+      
+      if (skippedCount > 0) {
+        console.log(`Skipped ${skippedCount} entries due to missing produce types or pantries`);
       }
       
       console.log(`Created ${createdHarvestEntries} harvest entries`);
