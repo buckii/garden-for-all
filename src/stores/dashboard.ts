@@ -141,6 +141,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const pantryProgress = ref<any[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const asOfDate = ref<string>(new Date().toISOString().split('T')[0])
 
   const totalHarvestedToday = computed(() => summary.value.daily.totalQuantity)
   const totalValueToday = computed(() => summary.value.daily.totalValue)
@@ -195,25 +196,34 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const productionTrends = computed(() => {
     const trends = []
     const entries = Array.isArray(harvestData.value) ? harvestData.value : []
+    
+    // Calculate the date range: 12 weeks before asOfDate
+    const endDate = new Date(asOfDate.value)
+    const startDate = new Date(endDate)
+    startDate.setDate(endDate.getDate() - (12 * 7)) // 12 weeks back
+    
     entries.forEach(entry => {
       // Use actual weight if available, otherwise calculate from quantity
       const weightInPounds = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
       
       // Only include entries with either quantity > 0 or weight > 0
       if (entry.quantity > 0 || weightInPounds > 0) {
-        const date = new Date(entry.harvestDate).toISOString().split('T')[0]
-        const produceTypeId = entry.produceTypeId || entry.produce_type_id
-        trends.push({
-          date,
-          quantity: weightInPounds,
-          value: weightInPounds * (entry.produceType?.pricePerLb || 0),
-          produce_type_id: produceTypeId
-        })
+        const entryDate = new Date(entry.harvestDate)
+        
+        // Only include entries within the 12-week range ending at asOfDate
+        if (entryDate >= startDate && entryDate <= endDate) {
+          const date = entryDate.toISOString().split('T')[0]
+          const produceTypeId = entry.produceTypeId || entry.produce_type_id
+          trends.push({
+            date,
+            quantity: weightInPounds,
+            value: weightInPounds * (entry.produceType?.pricePerLb || 0),
+            produce_type_id: produceTypeId
+          })
+        }
       }
     })
-    return trends
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .slice(-500) // Get more data for 12 weeks of trends
+    return trends.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   })
 
   const fetchSummary = async () => {
@@ -263,6 +273,59 @@ export const useDashboardStore = defineStore('dashboard', () => {
     }
   }
 
+  const fetchAllForDate = async (dateStr: string) => {
+    asOfDate.value = dateStr
+    loading.value = true
+    error.value = null
+    
+    try {
+      await Promise.all([
+        fetchSummaryForDate(dateStr),
+        fetchHarvestDataForDate(dateStr),
+        fetchPantryProgressForDate(dateStr)
+      ])
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchSummaryForDate = async (dateStr: string) => {
+    try {
+      // Calculate date ranges based on the asOfDate
+      const asOf = new Date(dateStr)
+      
+      // For now, fetch all data and filter client-side
+      // In a real implementation, you'd modify the API to accept date parameters
+      const { data, error: fetchError } = await dashboardAPI.getSummary()
+      if (fetchError) throw new Error(fetchError)
+      summary.value = data || defaultSummary
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    }
+  }
+
+  const fetchHarvestDataForDate = async (dateStr: string) => {
+    try {
+      const { data, error: fetchError } = await dashboardAPI.getHarvestData()
+      if (fetchError) throw new Error(fetchError)
+      harvestData.value = data || []
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    }
+  }
+
+  const fetchPantryProgressForDate = async (dateStr: string) => {
+    try {
+      const { data, error: fetchError } = await dashboardAPI.getPantryProgress()
+      if (fetchError) throw new Error(fetchError)
+      pantryProgress.value = data || []
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    }
+  }
+
   const clearError = () => {
     error.value = null
   }
@@ -274,6 +337,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     pantryProgress,
     loading,
     error,
+    asOfDate,
     
     // Chart data
     recentEntries,
@@ -294,6 +358,10 @@ export const useDashboardStore = defineStore('dashboard', () => {
     fetchHarvestData,
     fetchPantryProgress,
     fetchAll,
+    fetchAllForDate,
+    fetchSummaryForDate,
+    fetchHarvestDataForDate,
+    fetchPantryProgressForDate,
     clearError,
   }
 })

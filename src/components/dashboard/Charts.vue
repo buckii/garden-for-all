@@ -196,21 +196,22 @@ interface Props {
   produceBreakdown: { name: string; quantity: number; value: number }[]
   productionTrends: { date: string; quantity: number; value: number; produce_type_id?: string }[]
   produceTypes: ProduceType[]
+  asOfDate: string
 }
 
 const props = defineProps<Props>()
 
 const chartData = computed(() => {
-  // Group trends by week and product (last 12 weeks)
+  // Group trends by week and product (last 12 weeks ending at asOfDate)
   const weeklyData = new Map<string, Map<string, number>>()
   const productTotals = new Map<string, number>()
-  const now = new Date()
+  const asOf = new Date(props.asOfDate)
   
-  // Generate labels for the last 12 weeks
+  // Generate labels for the last 12 weeks ending at asOfDate
   const weeks = []
   for (let i = 11; i >= 0; i--) {
-    const weekStart = new Date(now)
-    weekStart.setDate(now.getDate() - (i * 7 + now.getDay()))
+    const weekStart = new Date(asOf)
+    weekStart.setDate(asOf.getDate() - (i * 7 + asOf.getDay()))
     const weekKey = formatWeek(weekStart)
     weeks.push(weekKey)
     weeklyData.set(weekKey, new Map())

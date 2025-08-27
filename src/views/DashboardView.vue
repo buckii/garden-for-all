@@ -11,6 +11,17 @@
           <p class="text-gray-600">Garden For All Production Overview</p>
         </div>
         <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2">
+            <label for="asOfDate" class="text-sm text-gray-600 font-medium">As of:</label>
+            <input
+              id="asOfDate"
+              type="date"
+              v-model="asOfDate"
+              @change="handleDateChange"
+              class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-garden-green-500 focus:border-transparent"
+              :max="todayFormatted"
+            />
+          </div>
           <div class="text-sm text-gray-500">
             Last updated: {{ formattedLastUpdated }}
           </div>
@@ -77,7 +88,7 @@
             </div>
           </div>
           <Charts v-else :summary="summary" :recent-entries="recentEntries" :produce-breakdown="produceBreakdown"
-            :production-trends="productionTrends" :produce-types="produceTypes" />
+            :production-trends="productionTrends" :produce-types="produceTypes" :as-of-date="asOfDate" />
         </div>
 
         <!-- Pantry Commitment Tracker -->
@@ -251,6 +262,7 @@ const { isAuthenticated } = useAuth()
 const selectedPantry = ref<FoodPantry | null>(null)
 const currentTime = ref(new Date().toLocaleTimeString())
 const refreshInterval = ref<NodeJS.Timeout | null>(null)
+const asOfDate = ref(new Date().toISOString().split('T')[0]) // Default to today
 
 
 // Store getters - use computed to maintain reactivity
@@ -271,12 +283,17 @@ const selectedPantryProgress = computed(() => {
 })
 
 const currentDate = computed(() => {
-  return new Date().toLocaleDateString('en-US', {
+  return new Date(asOfDate.value).toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   })
+})
+
+// Today's date formatted for date input max attribute
+const todayFormatted = computed(() => {
+  return new Date().toISOString().split('T')[0]
 })
 
 // Formatted last updated timestamp
@@ -290,20 +307,21 @@ const formattedLastUpdated = computed(() => {
 })
 
 onMounted(async () => {
-  // Initial data load
-  await Promise.all([
-    dashboardStore.fetchAll(),
-    harvestStore.fetchProduceTypes()
-  ])
+  // Initial data load with asOfDate
+  await loadDataForDate()
 
-  // Set up real-time updates
+  // Set up real-time updates (only if viewing current date)
   subscribeToHarvestUpdates(() => {
-    dashboardStore.fetchAll()
+    if (asOfDate.value === todayFormatted.value) {
+      loadDataForDate()
+    }
   })
 
-  // Auto-refresh every 30 seconds
+  // Auto-refresh every 30 seconds (only if viewing current date)
   refreshInterval.value = setInterval(() => {
-    dashboardStore.fetchAll()
+    if (asOfDate.value === todayFormatted.value) {
+      loadDataForDate()
+    }
     currentTime.value = new Date().toLocaleTimeString()
   }, 30000)
 
@@ -313,6 +331,17 @@ onMounted(async () => {
   }, 1000)
 })
 
+const loadDataForDate = async () => {
+  await Promise.all([
+    dashboardStore.fetchAllForDate(asOfDate.value),
+    harvestStore.fetchProduceTypes()
+  ])
+}
+
+const handleDateChange = async () => {
+  await loadDataForDate()
+}
+
 onUnmounted(() => {
   if (refreshInterval.value) {
     clearInterval(refreshInterval.value)
@@ -320,7 +349,7 @@ onUnmounted(() => {
 })
 
 const refreshData = async () => {
-  await dashboardStore.fetchAll()
+  await loadDataForDate()
 }
 
 const viewPantryDetails = (pantry: FoodPantry) => {
