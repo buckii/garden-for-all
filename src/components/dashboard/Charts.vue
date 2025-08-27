@@ -129,8 +129,8 @@
                 {{ entry.quantity }} {{ entry.unit }} of {{ getProduceName(entry.produce_type_id) }}
               </p>
               <p class="text-xs text-gray-500">
-                {{ formatTimeAgo(entry.created_at) }}
-                <span v-if="entry.harvester_name"> • {{ entry.harvester_name }}</span>
+                {{ formatTimeAgo(entry.harvestDate || entry.harvest_date) }}
+                <span v-if="entry.harvester_name || entry.harvesterName"> • {{ entry.harvester_name || entry.harvesterName }}</span>
               </p>
             </div>
             <div class="flex-shrink-0 text-sm text-gray-500">
@@ -316,7 +316,17 @@ const formatDate = (dateStr: string) => {
 
 const formatTimeAgo = (timestamp: string) => {
   const now = new Date()
-  const date = new Date(timestamp)
+  
+  // Parse date consistently to avoid timezone issues
+  let date: Date
+  if (timestamp.includes('T')) {
+    // Full timestamp with time
+    date = new Date(timestamp)
+  } else {
+    // Date-only string, parse as local date
+    date = new Date(timestamp + 'T00:00:00')
+  }
+  
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
   
   if (diffInHours < 1) {

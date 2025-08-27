@@ -96,11 +96,12 @@ export const useDashboardStore = defineStore('dashboard', () => {
     harvestData.value.forEach(entry => {
       const name = entry.produceType?.name || 'Unknown'
       const existing = breakdown.get(name) || { name, quantity: 0, value: 0 }
-      existing.quantity += entry.quantity
-      existing.value += entry.quantity * (entry.produceType?.conversionFactor || 0)
+      const quantityInPounds = entry.quantity * (entry.produceType?.conversionFactor || 1)
+      existing.quantity += quantityInPounds
+      existing.value += quantityInPounds * (entry.produceType?.pricePerLb || 0)
       breakdown.set(name, existing)
     })
-    return Array.from(breakdown.values()).sort((a, b) => b.value - a.value)
+    return Array.from(breakdown.values()).sort((a, b) => b.quantity - a.quantity)
   })
 
   const productionTrends = computed(() => {
@@ -108,8 +109,9 @@ export const useDashboardStore = defineStore('dashboard', () => {
     harvestData.value.forEach(entry => {
       const date = new Date(entry.harvestDate).toISOString().split('T')[0]
       const existing = trends.get(date) || { date, quantity: 0, value: 0 }
-      existing.quantity += entry.quantity
-      existing.value += entry.quantity * (entry.produceType?.conversionFactor || 0)
+      const quantityInPounds = entry.quantity * (entry.produceType?.conversionFactor || 1)
+      existing.quantity += quantityInPounds
+      existing.value += quantityInPounds * (entry.produceType?.pricePerLb || 0)
       trends.set(date, existing)
     })
     return Array.from(trends.values())
