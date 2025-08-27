@@ -1,6 +1,8 @@
 const { connectDB } = require('./utils/db.js');
-const { ProduceCategory, ProduceType, FoodPantry } = require('./utils/models.js');
+const { ProduceCategory, ProduceType, FoodPantry, HarvestEntry } = require('./utils/models.js');
 const { createResponse, createErrorResponse } = require('./utils/auth.js');
+const fs = require('fs');
+const path = require('path');
 
 // Categories with display order
 const categories = [
@@ -10,90 +12,128 @@ const categories = [
   { name: 'Vegetables', description: 'General vegetables and root crops', displayOrder: 4 }
 ];
 
-// Produce types with complete Garden for All data including pricing and serving information
-const produceData = [
-  // Fruits
-  { category: 'Fruit', name: 'Apples', unitType: 'pounds', servingWeightOz: 3.52, servingsPerLb: 4.55, pricePerLb: 1.8541, conversionFactor: 1.0 },
-  { category: 'Fruit', name: 'Blueberries', unitType: 'pints', servingWeightOz: 5.22, servingsPerLb: 3.07, pricePerLb: 4.1575, conversionFactor: 0.33 },
-  { category: 'Fruit', name: 'Cantaloupe', unitType: 'pounds', servingWeightOz: 5.6, servingsPerLb: 2.86, pricePerLb: 0.7523, conversionFactor: 1.0 },
-  { category: 'Fruit', name: 'Peaches', unitType: 'pounds', servingWeightOz: 6.17, servingsPerLb: 2.59, pricePerLb: 2.1785, conversionFactor: 1.0 },
-  { category: 'Fruit', name: 'Raspberries', unitType: 'pints', servingWeightOz: 4.34, servingsPerLb: 3.69, pricePerLb: 7.7338, conversionFactor: 0.28 },
-  { category: 'Fruit', name: 'Strawberries', unitType: 'pints', servingWeightOz: 4.2, servingsPerLb: 3.81, pricePerLb: 2.9682, conversionFactor: 0.75 },
-  { category: 'Fruit', name: 'Watermelon', unitType: 'pounds', servingWeightOz: 10.09, servingsPerLb: 1.59, pricePerLb: 0.382, conversionFactor: 1.0 },
-  
-  // Greens
-  { category: 'Greens', name: 'Arugula', unitType: 'bunches', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 2.3074, conversionFactor: 0.19 },
-  { category: 'Greens', name: 'Bok Choy', unitType: 'bunches', servingWeightOz: 2.5, servingsPerLb: 6.40, pricePerLb: 1.2604, conversionFactor: 0.16 },
-  { category: 'Greens', name: 'Cabbage', unitType: 'pounds', servingWeightOz: 3.14, servingsPerLb: 5.10, pricePerLb: 0.797, conversionFactor: 1.0 },
-  { category: 'Greens', name: 'Collards', unitType: 'bunches', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 3.0881, conversionFactor: 0.19 },
-  { category: 'Greens', name: 'kale', unitType: 'bunches', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 3.4338, conversionFactor: 0.19 },
-  { category: 'Greens', name: 'Lettuce', unitType: 'bunches', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 2.3074, conversionFactor: 0.19 },
-  { category: 'Greens', name: 'Microgreens', unitType: 'pounds', servingWeightOz: 0.88, servingsPerLb: 18.18, pricePerLb: 12.00, conversionFactor: 1.0 },
-  { category: 'Greens', name: 'Mixed Greens', unitType: 'bunches', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 2.925, conversionFactor: 0.19 },
-  { category: 'Greens', name: 'Mustard Greens', unitType: 'bunches', servingWeightOz: 3, servingsPerLb: 3, pricePerLb: 2.925, conversionFactor: 0.19 },
-  { category: 'Greens', name: 'Red Lettuce', unitType: 'bunches', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 2.3074, conversionFactor: 0.19 },
-  { category: 'Greens', name: 'Romaine', unitType: 'bunches', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 2.3074, conversionFactor: 0.19 },
-  { category: 'Greens', name: 'Spinach', unitType: 'pounds', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 4.1214, conversionFactor: 1.0 },
-  { category: 'Greens', name: 'Swiss Chard', unitType: 'bunches', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 3.4338, conversionFactor: 0.19 },
-  { category: 'Greens', name: 'Turnip Greens', unitType: 'bunches', servingWeightOz: 1.94, servingsPerLb: 8.25, pricePerLb: 2.925, conversionFactor: 0.12 },
-  
-  // Herbs
-  { category: 'Herbs', name: 'Basil', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Chives', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Cilantro', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Cutting Celery', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 1.1637, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Dill', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Garlic', unitType: 'pounds', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 12.00, conversionFactor: 1.0 },
-  { category: 'Herbs', name: 'Garlic Scapes', unitType: 'bunches', servingWeightOz: 0.3, servingsPerLb: 53.33, pricePerLb: 8.00, conversionFactor: 0.02 },
-  { category: 'Herbs', name: 'Herbs', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Lavender', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 12.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Mint', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Oregano', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Parsley', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Rosemary', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Sage', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Scallions', unitType: 'bunches', servingWeightOz: 0.53, servingsPerLb: 30.19, pricePerLb: 1.1062, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Scapes', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Tarragon', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  { category: 'Herbs', name: 'Thyme', unitType: 'bunches', servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.00, conversionFactor: 0.03 },
-  
-  // Vegetables
-  { category: 'Vegetables', name: 'Acorn Squash', unitType: 'pounds', servingWeightOz: 7.25, servingsPerLb: 2.21, pricePerLb: 1.2136, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Beans', unitType: 'pounds', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 2.6199, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Beans, wax', unitType: 'pounds', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 2.6199, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Beets', unitType: 'bunches', servingWeightOz: 4.8, servingsPerLb: 3.33, pricePerLb: 1.8126, conversionFactor: 0.30 },
-  { category: 'Vegetables', name: 'Blue Hubbard squash', unitType: 'pounds', servingWeightOz: 4.09, servingsPerLb: 3.91, pricePerLb: 1.2136, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Broccoli', unitType: 'pounds', servingWeightOz: 5.3, servingsPerLb: 3.02, pricePerLb: 3.082, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Brussels Sprouts', unitType: 'pounds', servingWeightOz: 3.1, servingsPerLb: 5.16, pricePerLb: 2.9139, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Butternut Squash', unitType: 'pounds', servingWeightOz: 7.25, servingsPerLb: 2.21, pricePerLb: 1.2691, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Carrots', unitType: 'pounds', servingWeightOz: 2.8, servingsPerLb: 5.71, pricePerLb: 0.9761, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Cauliflower', unitType: 'pounds', servingWeightOz: 1, servingsPerLb: 16.0, pricePerLb: 2.1841, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Cherry Tomatoes', unitType: 'pints', servingWeightOz: 5.25, servingsPerLb: 3.05, pricePerLb: 3.8729, conversionFactor: 0.33 },
-  { category: 'Vegetables', name: 'Corn', unitType: 'pounds', servingWeightOz: 5.11, servingsPerLb: 3.13, pricePerLb: 2.2281, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Cucumbers', unitType: 'pounds', servingWeightOz: 3.5, servingsPerLb: 4.57, pricePerLb: 1.2473, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Daikon Radish', unitType: 'pounds', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 1.8126, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Edamame', unitType: 'pounds', servingWeightOz: 5.5, servingsPerLb: 2.91, pricePerLb: 3.00, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Eggplant', unitType: 'pounds', servingWeightOz: 3.5, servingsPerLb: 4.57, pricePerLb: 2.1841, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Flower bouquets', unitType: 'bunches', servingWeightOz: 1, servingsPerLb: 0.0, pricePerLb: 5.00, conversionFactor: 0.0 },
-  { category: 'Vegetables', name: 'Green Peppers', unitType: 'pounds', servingWeightOz: 6.2, servingsPerLb: 2.58, pricePerLb: 1.4789, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Kohlrabi', unitType: 'pounds', servingWeightOz: 4.76, servingsPerLb: 3.36, pricePerLb: 1.8126, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Leeks', unitType: 'bunches', servingWeightOz: 4.37, servingsPerLb: 3.66, pricePerLb: 1.1062, conversionFactor: 0.27 },
-  { category: 'Vegetables', name: 'Okra', unitType: 'pounds', servingWeightOz: 3.5, servingsPerLb: 4.57, pricePerLb: 5.1567, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Onions', unitType: 'pounds', servingWeightOz: 5.3, servingsPerLb: 3.02, pricePerLb: 1.1062, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Peas', unitType: 'pounds', servingWeightOz: 3.5, servingsPerLb: 4.57, pricePerLb: 2.6199, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Peppers', unitType: 'pounds', servingWeightOz: 5.3, servingsPerLb: 3.02, pricePerLb: 1.4789, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Potatoes', unitType: 'pounds', servingWeightOz: 6.1, servingsPerLb: 2.62, pricePerLb: 0.8166, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Pumpkin', unitType: 'pounds', servingWeightOz: 7.79, servingsPerLb: 2.05, pricePerLb: 1.50, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Radishes', unitType: 'bunches', servingWeightOz: 3, servingsPerLb: 5.33, pricePerLb: 1.8126, conversionFactor: 0.19 },
-  { category: 'Vegetables', name: 'Spaghetti Squash', unitType: 'pounds', servingWeightOz: 5.46, servingsPerLb: 2.93, pricePerLb: 1.2136, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Sunflowers', unitType: 'bunches', servingWeightOz: 1, servingsPerLb: 0.0, pricePerLb: 3.00, conversionFactor: 0.0 },
-  { category: 'Vegetables', name: 'Sweet Potatoes', unitType: 'pounds', servingWeightOz: 4.6, servingsPerLb: 3.48, pricePerLb: 1.1565, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Tomatillos', unitType: 'pounds', servingWeightOz: 4.7, servingsPerLb: 3.40, pricePerLb: 2.1868, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Tomatoes', unitType: 'pounds', servingWeightOz: 6.35, servingsPerLb: 2.52, pricePerLb: 2.1868, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Turnips', unitType: 'pounds', servingWeightOz: 4.5, servingsPerLb: 3.56, pricePerLb: 1.8126, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Yellow squash', unitType: 'pounds', servingWeightOz: 3.5, servingsPerLb: 4.57, pricePerLb: 1.6359, conversionFactor: 1.0 },
-  { category: 'Vegetables', name: 'Zucchini', unitType: 'pounds', servingWeightOz: 3.5, servingsPerLb: 4.57, pricePerLb: 1.6359, conversionFactor: 1.0 }
-];
+function loadDataFromCSV() {
+  try {
+    const csvPath = path.resolve('data/harvestentries.csv');
+    const csvContent = fs.readFileSync(csvPath, 'utf-8');
+    const lines = csvContent.split('\n');
+    const header = lines[0].split('\t');
+    
+    // Find column indices (header has extra spaces due to tab separation)
+    const typeIndex = header.findIndex(col => col.trim() === 'Type');
+    const productIndex = header.findIndex(col => col.trim() === 'Product');
+    const notesIndex = header.findIndex(col => col.trim() === 'Notes');
+    const weightIndex = header.findIndex(col => col.trim() === 'Weight (lbs)');
+    const dateIndex = header.findIndex(col => col.trim() === 'Delivery Date');
+    const pantryIndex = header.findIndex(col => col.trim() === 'Pantry');
+    
+    if (typeIndex === -1 || productIndex === -1 || weightIndex === -1 || dateIndex === -1) {
+      throw new Error('Required columns (Type, Product, Weight, Delivery Date) not found in CSV');
+    }
+    
+    const uniqueProducts = new Set();
+    const produceData = [];
+    const harvestEntries = [];
+    
+    // Category mapping from CSV to database categories
+    const categoryMapping = {
+      'Fruit': 'Fruit',
+      'Greens': 'Greens', 
+      'Herbs': 'Herbs',
+      'Vegetables': 'Vegetables'
+    };
+    
+    // Default values for missing nutritional/pricing data
+    const defaultValues = {
+      'Fruit': { servingWeightOz: 5.0, servingsPerLb: 3.2, pricePerLb: 2.0, conversionFactor: 1.0, unitType: 'pounds' },
+      'Greens': { servingWeightOz: 3.0, servingsPerLb: 5.33, pricePerLb: 2.5, conversionFactor: 0.19, unitType: 'bunches' },
+      'Herbs': { servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.0, conversionFactor: 0.03, unitType: 'bunches' },
+      'Vegetables': { servingWeightOz: 4.0, servingsPerLb: 4.0, pricePerLb: 1.5, conversionFactor: 1.0, unitType: 'pounds' }
+    };
+    
+    // Process each line
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      
+      const columns = line.split('\t');
+      const type = columns[typeIndex]?.trim();
+      const product = columns[productIndex]?.trim();
+      const notes = columns[notesIndex]?.trim() || '';
+      const weight = parseFloat(columns[weightIndex]?.trim()) || 0;
+      const dateStr = columns[dateIndex]?.trim();
+      const pantry = columns[pantryIndex]?.trim() || '';
+      
+      if (!type || !product || !weight || !dateStr) continue;
+      
+      // Parse date (format appears to be M/D/YY)
+      let harvestDate;
+      try {
+        const dateParts = dateStr.split('/');
+        if (dateParts.length === 3) {
+          const month = parseInt(dateParts[0]);
+          const day = parseInt(dateParts[1]);
+          let year = parseInt(dateParts[2]);
+          
+          // Convert 2-digit year to 4-digit year
+          if (year < 50) {
+            year += 2000;
+          } else if (year < 100) {
+            year += 1900;
+          }
+          
+          harvestDate = new Date(year, month - 1, day);
+        } else {
+          harvestDate = new Date(dateStr);
+        }
+      } catch (e) {
+        console.warn(`Invalid date format: ${dateStr}, skipping entry`);
+        continue;
+      }
+      
+      // Add unique products
+      const productKey = `${type}:${product}`;
+      if (!uniqueProducts.has(productKey)) {
+        uniqueProducts.add(productKey);
+        
+        const mappedCategory = categoryMapping[type] || 'Vegetables';
+        const defaults = defaultValues[mappedCategory] || defaultValues['Vegetables'];
+        
+        produceData.push({
+          category: mappedCategory,
+          name: product,
+          unitType: defaults.unitType,
+          servingWeightOz: defaults.servingWeightOz,
+          servingsPerLb: defaults.servingsPerLb,
+          pricePerLb: defaults.pricePerLb,
+          conversionFactor: defaults.conversionFactor
+        });
+      }
+      
+      // Add harvest entry
+      harvestEntries.push({
+        type: type,
+        product: product,
+        notes: notes,
+        weight: weight,
+        harvestDate: harvestDate,
+        pantry: pantry,
+        quantity: 1, // Default quantity
+        unit: weight > 0 ? 'pounds' : 'items'
+      });
+    }
+    
+    console.log(`Loaded ${produceData.length} unique products and ${harvestEntries.length} harvest entries from CSV`);
+    return { produceData, harvestEntries };
+    
+  } catch (error) {
+    console.error('Error loading CSV data:', error);
+    throw error;
+  }
+}
+
+// Load data from CSV
+const { produceData, harvestEntries } = loadDataFromCSV();
 
 // Central Ohio food pantries based on Garden for All data
 const foodPantries = [
@@ -275,6 +315,7 @@ exports.handler = async function(event, context) {
     // Clear existing data only if requested
     if (shouldClearData) {
       console.log('Clearing existing data...');
+      await HarvestEntry.deleteMany({});
       await ProduceType.deleteMany({});
       await ProduceCategory.deleteMany({});
       await FoodPantry.deleteMany({});
@@ -370,13 +411,100 @@ exports.handler = async function(event, context) {
       }
     }
 
+    // Create harvest entries
+    console.log('Creating harvest entries...');
+    let createdHarvestEntries = 0;
+    
+    if (shouldClearData || await HarvestEntry.countDocuments() === 0) {
+      // Create mappings for lookups
+      const produceTypeMap = {};
+      const allProduceTypes = await ProduceType.find({}).populate('categoryId');
+      allProduceTypes.forEach(pt => {
+        const categoryName = pt.categoryId.name;
+        const key = `${categoryName}:${pt.name}`;
+        produceTypeMap[key] = pt._id;
+      });
+      
+      const pantryMap = {};
+      createdPantries.forEach(pantry => {
+        // Map common pantry abbreviations
+        pantryMap[pantry.name.toLowerCase()] = pantry._id;
+        if (pantry.name.includes('Broad Street')) {
+          pantryMap['broad st'] = pantry._id;
+        }
+        if (pantry.name.includes('GRIN')) {
+          pantryMap['grin'] = pantry._id;
+        }
+        if (pantry.name.includes('New Albany')) {
+          pantryMap['new albany'] = pantry._id;
+          pantryMap['nafp'] = pantry._id;
+        }
+        if (pantry.name.includes('Vineyard')) {
+          pantryMap['vineyard'] = pantry._id;
+        }
+        if (pantry.name.includes('Motherful')) {
+          pantryMap['motherful'] = pantry._id;
+        }
+      });
+      
+      // Use first pantry as default for entries without pantry specified
+      const defaultPantryId = createdPantries.length > 0 ? createdPantries[0]._id : null;
+      
+      for (const entry of harvestEntries) {
+        const productKey = `${entry.type}:${entry.product}`;
+        const produceTypeId = produceTypeMap[productKey];
+        
+        if (!produceTypeId) {
+          console.warn(`No produce type found for: ${productKey}`);
+          continue;
+        }
+        
+        // Find pantry ID
+        let pantryId = defaultPantryId;
+        if (entry.pantry) {
+          const pantryKey = entry.pantry.toLowerCase().trim();
+          if (pantryMap[pantryKey]) {
+            pantryId = pantryMap[pantryKey];
+          }
+        }
+        
+        if (!pantryId) {
+          console.warn(`No pantry found, skipping entry: ${productKey}`);
+          continue;
+        }
+        
+        try {
+          await HarvestEntry.create({
+            produceTypeId: produceTypeId,
+            quantity: entry.quantity,
+            unit: entry.unit,
+            weight: entry.weight,
+            weightEstimated: false,
+            pantryId: pantryId,
+            harvestDate: entry.harvestDate,
+            notes: entry.notes
+          });
+          createdHarvestEntries++;
+        } catch (error) {
+          console.warn(`Failed to create harvest entry: ${error.message}`);
+        }
+      }
+      
+      console.log(`Created ${createdHarvestEntries} harvest entries`);
+    } else {
+      const existingCount = await HarvestEntry.countDocuments();
+      console.log(`${existingCount} harvest entries already exist`);
+      createdHarvestEntries = existingCount;
+    }
+
     return createResponse(200, {
       success: true,
       message: 'Database seeded successfully',
       data: {
         categories: createdCategories.length,
         produceTypes: createdProduceTypes.length,
-        foodPantries: createdPantries.length
+        foodPantries: createdPantries.length,
+        harvestEntries: createdHarvestEntries
       }
     });
 
