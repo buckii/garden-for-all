@@ -22,9 +22,9 @@ exports.handler = async function(event, context) {
 
     await validateToken(token); // Just verify token is valid
 
-    // Calculate date ranges using UTC midnight
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+    // Get local date string and parse as date without timezone
+    const localDateStr = new Date().toLocaleDateString('en-US'); // YYYY-MM-DD format
+    const today = new Date(localDateStr + 'T00:00:00.000Z');
     
     const tomorrow = new Date(today);
     tomorrow.setUTCDate(today.getUTCDate() + 1);
@@ -78,7 +78,10 @@ exports.handler = async function(event, context) {
 
     return createResponse(200, {
       success: true,
-      data: summary
+      data: {
+        ...summary,
+        todayDate: localDateStr
+      }
     });
 
   } catch (error) {

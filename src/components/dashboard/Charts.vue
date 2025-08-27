@@ -3,20 +3,19 @@
     <!-- Production Trends Chart -->
     <div class="bg-white rounded-lg shadow-sm border p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Production Trends (Last 30 Days)</h3>
-      <div class="h-64 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg">
-        <div class="text-center">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-          </svg>
-          <p class="mt-2 text-sm text-gray-500">Line chart showing daily production trends</p>
-          <div class="mt-4">
-            <div v-if="productionTrends.length > 0" class="space-y-2">
-              <div v-for="(trend, index) in productionTrends.slice(-7)" :key="index" class="flex justify-between text-sm">
-                <span class="text-gray-600">{{ formatDate(trend.date) }}</span>
-                <span class="font-medium text-garden-green-600">{{ trend.quantity.toFixed(1) }} lbs</span>
-              </div>
-            </div>
-            <p v-else class="text-sm text-gray-400">No trend data available</p>
+      <div class="h-64">
+        <div v-if="productionTrends.length > 0" class="h-full">
+          <Line
+            :data="chartData"
+            :options="chartOptions"
+          />
+        </div>
+        <div v-else class="h-full flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg">
+          <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <p class="mt-2 text-sm text-gray-500">No trend data available</p>
           </div>
         </div>
       </div>
@@ -151,6 +150,28 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js'
+import { Line } from 'vue-chartjs'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
 
 type HarvestEntry = Database['public']['Tables']['harvest_entries']['Row']
@@ -172,6 +193,76 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const chartData = computed(() => {
+  const trends = props.productionTrends.slice(-30) // Last 30 days
+  
+  return {
+    labels: trends.map(trend => formatDate(trend.date)),
+    datasets: [
+      {
+        label: 'Daily Production (lbs)',
+        data: trends.map(trend => trend.quantity),
+        borderColor: '#10b981', // garden-green-500
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.1,
+        pointBackgroundColor: '#10b981',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }
+    ]
+  }
+})
+
+const chartOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      titleColor: '#ffffff',
+      bodyColor: '#ffffff',
+      borderColor: '#10b981',
+      borderWidth: 1,
+      displayColors: false,
+      callbacks: {
+        label: (context: any) => `${context.parsed.y.toFixed(1)} lbs`
+      }
+    }
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false
+      },
+      ticks: {
+        maxTicksLimit: 8,
+        color: '#6b7280'
+      }
+    },
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: 'rgba(107, 114, 128, 0.1)'
+      },
+      ticks: {
+        color: '#6b7280',
+        callback: (value: any) => `${value} lbs`
+      }
+    }
+  },
+  interaction: {
+    intersect: false,
+    mode: 'index' as const
+  }
+}))
 
 const colorClasses = [
   'bg-blue-500',
@@ -214,9 +305,12 @@ const getApproximateWeight = (entry: HarvestEntry) => {
 }
 
 const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString('en-US', {
+  // Parse date as local date to avoid timezone conversion
+  const date = new Date(dateStr + 'T00:00:00')
+  return date.toLocaleDateString('en-US', {
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: 'UTC'
   })
 }
 
