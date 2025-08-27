@@ -16,6 +16,11 @@ const router = createRouter({
       component: () => import('../views/HarvestView.vue'),
     },
     {
+      path: '/harvest-history',
+      name: 'harvest-history',
+      component: () => import('../views/HarvestHistoryView.vue'),
+    },
+    {
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('../views/DashboardView.vue'),

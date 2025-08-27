@@ -1,93 +1,33 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Navigation Header -->
-    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center">
-            <router-link to="/" class="flex items-center">
-              <div class="w-8 h-8 bg-garden-green-600 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
-                </svg>
-              </div>
-              <h1 class="ml-3 text-xl font-semibold text-gray-900">Garden For All Dashboard</h1>
-            </router-link>
-          </div>
-          
-          <div class="flex items-center space-x-4">
-            <div class="text-sm text-gray-500">
-              Last updated: {{ formattedLastUpdated }}
-            </div>
-            <button
-              @click="refreshData"
-              :disabled="loading"
-              class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-              title="Refresh Data"
-            >
-              <svg 
-                :class="['w-5 h-5', { 'animate-spin': loading }]" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-              </svg>
-            </button>
-            <router-link 
-              to="/harvest"
-              class="bg-garden-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-garden-green-700"
-            >
-              + Add Harvest
-            </router-link>
-            <router-link 
-              to="/admin"
-              class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Admin
-            </router-link>
-            
-            <!-- User Info & Logout (only show if authenticated) -->
-            <div v-if="isAuthenticated" class="flex items-center space-x-3 pl-4 border-l border-gray-300">
-              <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-garden-green-100 rounded-full flex items-center justify-center">
-                  <svg class="w-4 h-4 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                  </svg>
-                </div>
-                <div class="text-sm">
-                  <p class="text-gray-700 font-medium">{{ userDisplayName }}</p>
-                  <p class="text-gray-500 text-xs" v-if="isAdmin">Admin</p>
-                </div>
-              </div>
-              <button
-                @click="handleSignOut"
-                class="text-gray-500 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium hover:bg-red-50 transition-colors"
-                title="Sign Out"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <AppHeader />
 
     <!-- Dashboard Content -->
     <div class="max-w-7xl mx-auto px-4 py-6">
-      <!-- Header with Date/Time -->
+      <!-- Dashboard Header with Refresh -->
+      <div class="mb-6 flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p class="text-gray-600">Garden For All Production Overview</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-sm text-gray-500">
+            Last updated: {{ formattedLastUpdated }}
+          </div>
+          <button @click="refreshData" :disabled="loading"
+            class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors border border-gray-300"
+            title="Refresh Data">
+            <svg :class="['w-5 h-5', { 'animate-spin': loading }]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Date/Time Display -->
       <div class="mb-8 text-center">
         <h2 class="text-3xl font-bold text-gray-900">{{ currentDate }}</h2>
         <p class="text-lg text-gray-600">{{ currentTime }}</p>
-        
-        <!-- Weather Widget Placeholder -->
-        <div class="mt-4 inline-flex items-center px-4 py-2 bg-blue-50 rounded-lg">
-          <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-          </svg>
-          <span class="text-blue-700 font-medium">Perfect day for gardening! 🌱</span>
-        </div>
       </div>
 
       <!-- Error Message -->
@@ -95,7 +35,9 @@
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clip-rule="evenodd" />
             </svg>
           </div>
           <div class="ml-3">
@@ -134,14 +76,8 @@
               </div>
             </div>
           </div>
-          <Charts
-            v-else
-            :summary="summary"
-            :recent-entries="recentEntries"
-            :produce-breakdown="produceBreakdown"
-            :production-trends="productionTrends"
-            :produce-types="produceTypes"
-          />
+          <Charts v-else :summary="summary" :recent-entries="recentEntries" :produce-breakdown="produceBreakdown"
+            :production-trends="productionTrends" :produce-types="produceTypes" />
         </div>
 
         <!-- Pantry Commitment Tracker -->
@@ -154,24 +90,19 @@
               </div>
             </div>
           </div>
-          <CommitmentTracker
-            v-else
-            :pantry-progress="pantryProgress"
-            :loading="loading"
-            @view-details="viewPantryDetails"
-          />
+          <CommitmentTracker v-else :pantry-progress="pantryProgress" :loading="loading"
+            @view-details="viewPantryDetails" />
         </div>
       </div>
     </div>
 
     <!-- Fullscreen Toggle (for TV Display) -->
-    <button
-      @click="toggleFullscreen"
+    <button @click="toggleFullscreen"
       class="fixed bottom-4 right-4 p-3 bg-garden-green-600 text-white rounded-full shadow-lg hover:bg-garden-green-700 transition-colors"
-      title="Toggle Fullscreen"
-    >
+      title="Toggle Fullscreen">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
       </svg>
     </button>
 
@@ -181,23 +112,21 @@
         <div class="mt-3">
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-semibold text-gray-900">{{ selectedPantry.name }}</h3>
-            <button
-              @click="selectedPantry = null"
-              class="text-gray-400 hover:text-gray-600"
-            >
+            <button @click="selectedPantry = null" class="text-gray-400 hover:text-gray-600">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
-          
+
           <div class="space-y-6">
             <!-- Progress Overview -->
             <div v-if="selectedPantryProgress" class="bg-garden-green-50 rounded-lg p-4">
               <h4 class="font-semibold text-gray-800 mb-3">Progress Overview</h4>
               <div class="grid grid-cols-2 gap-4 mb-4">
                 <div class="text-center">
-                  <div class="text-2xl font-bold text-garden-green-600">{{ selectedPantryProgress.percentage.toFixed(1) }}%</div>
+                  <div class="text-2xl font-bold text-garden-green-600">{{ selectedPantryProgress.percentage.toFixed(1)
+                    }}%</div>
                   <div class="text-sm text-gray-600">Complete</div>
                 </div>
                 <div class="text-center">
@@ -205,13 +134,11 @@
                   <div class="text-sm text-gray-600">lbs Remaining</div>
                 </div>
               </div>
-              
+
               <!-- Progress Bar -->
               <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
-                <div 
-                  class="bg-garden-green-600 h-3 rounded-full transition-all duration-300"
-                  :style="{ width: `${Math.min(100, selectedPantryProgress.percentage)}%` }"
-                ></div>
+                <div class="bg-garden-green-600 h-3 rounded-full transition-all duration-300"
+                  :style="{ width: `${Math.min(100, selectedPantryProgress.percentage)}%` }"></div>
               </div>
               <div class="flex justify-between text-sm text-gray-600">
                 <span>{{ selectedPantryProgress.delivered.toFixed(1) }} lbs delivered</span>
@@ -225,33 +152,38 @@
               <div class="bg-gray-50 rounded-lg p-4 space-y-2">
                 <div v-if="selectedPantry.contactInfo.phone" class="flex items-center">
                   <svg class="w-4 h-4 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                   <span class="text-gray-700">{{ selectedPantry.contactInfo.phone }}</span>
                 </div>
                 <div v-if="selectedPantry.contactInfo.email" class="flex items-center">
                   <svg class="w-4 h-4 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   <span class="text-gray-700">{{ selectedPantry.contactInfo.email }}</span>
                 </div>
                 <div v-if="selectedPantry.contactInfo.address" class="flex items-start">
                   <svg class="w-4 h-4 text-gray-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <span class="text-gray-700">{{ selectedPantry.contactInfo.address }}</span>
                 </div>
               </div>
             </div>
-            
+
             <!-- Annual Commitments -->
             <div v-if="selectedPantry.commitmentAmounts">
               <h4 class="font-semibold text-gray-800 mb-3">Annual Commitments</h4>
               <div class="bg-gray-50 rounded-lg p-4">
                 <div class="grid grid-cols-2 gap-4 mb-4">
                   <div class="text-center p-3 bg-white rounded-lg">
-                    <div class="text-xl font-bold text-garden-green-600">{{ selectedPantry.commitmentAmounts.total || 0 }}</div>
+                    <div class="text-xl font-bold text-garden-green-600">{{ selectedPantry.commitmentAmounts.total || 0
+                      }}</div>
                     <div class="text-sm text-gray-600">Total lbs</div>
                   </div>
                   <div class="space-y-2">
@@ -280,11 +212,13 @@
             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div class="flex items-center">
                 <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
                   <h5 class="font-medium text-yellow-800">Delivery Tracking</h5>
-                  <p class="text-sm text-yellow-700">Delivery tracking system is not yet implemented. Progress currently shows 0% for all pantries.</p>
+                  <p class="text-sm text-yellow-700">Delivery tracking system is not yet implemented. Progress currently
+                    shows 0% for all pantries.</p>
                 </div>
               </div>
             </div>
@@ -296,34 +230,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useDashboardStore } from '@/stores/dashboard'
-import { useHarvestStore } from '@/stores/harvest'
-import { usePusher } from '@/composables/usePusher'
-import { useAuth } from '@/composables/useAuth'
-import ProductionSummary from '@/components/dashboard/ProductionSummary.vue'
 import Charts from '@/components/dashboard/Charts.vue'
 import CommitmentTracker from '@/components/dashboard/CommitmentTracker.vue'
+import ProductionSummary from '@/components/dashboard/ProductionSummary.vue'
+import AppHeader from '@/components/layout/AppHeader.vue'
+import { useAuth } from '@/composables/useAuth'
+import { usePusher } from '@/composables/usePusher'
+import { useDashboardStore } from '@/stores/dashboard'
+import { useHarvestStore } from '@/stores/harvest'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 
 type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
 
-const router = useRouter()
 const dashboardStore = useDashboardStore()
 const harvestStore = useHarvestStore()
 const { subscribeToHarvestUpdates } = usePusher()
-const { user, isAuthenticated, isAdmin, signOut } = useAuth()
+const { isAuthenticated } = useAuth()
 
 const selectedPantry = ref<FoodPantry | null>(null)
 const currentTime = ref(new Date().toLocaleTimeString())
 const refreshInterval = ref<NodeJS.Timeout | null>(null)
 
-// User display name
-const userDisplayName = computed(() => {
-  if (!user.value) return 'User'
-  return user.value.email?.split('@')[0] || user.value.email || 'User'
-})
 
 // Store getters - use computed to maintain reactivity
 const summary = computed(() => dashboardStore.summary)
@@ -348,6 +276,16 @@ const currentDate = computed(() => {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
+  })
+})
+
+// Formatted last updated timestamp
+const formattedLastUpdated = computed(() => {
+  return new Date().toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
   })
 })
 
@@ -396,15 +334,6 @@ const toggleFullscreen = () => {
     document.exitFullscreen()
   }
 }
-
-const handleSignOut = async () => {
-  try {
-    await signOut()
-    router.push('/')
-  } catch (error) {
-    console.error('Sign out failed:', error)
-  }
-}
 </script>
 
 <style scoped>
@@ -413,15 +342,15 @@ const handleSignOut = async () => {
   .text-3xl {
     @apply text-5xl;
   }
-  
+
   .text-lg {
     @apply text-2xl;
   }
-  
+
   .text-base {
     @apply text-xl;
   }
-  
+
   .text-sm {
     @apply text-lg;
   }

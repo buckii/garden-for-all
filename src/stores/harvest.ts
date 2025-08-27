@@ -107,7 +107,10 @@ export const useHarvestStore = defineStore('harvest', () => {
       const { data, error: fetchError } = await api.getHarvestEntries(today)
       
       if (fetchError) throw fetchError
-      harvestEntries.value = data || []
+      
+      // Handle both old format (array) and new format (object with entries)
+      const entries = data?.entries || data || []
+      harvestEntries.value = entries
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
     } finally {
@@ -120,7 +123,15 @@ export const useHarvestStore = defineStore('harvest', () => {
       const { data, error: fetchError } = await api.getHarvestEntries()
       
       if (fetchError) throw fetchError
-      recentEntries.value = (data || []).slice(0, limit)
+      
+      // Handle both old format (array) and new format (object with entries)
+      const entries = data?.entries || data || []
+      recentEntries.value = entries.slice(0, limit)
+      
+      // Also update harvestEntries if it's not initialized
+      if (!Array.isArray(harvestEntries.value)) {
+        harvestEntries.value = entries
+      }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
     }
@@ -135,6 +146,11 @@ export const useHarvestStore = defineStore('harvest', () => {
       
       if (createError) throw createError
       if (data) {
+        // Ensure harvestEntries is an array
+        if (!Array.isArray(harvestEntries.value)) {
+          harvestEntries.value = []
+        }
+        
         harvestEntries.value.unshift(data)
         recentEntries.value.unshift(data)
         // Keep only recent entries (last 50)

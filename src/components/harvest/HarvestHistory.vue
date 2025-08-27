@@ -150,6 +150,11 @@ const emit = defineEmits<Emits>()
 
 const totalQuantity = computed(() => {
   return props.todaysEntries.reduce((total, entry) => {
+    // Use actual weight if available, otherwise calculate from quantity
+    if (entry.weight && entry.weight > 0) {
+      return total + entry.weight
+    }
+    // Fallback to calculated weight
     const produceType = props.produceTypes.find(p => p.id === entry.produce_type_id || p._id === entry.produceTypeId)
     const conversionFactor = produceType?.conversion_factor || produceType?.conversionFactor || 1
     return total + (entry.quantity * conversionFactor)
@@ -158,10 +163,7 @@ const totalQuantity = computed(() => {
 
 const totalValue = computed(() => {
   return props.todaysEntries.reduce((total, entry) => {
-    const produceType = props.produceTypes.find(p => p.id === entry.produce_type_id || p._id === entry.produceTypeId)
-    const conversionFactor = produceType?.conversion_factor || produceType?.conversionFactor || 1
-    const pricePerLb = produceType?.price_per_lb || produceType?.pricePerLb || 0
-    return total + (entry.quantity * conversionFactor * pricePerLb)
+    return total + getEntryValue(entry)
   }, 0)
 })
 
@@ -199,6 +201,11 @@ const getCategoryName = (entry: HarvestEntry) => {
 }
 
 const getEntryWeight = (entry: HarvestEntry) => {
+  // Use actual weight if available, otherwise calculate from quantity
+  if (entry.weight && entry.weight > 0) {
+    return entry.weight
+  }
+  // Fallback to calculated weight
   const produceType = props.produceTypes.find(p => p.id === entry.produce_type_id || p._id === entry.produceTypeId)
   const conversionFactor = produceType?.conversion_factor || produceType?.conversionFactor || 1
   return entry.quantity * conversionFactor
@@ -206,9 +213,11 @@ const getEntryWeight = (entry: HarvestEntry) => {
 
 const getEntryValue = (entry: HarvestEntry) => {
   const produceType = props.produceTypes.find(p => p.id === entry.produce_type_id || p._id === entry.produceTypeId)
-  const conversionFactor = produceType?.conversion_factor || produceType?.conversionFactor || 1
   const pricePerLb = produceType?.price_per_lb || produceType?.pricePerLb || 0
-  return entry.quantity * conversionFactor * pricePerLb
+  
+  // Use actual weight for value calculation
+  const weight = getEntryWeight(entry)
+  return weight * pricePerLb
 }
 
 const formatTime = (timestamp: string) => {
