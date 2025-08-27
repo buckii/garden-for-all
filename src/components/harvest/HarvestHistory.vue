@@ -58,9 +58,13 @@
 
               <div class="space-y-2 text-sm">
                 <div class="flex flex-wrap gap-x-6 gap-y-2">
-                  <div class="flex items-center">
+                  <div v-if="entry.unit !== 'pounds'" class="flex items-center">
                     <span class="text-gray-500">Quantity:</span>
                     <span class="font-medium ml-1 whitespace-nowrap">{{ entry.quantity }} {{ entry.unit }}</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-gray-500">Weight:</span>
+                    <span class="font-medium ml-1 whitespace-nowrap">{{ getEntryWeight(entry).toFixed(2) }} lbs</span>
                   </div>
                   <div class="flex items-center">
                     <span class="text-gray-500">Value:</span>
@@ -192,6 +196,12 @@ const getCategoryName = (entry: HarvestEntry) => {
   }
 
   return 'Produce'
+}
+
+const getEntryWeight = (entry: HarvestEntry) => {
+  const produceType = props.produceTypes.find(p => p.id === entry.produce_type_id || p._id === entry.produceTypeId)
+  const conversionFactor = produceType?.conversion_factor || produceType?.conversionFactor || 1
+  return entry.quantity * conversionFactor
 }
 
 const getEntryValue = (entry: HarvestEntry) => {
