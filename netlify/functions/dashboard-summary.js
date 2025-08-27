@@ -23,7 +23,7 @@ exports.handler = async function(event, context) {
     await validateToken(token); // Just verify token is valid
 
     // Get local date string and parse as date without timezone
-    const localDateStr = new Date().toLocaleDateString('en-US'); // YYYY-MM-DD format
+    const localDateStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
     const today = new Date(localDateStr + 'T00:00:00.000Z');
     
     const tomorrow = new Date(today);

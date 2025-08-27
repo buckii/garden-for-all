@@ -248,18 +248,16 @@ const userDisplayName = computed(() => {
   return user.value.email?.split('@')[0] || user.value.email || 'User'
 })
 
-// Store getters
-const {
-  summary,
-  recentEntries,
-  pantryProgress,
-  produceBreakdown,
-  productionTrends,
-  loading,
-  error
-} = dashboardStore
+// Store getters - use computed to maintain reactivity
+const summary = computed(() => dashboardStore.summary)
+const recentEntries = computed(() => dashboardStore.recentEntries)
+const pantryProgress = computed(() => dashboardStore.pantryProgress)
+const produceBreakdown = computed(() => dashboardStore.produceBreakdown)
+const productionTrends = computed(() => dashboardStore.productionTrends)
+const loading = computed(() => dashboardStore.loading)
+const error = computed(() => dashboardStore.error)
 
-const { produceTypes } = harvestStore
+const produceTypes = computed(() => harvestStore.produceTypes)
 
 const currentDate = computed(() => {
   return new Date().toLocaleDateString('en-US', {
