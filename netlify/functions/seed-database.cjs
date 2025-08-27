@@ -133,8 +133,8 @@ function loadDataFromCSV() {
         continue;
       }
       
-      // Add unique products
-      const productKey = `${type}:${product}`;
+      // Add unique products (case-insensitive, by product name only)
+      const productKey = product.toLowerCase();
       if (!uniqueProducts.has(productKey)) {
         uniqueProducts.add(productKey);
         
@@ -166,6 +166,14 @@ function loadDataFromCSV() {
     }
     
     console.log(`Loaded ${produceData.length} unique products and ${harvestEntries.length} harvest entries from CSV`);
+    
+    // Log all unique produce type names for debugging
+    console.log('Unique produce types found:');
+    const sortedProduceData = produceData.sort((a, b) => a.name.localeCompare(b.name));
+    sortedProduceData.forEach(item => {
+      console.log(`  ${item.category}: ${item.name} (${item.unitType})`);
+    });
+    
     return { produceData, harvestEntries };
     
   } catch (error) {
@@ -373,7 +381,9 @@ exports.handler = async function(event, context) {
       // Get existing categories or create missing ones
       createdCategories = [];
       for (const categoryData of categories) {
-        let category = await ProduceCategory.findOne({ name: categoryData.name });
+        let category = await ProduceCategory.findOne({ 
+          name: { $regex: new RegExp(`^${categoryData.name}$`, 'i') } 
+        });
         if (!category) {
           category = await ProduceCategory.create(categoryData);
           console.log(`Created new category: ${category.name}`);
@@ -417,7 +427,9 @@ exports.handler = async function(event, context) {
           pricePerLb: item.pricePerLb
         };
         
-        const existing = await ProduceType.findOne({ name: item.name });
+        const existing = await ProduceType.findOne({ 
+          name: { $regex: new RegExp(`^${item.name}$`, 'i') } 
+        });
         if (existing) {
           // Update existing produce type with new pricing data
           const updated = await ProduceType.findByIdAndUpdate(existing._id, produceData_item, { new: true });
@@ -442,7 +454,9 @@ exports.handler = async function(event, context) {
       // Get existing pantries or create missing ones
       createdPantries = [];
       for (const pantryData of foodPantries) {
-        let pantry = await FoodPantry.findOne({ name: pantryData.name });
+        let pantry = await FoodPantry.findOne({ 
+          name: { $regex: new RegExp(`^${pantryData.name}$`, 'i') } 
+        });
         if (!pantry) {
           pantry = await FoodPantry.create(pantryData);
           console.log(`Created new food pantry: ${pantry.name}`);
@@ -550,6 +564,14 @@ exports.handler = async function(event, context) {
       createdHarvestEntries = existingCount;
     }
 
+    // Get final produce type list for debugging
+    const finalProduceTypes = await ProduceType.find({}).populate('categoryId').sort({ name: 1 });
+    const produceTypesList = finalProduceTypes.map(pt => ({
+      name: pt.name,
+      category: pt.categoryId.name,
+      unitType: pt.unitType
+    }));
+
     return createResponse(200, {
       success: true,
       message: 'Database seeded successfully',
@@ -557,7 +579,8 @@ exports.handler = async function(event, context) {
         categories: createdCategories.length,
         produceTypes: createdProduceTypes.length,
         foodPantries: createdPantries.length,
-        harvestEntries: createdHarvestEntries
+        harvestEntries: createdHarvestEntries,
+        produceTypesList: produceTypesList
       }
     });
 
