@@ -73,9 +73,9 @@
             <span class="text-gray-500">Remaining:</span>
             <div class="font-medium text-gray-900">{{ progress.remaining.toFixed(1) }} lbs</div>
           </div>
-          <div v-if="progress.pantry.contact_info?.phone">
+          <div v-if="progress.pantry.contactInfo?.phone">
             <span class="text-gray-500">Contact:</span>
-            <div class="font-medium text-gray-700">{{ progress.pantry.contact_info.phone }}</div>
+            <div class="font-medium text-gray-700">{{ progress.pantry.contactInfo.phone }}</div>
           </div>
           <div class="text-right">
             <button

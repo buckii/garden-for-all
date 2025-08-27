@@ -36,9 +36,46 @@ const dashboardAPI = {
   },
   
   async getPantryProgress() {
-    // TODO: Implement pantry progress function
-    console.warn('API not yet implemented: getPantryProgress')
-    return { data: [], error: null }
+    try {
+      // Fetch food pantries
+      const response = await fetch(`${API_BASE}/admin-food-pantries`, {
+        headers: getAuthHeader()
+      })
+      const result = await response.json()
+      const pantries = result.data || []
+      
+      // For now, return basic pantry data with placeholder progress
+      // TODO: Implement actual delivery tracking to calculate real progress
+      const progressData = pantries.map((pantry: any) => {
+        const commitment = pantry.commitmentAmounts || pantry.commitment_amounts
+        const totalCommitted = commitment?.total || 0
+        
+        // Skip pantries without commitments
+        if (totalCommitted === 0) return null
+        
+        // Placeholder values - in the future this should come from actual delivery data
+        const delivered = 0 // TODO: Calculate from actual delivery records
+        const remaining = Math.max(0, totalCommitted - delivered)
+        const percentage = totalCommitted > 0 ? (delivered / totalCommitted) * 100 : 0
+        
+        return {
+          pantry: {
+            id: pantry.id || pantry._id,
+            name: pantry.name,
+            contactInfo: pantry.contactInfo || pantry.contact_info,
+            commitmentAmounts: pantry.commitmentAmounts || pantry.commitment_amounts
+          },
+          committed: totalCommitted,
+          delivered,
+          remaining,
+          percentage
+        }
+      }).filter(Boolean) // Remove null entries (pantries without commitments)
+      
+      return { data: progressData, error: null }
+    } catch (error: any) {
+      return { data: [], error: error.message }
+    }
   }
 }
 

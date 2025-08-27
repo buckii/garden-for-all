@@ -177,10 +177,10 @@
 
     <!-- Pantry Details Modal -->
     <div v-if="selectedPantry" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div class="relative top-10 mx-auto p-6 border max-w-2xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">{{ selectedPantry.name }}</h3>
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-gray-900">{{ selectedPantry.name }}</h3>
             <button
               @click="selectedPantry = null"
               class="text-gray-400 hover:text-gray-600"
@@ -191,24 +191,101 @@
             </button>
           </div>
           
-          <div class="space-y-3">
-            <div v-if="selectedPantry.contact_info">
-              <h4 class="font-medium text-gray-700">Contact Information</h4>
-              <div class="text-sm text-gray-600 space-y-1">
-                <p v-if="selectedPantry.contact_info.phone">📞 {{ selectedPantry.contact_info.phone }}</p>
-                <p v-if="selectedPantry.contact_info.email">✉️ {{ selectedPantry.contact_info.email }}</p>
-                <p v-if="selectedPantry.contact_info.address">📍 {{ selectedPantry.contact_info.address }}</p>
+          <div class="space-y-6">
+            <!-- Progress Overview -->
+            <div v-if="selectedPantryProgress" class="bg-garden-green-50 rounded-lg p-4">
+              <h4 class="font-semibold text-gray-800 mb-3">Progress Overview</h4>
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-garden-green-600">{{ selectedPantryProgress.percentage.toFixed(1) }}%</div>
+                  <div class="text-sm text-gray-600">Complete</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-gray-900">{{ selectedPantryProgress.remaining.toFixed(1) }}</div>
+                  <div class="text-sm text-gray-600">lbs Remaining</div>
+                </div>
+              </div>
+              
+              <!-- Progress Bar -->
+              <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+                <div 
+                  class="bg-garden-green-600 h-3 rounded-full transition-all duration-300"
+                  :style="{ width: `${Math.min(100, selectedPantryProgress.percentage)}%` }"
+                ></div>
+              </div>
+              <div class="flex justify-between text-sm text-gray-600">
+                <span>{{ selectedPantryProgress.delivered.toFixed(1) }} lbs delivered</span>
+                <span>{{ selectedPantryProgress.committed.toFixed(1) }} lbs committed</span>
+              </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div v-if="selectedPantry.contactInfo">
+              <h4 class="font-semibold text-gray-800 mb-3">Contact Information</h4>
+              <div class="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div v-if="selectedPantry.contactInfo.phone" class="flex items-center">
+                  <svg class="w-4 h-4 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  <span class="text-gray-700">{{ selectedPantry.contactInfo.phone }}</span>
+                </div>
+                <div v-if="selectedPantry.contactInfo.email" class="flex items-center">
+                  <svg class="w-4 h-4 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                  <span class="text-gray-700">{{ selectedPantry.contactInfo.email }}</span>
+                </div>
+                <div v-if="selectedPantry.contactInfo.address" class="flex items-start">
+                  <svg class="w-4 h-4 text-gray-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <span class="text-gray-700">{{ selectedPantry.contactInfo.address }}</span>
+                </div>
               </div>
             </div>
             
-            <div v-if="selectedPantry.commitment_amounts">
-              <h4 class="font-medium text-gray-700">Annual Commitments</h4>
-              <div class="text-sm text-gray-600 space-y-1">
-                <p>Total: {{ selectedPantry.commitment_amounts.total || 0 }} lbs</p>
-                <p>Vegetables: {{ selectedPantry.commitment_amounts.vegetables || 0 }} lbs</p>
-                <p>Fruits: {{ selectedPantry.commitment_amounts.fruits || 0 }} lbs</p>
-                <p>Herbs: {{ selectedPantry.commitment_amounts.herbs || 0 }} lbs</p>
-                <p>Flowers: {{ selectedPantry.commitment_amounts.flowers || 0 }} lbs</p>
+            <!-- Annual Commitments -->
+            <div v-if="selectedPantry.commitmentAmounts">
+              <h4 class="font-semibold text-gray-800 mb-3">Annual Commitments</h4>
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                  <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="text-xl font-bold text-garden-green-600">{{ selectedPantry.commitmentAmounts.total || 0 }}</div>
+                    <div class="text-sm text-gray-600">Total lbs</div>
+                  </div>
+                  <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600">Vegetables:</span>
+                      <span class="font-medium">{{ selectedPantry.commitmentAmounts.vegetables || 0 }} lbs</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600">Fruits:</span>
+                      <span class="font-medium">{{ selectedPantry.commitmentAmounts.fruits || 0 }} lbs</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600">Herbs:</span>
+                      <span class="font-medium">{{ selectedPantry.commitmentAmounts.herbs || 0 }} lbs</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600">Flowers:</span>
+                      <span class="font-medium">{{ selectedPantry.commitmentAmounts.flowers || 0 }} lbs</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delivery History Placeholder -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                  <h5 class="font-medium text-yellow-800">Delivery Tracking</h5>
+                  <p class="text-sm text-yellow-700">Delivery tracking system is not yet implemented. Progress currently shows 0% for all pantries.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -258,6 +335,12 @@ const loading = computed(() => dashboardStore.loading)
 const error = computed(() => dashboardStore.error)
 
 const produceTypes = computed(() => harvestStore.produceTypes)
+
+// Get progress data for the selected pantry
+const selectedPantryProgress = computed(() => {
+  if (!selectedPantry.value) return null
+  return pantryProgress.value.find(p => p.pantry.id === selectedPantry.value?.id) || null
+})
 
 const currentDate = computed(() => {
   return new Date().toLocaleDateString('en-US', {

@@ -54,40 +54,40 @@
           
           <div class="space-y-3">
             <!-- Contact Info -->
-            <div v-if="pantry.contact_info">
-              <p v-if="pantry.contact_info.phone" class="text-sm text-gray-600 flex items-center">
+            <div v-if="pantry.contactInfo || pantry.contact_info">
+              <p v-if="(pantry.contactInfo || pantry.contact_info)?.phone" class="text-sm text-gray-600 flex items-center">
                 <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                 </svg>
-                {{ pantry.contact_info.phone }}
+                {{ (pantry.contactInfo || pantry.contact_info)?.phone }}
               </p>
-              <p v-if="pantry.contact_info.email" class="text-sm text-gray-600 flex items-center">
+              <p v-if="(pantry.contactInfo || pantry.contact_info)?.email" class="text-sm text-gray-600 flex items-center">
                 <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
-                {{ pantry.contact_info.email }}
+                {{ (pantry.contactInfo || pantry.contact_info)?.email }}
               </p>
-              <p v-if="pantry.contact_info.address" class="text-sm text-gray-600 flex items-start">
+              <p v-if="(pantry.contactInfo || pantry.contact_info)?.address" class="text-sm text-gray-600 flex items-start">
                 <svg class="mr-2 h-4 w-4 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                {{ pantry.contact_info.address }}
+                {{ (pantry.contactInfo || pantry.contact_info)?.address }}
               </p>
             </div>
             
             <!-- Commitment -->
-            <div v-if="pantry.commitment_amounts" class="pt-3 border-t border-gray-200">
+            <div v-if="pantry.commitmentAmounts || pantry.commitment_amounts" class="pt-3 border-t border-gray-200">
               <p class="text-sm font-medium text-gray-700 mb-2">Annual Commitment</p>
               <div class="space-y-1">
                 <p class="text-sm text-gray-600">
-                  Total: <span class="font-medium text-garden-green-600">{{ pantry.commitment_amounts.total || 0 }} lbs</span>
+                  Total: <span class="font-medium text-garden-green-600">{{ (pantry.commitmentAmounts || pantry.commitment_amounts)?.total || 0 }} lbs</span>
                 </p>
                 <div class="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                  <span>Vegetables: {{ pantry.commitment_amounts.vegetables || 0 }} lbs</span>
-                  <span>Fruits: {{ pantry.commitment_amounts.fruits || 0 }} lbs</span>
-                  <span>Herbs: {{ pantry.commitment_amounts.herbs || 0 }} lbs</span>
-                  <span>Flowers: {{ pantry.commitment_amounts.flowers || 0 }} lbs</span>
+                  <span>Vegetables: {{ (pantry.commitmentAmounts || pantry.commitment_amounts)?.vegetables || 0 }} lbs</span>
+                  <span>Fruits: {{ (pantry.commitmentAmounts || pantry.commitment_amounts)?.fruits || 0 }} lbs</span>
+                  <span>Herbs: {{ (pantry.commitmentAmounts || pantry.commitment_amounts)?.herbs || 0 }} lbs</span>
+                  <span>Flowers: {{ (pantry.commitmentAmounts || pantry.commitment_amounts)?.flowers || 0 }} lbs</span>
                 </div>
               </div>
             </div>
@@ -337,19 +337,24 @@ const { foodPantries, loading, error } = adminStore
 
 const editPantry = (pantry: FoodPantry) => {
   pantryToEdit.value = pantry
+  
+  // Handle both camelCase (from API) and snake_case (legacy) field naming
+  const contactInfo = pantry.contactInfo || pantry.contact_info
+  const commitmentAmounts = pantry.commitmentAmounts || pantry.commitment_amounts
+  
   formData.value = {
     name: pantry.name,
     contact_info: {
-      phone: pantry.contact_info?.phone || '',
-      email: pantry.contact_info?.email || '',
-      address: pantry.contact_info?.address || ''
+      phone: contactInfo?.phone || '',
+      email: contactInfo?.email || '',
+      address: contactInfo?.address || ''
     },
     commitment_amounts: {
-      vegetables: pantry.commitment_amounts?.vegetables || 0,
-      fruits: pantry.commitment_amounts?.fruits || 0,
-      herbs: pantry.commitment_amounts?.herbs || 0,
-      flowers: pantry.commitment_amounts?.flowers || 0,
-      total: pantry.commitment_amounts?.total || 0
+      vegetables: commitmentAmounts?.vegetables || 0,
+      fruits: commitmentAmounts?.fruits || 0,
+      herbs: commitmentAmounts?.herbs || 0,
+      flowers: commitmentAmounts?.flowers || 0,
+      total: commitmentAmounts?.total || 0
     }
   }
   showEditModal.value = true
@@ -365,12 +370,16 @@ const handleSubmit = async () => {
   try {
     const submitData = {
       name: formData.value.name,
-      contact_info: formData.value.contact_info,
-      commitment_amounts: formData.value.commitment_amounts
+      contactInfo: formData.value.contact_info,
+      commitmentAmounts: formData.value.commitment_amounts
     }
 
     if (showEditModal.value && pantryToEdit.value) {
-      await adminStore.updateFoodPantry(pantryToEdit.value.id, submitData)
+      const pantryId = pantryToEdit.value.id || pantryToEdit.value._id
+      if (!pantryId) {
+        throw new Error('Pantry ID is missing')
+      }
+      await adminStore.updateFoodPantry(pantryId, submitData)
     } else {
       await adminStore.createFoodPantry(submitData)
     }
@@ -387,7 +396,11 @@ const handleDelete = async () => {
   
   submitting.value = true
   try {
-    await adminStore.deleteFoodPantry(pantryToDelete.value.id)
+    const pantryId = pantryToDelete.value.id || pantryToDelete.value._id
+    if (!pantryId) {
+      throw new Error('Pantry ID is missing')
+    }
+    await adminStore.deleteFoodPantry(pantryId)
     showDeleteModal.value = false
     pantryToDelete.value = null
   } catch (err) {

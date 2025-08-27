@@ -122,11 +122,13 @@ const adminAPI = {
   },
   async createPantry(data: any) {
     try {
+      console.log('createPantry called with data:', data)
       const response = await fetch(`${API_BASE}/admin-food-pantries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify(data)
       })
+      console.log('createPantry response status:', response.status, 'method was POST')
       const result = await response.json()
       return { data: result.data || null, error: result.success ? null : result.error }
     } catch (error: any) {
@@ -135,11 +137,13 @@ const adminAPI = {
   },
   async updatePantry(id: string, data: any) {
     try {
+      console.log('updatePantry called with ID:', id, 'data:', data)
       const response = await fetch(`${API_BASE}/admin-food-pantries/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify(data)
       })
+      console.log('updatePantry response status:', response.status, 'method was PUT')
       const result = await response.json()
       return { data: result.data || null, error: result.success ? null : result.error }
     } catch (error: any) {

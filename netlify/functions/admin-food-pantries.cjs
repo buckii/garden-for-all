@@ -6,9 +6,9 @@ const { validateToken, extractToken, createResponse, createErrorResponse, handle
 const foodPantrySchema = Joi.object({
   name: Joi.string().required(),
   contactInfo: Joi.object({
-    phone: Joi.string().optional(),
-    email: Joi.string().email().optional(),
-    address: Joi.string().optional()
+    phone: Joi.string().allow('').optional(),
+    email: Joi.string().email().allow('').optional(),
+    address: Joi.string().allow('').optional()
   }).optional(),
   commitmentAmounts: Joi.object({
     total: Joi.number().min(0).optional(),
@@ -51,8 +51,10 @@ exports.handler = async function(event, context) {
       return createErrorResponse(403, 'Admin access required');
     }
 
-    const { httpMethod, pathParameters } = event;
-    const id = pathParameters?.id;
+    const { httpMethod, path } = event;
+    // Parse ID from path: /admin-food-pantries/[id]
+    const pathSegments = path.split('/').filter(Boolean);
+    const id = pathSegments.length > 1 ? pathSegments[pathSegments.length - 1] : null;
 
     switch (httpMethod) {
       case 'POST':
