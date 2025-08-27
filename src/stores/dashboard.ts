@@ -29,7 +29,9 @@ const dashboardAPI = {
         headers: getAuthHeader()
       })
       const result = await response.json()
-      return { data: result.data || [], error: null }
+      // Handle new API format with entries and pagination
+      const entries = result.data?.entries || result.data || []
+      return { data: entries, error: null }
     } catch (error: any) {
       return { data: [], error: error.message }
     }
@@ -38,14 +40,21 @@ const dashboardAPI = {
   async getPantryProgress() {
     try {
       // Fetch food pantries
-      const response = await fetch(`${API_BASE}/admin-food-pantries`, {
+      const pantriesResponse = await fetch(`${API_BASE}/admin-food-pantries`, {
         headers: getAuthHeader()
       })
-      const result = await response.json()
-      const pantries = result.data || []
+      const pantriesResult = await pantriesResponse.json()
+      const pantries = pantriesResult.data || []
       
-      // For now, return basic pantry data with placeholder progress
-      // TODO: Implement actual delivery tracking to calculate real progress
+      // Fetch harvest entries to calculate actual deliveries
+      const harvestResponse = await fetch(`${API_BASE}/harvest-list`, {
+        headers: getAuthHeader()
+      })
+      const harvestResult = await harvestResponse.json()
+      // Handle both old format (array) and new format (object with entries)
+      const harvestEntries = harvestResult.data?.entries || harvestResult.data || []
+      
+      // Calculate progress for each pantry
       const progressData = pantries.map((pantry: any) => {
         const commitment = pantry.commitmentAmounts || pantry.commitment_amounts
         const totalCommitted = commitment?.total || 0
@@ -53,8 +62,36 @@ const dashboardAPI = {
         // Skip pantries without commitments
         if (totalCommitted === 0) return null
         
-        // Placeholder values - in the future this should come from actual delivery data
-        const delivered = 0 // TODO: Calculate from actual delivery records
+        const pantryId = pantry.id || pantry._id
+        
+        // Calculate total weight delivered to this pantry this year
+        const currentYear = new Date().getFullYear()
+        const relevantEntries = harvestEntries.filter((entry: any) => {
+          const entryPantryId = entry.pantryId || entry.pantry_id
+          const harvestYear = new Date(entry.harvestDate || entry.harvest_date).getFullYear()
+          const matches = entryPantryId === pantryId && harvestYear === currentYear
+          if (matches) {
+            console.log(`Pantry ${pantry.name} - Found harvest:`, {
+              entryId: entry._id,
+              weight: entry.weight,
+              date: entry.harvestDate || entry.harvest_date,
+              pantryId: entryPantryId
+            })
+          }
+          return matches
+        })
+        
+        const delivered = relevantEntries.reduce((total: number, entry: any) => {
+          return total + (entry.weight || 0)
+        }, 0)
+        
+        console.log(`Pantry ${pantry.name} (${pantryId}):`, {
+          totalEntries: harvestEntries.length,
+          relevantEntries: relevantEntries.length,
+          totalDelivered: delivered,
+          committed: totalCommitted
+        })
+        
         const remaining = Math.max(0, totalCommitted - delivered)
         const percentage = totalCommitted > 0 ? (delivered / totalCommitted) * 100 : 0
         
@@ -72,7 +109,12 @@ const dashboardAPI = {
         }
       }).filter(Boolean) // Remove null entries (pantries without commitments)
       
-      return { data: progressData, error: null }
+      // Filter out pantries with no distributions and sort by delivered amount
+      const filteredProgressData = progressData
+        .filter(item => item.delivered > 0) // Hide pantries with no distributions
+        .sort((a, b) => b.delivered - a.delivered) // Sort by total pounds distributed (descending)
+      
+      return { data: filteredProgressData, error: null }
     } catch (error: any) {
       return { data: [], error: error.message }
     }
@@ -126,11 +168,15 @@ export const useDashboardStore = defineStore('dashboard', () => {
   }))
 
   // Additional computed properties for Charts component
-  const recentEntries = computed(() => harvestData.value.slice(0, 10))
+  const recentEntries = computed(() => {
+    const entries = Array.isArray(harvestData.value) ? harvestData.value : []
+    return entries.slice(0, 10)
+  })
   
   const produceBreakdown = computed(() => {
     const breakdown = new Map()
-    harvestData.value.forEach(entry => {
+    const entries = Array.isArray(harvestData.value) ? harvestData.value : []
+    entries.forEach(entry => {
       const name = entry.produceType?.name || 'Unknown'
       const existing = breakdown.get(name) || { name, quantity: 0, value: 0 }
       const quantityInPounds = entry.quantity * (entry.produceType?.conversionFactor || 1)
@@ -143,7 +189,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
   const productionTrends = computed(() => {
     const trends = new Map()
-    harvestData.value.forEach(entry => {
+    const entries = Array.isArray(harvestData.value) ? harvestData.value : []
+    entries.forEach(entry => {
       const date = new Date(entry.harvestDate).toISOString().split('T')[0]
       const existing = trends.get(date) || { date, quantity: 0, value: 0 }
       const quantityInPounds = entry.quantity * (entry.produceType?.conversionFactor || 1)
