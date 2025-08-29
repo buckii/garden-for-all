@@ -1,6 +1,6 @@
 const { connectDB } = require('./utils/db.js');
 const { HarvestEntry, ProduceType, FoodPantry, PantryDistribution } = require('./utils/models.js');
-const { validateToken, extractToken, createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
+const { createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
 
 exports.handler = async function(event, context) {
   if (event.httpMethod === 'OPTIONS') {
@@ -14,13 +14,7 @@ exports.handler = async function(event, context) {
   try {
     await connectDB();
 
-    // Require authentication for dashboard data
-    const token = extractToken(event.headers.authorization);
-    if (!token) {
-      return createErrorResponse(401, 'Access token required');
-    }
-
-    await validateToken(token); // Just verify token is valid
+    // Dashboard is now public - no authentication required
 
     // Get local date string and parse as date without timezone
     const localDateStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format

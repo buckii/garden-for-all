@@ -186,6 +186,23 @@ class NetlifyAuth {
     return { error: { message: 'Password update not yet implemented' } };
   }
 
+  async confirmPasswordReset(token: string, password: string) {
+    try {
+      const response = await this.makeRequest('auth-reset-password-confirm', {
+        method: 'POST',
+        body: JSON.stringify({ token, password }),
+      });
+
+      if (response.success) {
+        return { error: null };
+      } else {
+        return { error: { message: response.error || 'Password reset failed' } };
+      }
+    } catch (error: any) {
+      return { error: { message: error.message || 'Network error' } };
+    }
+  }
+
   onAuthStateChange(callback: (event: string, session: Session | null) => void) {
     // Simplified auth state change - check session on page load
     this.getSession().then(({ data }) => {

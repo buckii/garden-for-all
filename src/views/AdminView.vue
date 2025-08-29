@@ -73,6 +73,7 @@
             <ProduceTypes v-else-if="activeTab === 'types'" />
             <FoodPantries v-else-if="activeTab === 'pantries'" />
             <HarvestEntries v-else-if="activeTab === 'entries'" />
+            <UserManagement v-else-if="activeTab === 'users'" />
             <div v-if="activeTab === 'export'" class="space-y-8">
               <div class="text-center">
                 <svg class="mx-auto h-12 w-12 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,7 +195,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useHarvestStore } from '@/stores/harvest'
 import { useAdminStore } from '@/stores/admin'
 import { exportHarvestData } from '@/utils/excelExport'
@@ -203,6 +204,7 @@ import ProduceCategories from '@/components/admin/ProduceCategories.vue'
 import ProduceTypes from '@/components/admin/ProduceTypes.vue'
 import FoodPantries from '@/components/admin/FoodPantries.vue'
 import HarvestEntries from '@/components/admin/HarvestEntries.vue'
+import UserManagement from '@/components/admin/UserManagement.vue'
 
 const harvestStore = useHarvestStore()
 const adminStore = useAdminStore()
@@ -250,6 +252,11 @@ const tabs = [
     icon: 'svg'
   },
   { 
+    id: 'users', 
+    name: 'Users',
+    icon: 'svg'
+  },
+  { 
     id: 'export', 
     name: 'Export Data',
     icon: 'svg'
@@ -268,24 +275,23 @@ const exportData = async () => {
   exportResult.value = null
   
   try {
-    // Fetch harvest entries based on date range
-    const { data: harvestEntries, error } = await supabase
-      .from('harvest_entries')
-      .select(`
-        *,
-        produce_type:produce_types(
-          *,
-          category:produce_categories(*)
-        )
-      `)
-      .gte('harvest_date', exportOptions.value.startDate || '1900-01-01')
-      .lte('harvest_date', exportOptions.value.endDate || '2100-12-31')
-      .order('harvest_date', { ascending: true })
-
-    if (error) throw error
+    // Fetch harvest entries based on date range from our API
+    const params = new URLSearchParams()
+    if (exportOptions.value.startDate) params.append('startDate', exportOptions.value.startDate)
+    if (exportOptions.value.endDate) params.append('endDate', exportOptions.value.endDate)
+    
+    const response = await fetch(`/.netlify/functions/harvest-list?${params}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    const data = await response.json()
+    if (!data.success) throw new Error(data.error)
 
     const result = await exportHarvestData(
-      harvestEntries || [],
+      data.data || [],
       harvestStore.produceTypes,
       adminStore.categories,
       adminStore.foodPantries,
