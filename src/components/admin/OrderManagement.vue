@@ -17,9 +17,10 @@
           <select v-model="filters.status" @change="fetchOrders"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-garden-green-500 focus:border-garden-green-500">
             <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="packed">Packed</option>
-            <option value="delivered">Delivered</option>
+            <option value="draft">Draft</option>
+            <option value="in-progress">In Progress</option>
+            <option value="ready">Ready</option>
+            <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
@@ -100,7 +101,10 @@
               <!-- Delivery Date -->
               <div class="col-span-2">
                 <div class="text-sm text-gray-900">{{ formatDate(order.deliveryDate) }}</div>
-                <div class="text-xs text-gray-500 capitalize">{{ order.orderType }}</div>
+                <div class="text-xs text-gray-500">
+                  <span v-if="order.pickupTime">{{ formatPickupTime(order.pickupTime) }} • </span>
+                  <span class="capitalize">{{ order.orderType }}</span>
+                </div>
               </div>
 
               <!-- Status -->
@@ -110,9 +114,10 @@
                     'px-2 py-1 rounded-full text-xs font-medium border-0 focus:ring-2 focus:ring-garden-green-500',
                     getStatusClass(order.status)
                   ]">
-                  <option value="pending">Pending</option>
-                  <option value="packed">Packed</option>
-                  <option value="delivered">Delivered</option>
+                  <option value="draft">Draft</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="ready">Ready</option>
+                  <option value="completed">Completed</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
@@ -131,7 +136,14 @@
 
               <!-- Actions -->
               <div class="col-span-1">
-                <div class="flex space-x-2">
+                <div class="flex space-x-1">
+                  <button @click="editOrder(order)"
+                    class="text-blue-400 hover:text-blue-600 p-1"
+                    title="Edit Order">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
                   <button @click="viewOrder(order)"
                     class="text-gray-400 hover:text-gray-600 p-1"
                     title="View Details">
@@ -184,7 +196,7 @@
                     <div v-for="product in order.products" :key="product.produceTypeId"
                       class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
                       <div>
-                        <div class="font-medium text-gray-900">{{ getProduceName(product.produceTypeId) }}</div>
+                        <div class="font-medium text-gray-900">{{ getProduceName(product) }}</div>
                         <div v-if="product.quantity > 0" class="text-xs text-gray-500">Qty: {{ product.quantity }}</div>
                       </div>
                       <div class="text-right">
@@ -221,14 +233,22 @@
         </div>
       </div>
     </div>
+
+    <!-- Order Edit Modal -->
+    <OrderEditModal
+      :show="showEditModal"
+      :order="selectedOrderForEdit"
+      :pantries="pantries"
+      :produce-types="produceTypes"
+      @close="closeEditModal"
+      @saved="handleOrderSaved"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useAdminStore } from '@/stores/admin'
-
-const adminStore = useAdminStore()
+import { onMounted, ref } from 'vue'
+import OrderEditModal from './OrderEditModal.vue'
 
 // State
 const orders = ref<any[]>([])
@@ -237,6 +257,8 @@ const produceTypes = ref<any[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const selectedOrder = ref<any>(null)
+const showEditModal = ref(false)
+const selectedOrderForEdit = ref<any>(null)
 
 const filters = ref({
   status: '',
@@ -350,6 +372,20 @@ const updateOrderStatus = async (order: any) => {
   }
 }
 
+const editOrder = (order: any) => {
+  selectedOrderForEdit.value = order
+  showEditModal.value = true
+}
+
+const closeEditModal = () => {
+  showEditModal.value = false
+  selectedOrderForEdit.value = null
+}
+
+const handleOrderSaved = () => {
+  fetchOrders(pagination.value.current)
+}
+
 const viewOrder = (order: any) => {
   selectedOrder.value = selectedOrder.value?._id === order._id ? null : order
 }
@@ -394,6 +430,17 @@ const formatDate = (dateString: string) => {
   })
 }
 
+const formatPickupTime = (timeString: string) => {
+  if (!timeString) return ''
+  
+  const [hours, minutes] = timeString.split(':')
+  const hour = parseInt(hours)
+  const ampm = hour >= 12 ? 'PM' : 'AM'
+  const hour12 = hour % 12 || 12
+  
+  return `${hour12}:${minutes} ${ampm}`
+}
+
 const formatDateTime = (dateString: string) => {
   return new Date(dateString).toLocaleString('en-US', {
     year: 'numeric',
@@ -406,11 +453,13 @@ const formatDateTime = (dateString: string) => {
 
 const getStatusClass = (status: string) => {
   switch (status) {
-    case 'pending':
+    case 'draft':
+      return 'bg-gray-100 text-gray-800'
+    case 'in-progress':
       return 'bg-yellow-100 text-yellow-800'
-    case 'packed':
+    case 'ready':
       return 'bg-blue-100 text-blue-800'
-    case 'delivered':
+    case 'completed':
       return 'bg-green-100 text-green-800'
     case 'cancelled':
       return 'bg-red-100 text-red-800'
@@ -419,7 +468,14 @@ const getStatusClass = (status: string) => {
   }
 }
 
-const getProduceName = (produceTypeId: string) => {
+const getProduceName = (product: any) => {
+  // First try to use the populated produceType
+  if (product.produceType?.name) {
+    return product.produceType.name
+  }
+  
+  // Fallback to lookup by ID
+  const produceTypeId = product.produceTypeId || product.produce_type_id
   const produceType = produceTypes.value.find(pt => (pt.id || pt._id) === produceTypeId)
   return produceType?.name || 'Unknown Product'
 }

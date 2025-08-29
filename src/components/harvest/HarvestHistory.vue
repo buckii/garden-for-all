@@ -112,14 +112,13 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="grid grid-cols-2 gap-4 pt-4">
+    <div class="pt-4">
       <button @click="$emit('add-another')"
-        class="py-4 px-6 bg-garden-green-600 text-white rounded-lg text-lg font-medium hover:bg-garden-green-700 transition-colors min-h-[60px]">
-        + Add Another
-      </button>
-      <button @click="refreshEntries"
-        class="py-4 px-6 bg-white border-2 border-garden-green-600 text-garden-green-600 rounded-lg text-lg font-medium hover:bg-garden-green-50 transition-colors min-h-[60px]">
-        🔄 Refresh
+        class="w-full py-4 px-6 bg-garden-green-600 text-white rounded-lg text-lg font-medium hover:bg-garden-green-700 transition-colors min-h-[60px] flex items-center justify-center space-x-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Add to Harvest</span>
       </button>
     </div>
   </div>

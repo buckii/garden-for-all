@@ -85,6 +85,7 @@ async function createOrder(event, user) {
     const order = new Order({
       pantryId: orderData.pantryId,
       deliveryDate: new Date(orderData.deliveryDate),
+      pickupTime: orderData.pickupTime || '',
       packerName: orderData.packerName,
       orderType: orderData.orderType || 'delivery',
       notes: orderData.notes || '',
@@ -163,13 +164,27 @@ async function getOrders(event, user) {
     const [orders, total] = await Promise.all([
       Order.find(query)
         .populate('pantryId')
-        .populate('products.produceTypeId')
         .populate('createdBy', 'email')
         .sort(sortOptions)
         .skip(skip)
-        .limit(limitNum),
+        .limit(limitNum)
+        .lean(),
       Order.countDocuments(query)
     ]);
+    
+    // Manually populate produce types for products
+    for (const order of orders) {
+      if (order.products && order.products.length > 0) {
+        for (const product of order.products) {
+          if (product.produceTypeId) {
+            const produceType = await ProduceType.findById(product.produceTypeId);
+            if (produceType) {
+              product.produceType = produceType;
+            }
+          }
+        }
+      }
+    }
 
     // Calculate pagination info
     const totalPages = Math.ceil(total / limitNum);
@@ -212,13 +227,43 @@ async function updateOrder(event, user) {
     }
 
     // Update allowed fields
-    const allowedUpdates = ['status', 'notes', 'deliveryDate', 'packerName'];
+    const allowedUpdates = ['status', 'notes', 'deliveryDate', 'pickupTime', 'packerName', 'orderType', 'pantryId', 'products', 'totalWeight', 'totalValue'];
     const updates = {};
     
     for (const field of allowedUpdates) {
       if (updateData[field] !== undefined) {
         updates[field] = updateData[field];
       }
+    }
+    
+    // If products were updated, recalculate totals
+    if (updateData.products) {
+      const produceTypeIds = updateData.products.map(p => p.produceTypeId);
+      const produceTypes = await ProduceType.find({ _id: { $in: produceTypeIds } });
+      
+      let totalWeight = 0;
+      let totalValue = 0;
+      
+      const processedProducts = updateData.products.map(product => {
+        const produceType = produceTypes.find(pt => pt._id.toString() === product.produceTypeId);
+        const weight = product.weight || 0;
+        const value = weight * (produceType?.pricePerLb || 0);
+        
+        totalWeight += weight;
+        totalValue += value;
+        
+        return {
+          produceTypeId: product.produceTypeId,
+          weight: weight,
+          quantity: product.quantity || 0,
+          pricePerLb: produceType?.pricePerLb || 0,
+          value: value
+        };
+      });
+      
+      updates.products = processedProducts;
+      updates.totalWeight = totalWeight;
+      updates.totalValue = totalValue;
     }
     
     updates.updatedAt = new Date();

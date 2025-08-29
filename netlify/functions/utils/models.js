@@ -11,7 +11,7 @@ const produceCategorySchema = new mongoose.Schema({
 const produceTypeSchema = new mongoose.Schema({
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceCategory', required: true },
   name: { type: String, required: true, trim: true },
-  unitType: { type: String, required: true, enum: ['items', 'pints', 'bunches', 'bags', 'boxes'] },
+  unitType: { type: String, required: true, enum: ['pounds', 'half-pints', 'bouquets'] },
   conversionFactor: { type: Number, required: true, default: 0, min: 0 },
   pricePerLb: { type: Number, default: 0, min: 0 },
   servingWeightOz: { type: Number, default: 0, min: 0 },
@@ -60,9 +60,10 @@ const pantryDistributionSchema = new mongoose.Schema({
 const orderSchema = new mongoose.Schema({
   pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: true },
   deliveryDate: { type: Date, required: true },
+  pickupTime: { type: String, trim: true }, // Time in HH:MM format
   packerName: { type: String, required: true, trim: true },
   orderType: { type: String, required: true, enum: ['delivery', 'pickup'], default: 'delivery' },
-  status: { type: String, required: true, enum: ['pending', 'packed', 'delivered', 'cancelled'], default: 'pending' },
+  status: { type: String, required: true, enum: ['draft', 'in-progress', 'ready', 'completed', 'cancelled'], default: 'draft' },
   notes: { type: String, trim: true },
   products: [{
     produceTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceType', required: true },

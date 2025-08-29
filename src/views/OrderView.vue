@@ -65,6 +65,13 @@
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-garden-green-500 focus:border-garden-green-500">
             </div>
 
+            <!-- Pickup Time -->
+            <div>
+              <label for="pickupTime" class="block text-sm font-medium text-gray-700 mb-2">Pickup Time</label>
+              <input type="time" id="pickupTime" v-model="form.pickupTime"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-garden-green-500 focus:border-garden-green-500">
+            </div>
+
             <!-- Packer Name -->
             <div>
               <label for="packerName" class="block text-sm font-medium text-gray-700 mb-2">Packer Name</label>
@@ -218,6 +225,7 @@ const router = useRouter()
 const form = ref({
   pantryId: '',
   deliveryDate: '',
+  pickupTime: '',
   packerName: '',
   orderType: 'delivery',
   notes: '',
@@ -366,11 +374,12 @@ const submitOrder = async () => {
     const orderData = {
       pantryId: form.value.pantryId,
       deliveryDate: form.value.deliveryDate,
+      pickupTime: form.value.pickupTime,
       packerName: form.value.packerName,
       orderType: form.value.orderType,
       notes: form.value.notes,
       products: form.value.products.filter(p => p.produceTypeId && p.weight > 0),
-      status: 'pending',
+      status: 'draft',
       createdAt: new Date().toISOString()
     }
     
