@@ -24,6 +24,12 @@ const router = createRouter({
       component: () => import('../views/HarvestHistoryView.vue'),
     },
     {
+      path: '/order',
+      name: 'order',
+      component: () => import('../views/OrderView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: () => import('../views/AdminView.vue'),

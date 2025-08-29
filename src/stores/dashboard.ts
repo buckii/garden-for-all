@@ -25,8 +25,8 @@ const dashboardAPI = {
   
   async getHarvestData() {
     try {
-      // Fetch 500 entries to ensure we get data for the last 12 weeks
-      const response = await fetch(`${API_BASE}/harvest-list?limit=500&sortBy=harvestDate&sortOrder=desc`, {
+      // Fetch 2000 entries to ensure we get data for year-over-year comparisons
+      const response = await fetch(`${API_BASE}/harvest-list?limit=2000&sortBy=harvestDate&sortOrder=desc`, {
         headers: getAuthHeader()
       })
       const result = await response.json()
@@ -48,7 +48,7 @@ const dashboardAPI = {
       const pantries = pantriesResult.data || []
       
       // Fetch harvest entries to calculate actual deliveries
-      const harvestResponse = await fetch(`${API_BASE}/harvest-list?limit=500`, {
+      const harvestResponse = await fetch(`${API_BASE}/harvest-list?limit=2000`, {
         headers: getAuthHeader()
       })
       const harvestResult = await harvestResponse.json()
@@ -69,14 +69,44 @@ const dashboardAPI = {
         const currentYear = new Date().getFullYear()
         const relevantEntries = harvestEntries.filter((entry: any) => {
           const entryPantryId = entry.pantryId || entry.pantry_id
-          const harvestYear = new Date(entry.harvestDate || entry.harvest_date).getFullYear()
+          const harvestDate = entry.harvestDate || entry.harvest_date
+          
+          // Ensure we have a valid date
+          if (!harvestDate) return false
+          
+          const harvestYear = new Date(harvestDate).getFullYear()
           const matches = entryPantryId === pantryId && harvestYear === currentYear
           return matches
         })
         
+        // Calculate delivered weight, handling both weight field and calculated weight
         const delivered = relevantEntries.reduce((total: number, entry: any) => {
-          return total + (entry.weight || 0)
+          // Use actual weight if available, otherwise calculate from quantity
+          let entryWeight = 0
+          
+          if (entry.weight && entry.weight > 0) {
+            // Use the actual weight if provided
+            entryWeight = entry.weight
+          } else if (entry.quantity && entry.quantity > 0) {
+            // Calculate weight from quantity if weight is not available
+            // This handles older entries that might not have weight field
+            const conversionFactor = entry.produceType?.conversionFactor || 
+                                    entry.produceType?.conversion_factor || 1
+            entryWeight = entry.quantity * conversionFactor
+          }
+          
+          // Debug logging for pantry calculations
+          if (process.env.NODE_ENV === 'development' && entryWeight > 0) {
+            console.log(`📊 Pantry ${pantry.name} entry: ${entryWeight.toFixed(2)} lbs (${entry.harvestDate || entry.harvest_date})`)
+          }
+          
+          return total + entryWeight
         }, 0)
+        
+        // Debug logging for final pantry totals
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`📊 Pantry ${pantry.name}: ${relevantEntries.length} entries, ${delivered.toFixed(2)} lbs delivered of ${totalCommitted} lbs committed`)
+        }
         
         const remaining = Math.max(0, totalCommitted - delivered)
         const percentage = totalCommitted > 0 ? (delivered / totalCommitted) * 100 : 0

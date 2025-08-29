@@ -13,32 +13,26 @@
 
     <div v-else-if="pantryProgress.length === 0" class="text-center py-8">
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
       <p class="mt-4 text-sm text-gray-500">No pantry commitments configured</p>
     </div>
 
     <div v-else class="space-y-6">
-      <div 
-        v-for="progress in pantryProgress" 
-        :key="progress.pantry.id"
-        class="border rounded-lg p-4 hover:shadow-md transition-shadow"
-      >
+      <div v-for="progress in pantryProgress" :key="progress.pantry.id"
+        class="border rounded-lg p-4 hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center space-x-3">
-            <div 
-              :class="[
-                'w-3 h-3 rounded-full',
-                getStatusColor(progress.percentage)
-              ]"
-            ></div>
+            <div :class="[
+              'w-3 h-3 rounded-full',
+              getStatusColor(progress.percentage)
+            ]"></div>
             <h4 class="font-medium text-gray-900">{{ progress.pantry.name }}</h4>
-            <span 
-              :class="[
-                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                getStatusBadgeClass(progress.percentage)
-              ]"
-            >
+            <span :class="[
+              'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+              getStatusBadgeClass(progress.percentage)
+            ]">
               {{ getStatusText(progress.percentage) }}
             </span>
           </div>
@@ -54,13 +48,10 @@
 
         <!-- Progress Bar -->
         <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
-          <div 
-            :class="[
-              'h-2 rounded-full transition-all duration-300',
-              getProgressBarColor(progress.percentage)
-            ]"
-            :style="{ width: `${Math.min(100, progress.percentage)}%` }"
-          ></div>
+          <div :class="[
+            'h-2 rounded-full transition-all duration-300',
+            getProgressBarColor(progress.percentage)
+          ]" :style="{ width: `${Math.min(100, progress.percentage)}%` }"></div>
         </div>
 
         <!-- Details -->
@@ -73,29 +64,23 @@
             <span class="text-gray-500">Remaining:</span>
             <div class="font-medium text-gray-900">{{ progress.remaining.toFixed(1) }} lbs</div>
           </div>
-          <div v-if="progress.pantry.contactInfo?.phone">
-            <span class="text-gray-500">Contact:</span>
-            <div class="font-medium text-gray-700">{{ progress.pantry.contactInfo.phone }}</div>
-          </div>
           <div class="text-right">
-            <button
-              @click="viewPantryDetails(progress.pantry)"
-              class="text-garden-green-600 hover:text-garden-green-800 text-sm font-medium"
-            >
+            <button @click="viewPantryDetails(progress.pantry)"
+              class="text-garden-green-600 hover:text-garden-green-800 text-sm font-medium">
               View Details →
             </button>
           </div>
         </div>
 
         <!-- Alert for Behind Schedule -->
-        <div 
-          v-if="progress.percentage < getExpectedProgress()"
-          class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md"
-        >
+        <div v-if="progress.percentage < getExpectedProgress()"
+          class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
           <div class="flex">
             <div class="flex-shrink-0">
               <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clip-rule="evenodd" />
               </svg>
             </div>
             <div class="ml-3">
@@ -108,14 +93,14 @@
         </div>
 
         <!-- Alert for Ahead of Schedule -->
-        <div 
-          v-else-if="progress.percentage > getExpectedProgress() + 10"
-          class="mt-3 p-3 bg-green-50 border border-green-200 rounded-md"
-        >
+        <div v-else-if="progress.percentage > getExpectedProgress() + 10"
+          class="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
           <div class="flex">
             <div class="flex-shrink-0">
               <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clip-rule="evenodd" />
               </svg>
             </div>
             <div class="ml-3">
@@ -180,24 +165,24 @@ const getExpectedProgress = () => {
   const now = new Date()
   const yearStart = new Date(now.getFullYear(), 0, 1)
   const yearEnd = new Date(now.getFullYear() + 1, 0, 1)
-  
+
   const totalDays = (yearEnd.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24)
   const passedDays = (now.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24)
-  
+
   return (passedDays / totalDays) * 100
 }
 
 const getCurrentDateProgress = () => {
   const now = new Date()
-  return now.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric' 
+  return now.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
   })
 }
 
 const onTrackCount = computed(() => {
   const expected = getExpectedProgress()
-  return props.pantryProgress.filter(p => 
+  return props.pantryProgress.filter(p =>
     p.percentage >= expected - 10 && p.percentage <= expected + 10
   ).length
 })

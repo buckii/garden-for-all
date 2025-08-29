@@ -1,11 +1,21 @@
 <template>
   <div v-if="selectedProduce" class="space-y-3">
-    <!-- Selected Produce Info -->
-    <div class="bg-garden-green-50 border-2 border-garden-green-200 rounded-lg p-3 text-center">
-      <h2 class="text-lg font-bold text-gray-900">{{ selectedProduce.name }}</h2>
-      <div class="flex justify-center items-center space-x-3 text-sm">
-        <span class="text-gray-600">{{ selectedProduce.unitType || selectedProduce.unit_type }}</span>
-        <span class="text-garden-green-600">${{ (selectedProduce.pricePerLb || selectedProduce.price_per_lb || 0).toFixed(2) }}/{{ getUnitAbbr(selectedProduce.unitType || selectedProduce.unit_type) }}</span>
+    <!-- Selected Produce Info with Back Button -->
+    <div class="bg-garden-green-50 border-2 border-garden-green-200 rounded-lg p-3">
+      <div class="flex items-start">
+        <button
+          @click="$emit('back')"
+          class="mr-3 py-1 px-2 bg-white border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center"
+        >
+          ← Back
+        </button>
+        <div class="flex-1 text-center">
+          <h2 class="text-lg font-bold text-gray-900">{{ selectedProduce.name }}</h2>
+          <div class="flex justify-center items-center space-x-3 text-sm">
+            <span class="text-gray-600">{{ selectedProduce.unitType || selectedProduce.unit_type }}</span>
+            <span class="text-garden-green-600">${{ (selectedProduce.pricePerLb || selectedProduce.price_per_lb || 0).toFixed(2) }}/{{ getUnitAbbr(selectedProduce.unitType || selectedProduce.unit_type) }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -107,6 +117,19 @@
       </div>
     </div>
 
+    <!-- Harvest Date -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">
+        Harvest Date *
+      </label>
+      <input
+        v-model="harvestDate"
+        type="date"
+        required
+        class="block w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
+      />
+    </div>
+
     <!-- Pantry Selection -->
     <div class="space-y-2">
       <label class="block text-sm font-medium text-gray-700">
@@ -171,18 +194,11 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="grid grid-cols-2 gap-3 pt-2">
-      <button
-        @click="$emit('back')"
-        class="py-2 px-3 bg-gray-100 border-2 border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
-      >
-        ← Back
-      </button>
-      
+    <div class="pt-2">
       <button
         @click="handleSubmit"
-        :disabled="!quantity || quantity <= 0 || !selectedPantryId || submitting"
-        class="py-2 px-3 bg-garden-green-600 text-white rounded-lg text-sm font-medium hover:bg-garden-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+        :disabled="!quantity || quantity <= 0 || !selectedPantryId || !harvestDate || submitting"
+        class="w-full py-3 px-4 bg-garden-green-600 text-white rounded-lg text-sm font-medium hover:bg-garden-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
       >
         <svg v-if="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -216,6 +232,7 @@ interface Emits {
     weight?: number
     harvester_name: string
     notes: string
+    harvestDate: string
   }): void
   (e: 'back'): void
 }
@@ -226,8 +243,9 @@ const emit = defineEmits<Emits>()
 const quantity = ref<number>(0)
 const displayValue = ref('0')
 const weight = ref<number | undefined>(undefined)
-const selectedPantryId = ref<string>('')
+const selectedPantryId = ref<string>(localStorage.getItem('lastPantryId') || '')
 const harvesterName = ref(localStorage.getItem('harvesterName') || '')
+const harvestDate = ref(localStorage.getItem('lastHarvestDate') || new Date().toISOString().split('T')[0])
 const notes = ref('')
 const showNotesField = ref(false)
 const activeField = ref<'quantity' | 'weight'>('quantity')
@@ -325,7 +343,7 @@ const clearActiveField = () => {
 }
 
 const handleSubmit = () => {
-  if (!props.selectedProduce || !quantity.value || quantity.value <= 0 || !selectedPantryId.value) return
+  if (!props.selectedProduce || !quantity.value || quantity.value <= 0 || !selectedPantryId.value || !harvestDate.value) return
   
   const submitData: any = {
     produce_type_id: props.selectedProduce.id || props.selectedProduce._id,
@@ -333,13 +351,18 @@ const handleSubmit = () => {
     quantity: quantity.value,
     unit: props.selectedProduce.unitType || props.selectedProduce.unit_type,
     harvester_name: harvesterName.value.trim(),
-    notes: notes.value.trim()
+    notes: notes.value.trim(),
+    harvestDate: harvestDate.value
   }
   
   // Include weight if provided
   if (weight.value && weight.value > 0) {
     submitData.weight = weight.value
   }
+  
+  // Save form values to localStorage for next time
+  localStorage.setItem('lastPantryId', selectedPantryId.value)
+  localStorage.setItem('lastHarvestDate', harvestDate.value)
   
   emit('submit', submitData)
 }
@@ -362,12 +385,28 @@ watch(harvesterName, (newName) => {
   }
 })
 
-// Reset form when produce changes (but keep harvester name)
+// Save pantry ID to localStorage when it changes
+watch(selectedPantryId, (newId) => {
+  if (newId) {
+    localStorage.setItem('lastPantryId', newId)
+  }
+})
+
+// Save harvest date to localStorage when it changes
+watch(harvestDate, (newDate) => {
+  if (newDate) {
+    localStorage.setItem('lastHarvestDate', newDate)
+  }
+})
+
+// Reset form when produce changes (but keep harvester name, pantry, and date)
 watch(() => props.selectedProduce, () => {
   quantity.value = 0
   displayValue.value = '0'
   weight.value = undefined
-  selectedPantryId.value = ''
+  // Keep pantry, harvester name, and harvest date from localStorage
+  selectedPantryId.value = localStorage.getItem('lastPantryId') || ''
+  harvestDate.value = localStorage.getItem('lastHarvestDate') || new Date().toISOString().split('T')[0]
   notes.value = ''
   showNotesField.value = false
   activeField.value = 'quantity' // Reset to quantity field

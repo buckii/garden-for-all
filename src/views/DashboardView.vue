@@ -17,8 +17,10 @@
           <button @click="refreshData" :disabled="loading"
             class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors border border-gray-300"
             title="Refresh Data">
-            <svg :class="['w-5 h-5', { 'animate-spin': loading }]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            <svg :class="['w-5 h-5', { 'animate-spin': loading }]" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
         </div>
@@ -126,7 +128,7 @@
               <div class="grid grid-cols-2 gap-4 mb-4">
                 <div class="text-center">
                   <div class="text-2xl font-bold text-garden-green-600">{{ selectedPantryProgress.percentage.toFixed(1)
-                    }}%</div>
+                  }}%</div>
                   <div class="text-sm text-gray-600">Complete</div>
                 </div>
                 <div class="text-center">
@@ -146,36 +148,6 @@
               </div>
             </div>
 
-            <!-- Contact Information -->
-            <div v-if="selectedPantry.contactInfo">
-              <h4 class="font-semibold text-gray-800 mb-3">Contact Information</h4>
-              <div class="bg-gray-50 rounded-lg p-4 space-y-2">
-                <div v-if="selectedPantry.contactInfo.phone" class="flex items-center">
-                  <svg class="w-4 h-4 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  <span class="text-gray-700">{{ selectedPantry.contactInfo.phone }}</span>
-                </div>
-                <div v-if="selectedPantry.contactInfo.email" class="flex items-center">
-                  <svg class="w-4 h-4 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span class="text-gray-700">{{ selectedPantry.contactInfo.email }}</span>
-                </div>
-                <div v-if="selectedPantry.contactInfo.address" class="flex items-start">
-                  <svg class="w-4 h-4 text-gray-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span class="text-gray-700">{{ selectedPantry.contactInfo.address }}</span>
-                </div>
-              </div>
-            </div>
-
             <!-- Annual Commitments -->
             <div v-if="selectedPantry.commitmentAmounts">
               <h4 class="font-semibold text-gray-800 mb-3">Annual Commitments</h4>
@@ -183,7 +155,7 @@
                 <div class="grid grid-cols-2 gap-4 mb-4">
                   <div class="text-center p-3 bg-white rounded-lg">
                     <div class="text-xl font-bold text-garden-green-600">{{ selectedPantry.commitmentAmounts.total || 0
-                      }}</div>
+                    }}</div>
                     <div class="text-sm text-gray-600">Total lbs</div>
                   </div>
                   <div class="space-y-2">

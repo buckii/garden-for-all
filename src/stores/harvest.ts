@@ -137,7 +137,7 @@ export const useHarvestStore = defineStore('harvest', () => {
     try {
       const { data, error: createError } = await api.createHarvestEntry({
         ...entryData,
-        harvestDate: entryData.harvestDate || new Date().toISOString().split('T')[0]
+        harvest_date: entryData.harvestDate || new Date().toISOString().split('T')[0]
       })
       
       if (createError) throw createError

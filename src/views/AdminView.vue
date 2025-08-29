@@ -73,6 +73,7 @@
             <ProduceTypes v-else-if="activeTab === 'types'" />
             <FoodPantries v-else-if="activeTab === 'pantries'" />
             <HarvestEntries v-else-if="activeTab === 'entries'" />
+            <OrderManagement v-else-if="activeTab === 'orders'" />
             <UserManagement v-else-if="activeTab === 'users'" />
             <div v-if="activeTab === 'export'" class="space-y-8">
               <div class="text-center">
@@ -204,6 +205,7 @@ import ProduceCategories from '@/components/admin/ProduceCategories.vue'
 import ProduceTypes from '@/components/admin/ProduceTypes.vue'
 import FoodPantries from '@/components/admin/FoodPantries.vue'
 import HarvestEntries from '@/components/admin/HarvestEntries.vue'
+import OrderManagement from '@/components/admin/OrderManagement.vue'
 import UserManagement from '@/components/admin/UserManagement.vue'
 
 const harvestStore = useHarvestStore()
@@ -249,6 +251,11 @@ const tabs = [
   { 
     id: 'entries', 
     name: 'Harvest Entries',
+    icon: 'svg'
+  },
+  { 
+    id: 'orders', 
+    name: 'Orders',
     icon: 'svg'
   },
   { 

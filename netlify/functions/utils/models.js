@@ -56,11 +56,34 @@ const pantryDistributionSchema = new mongoose.Schema({
   distributionDate: { type: Date, required: true }
 }, { timestamps: { updatedAt: false } });
 
+// Order Schema
+const orderSchema = new mongoose.Schema({
+  pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: true },
+  deliveryDate: { type: Date, required: true },
+  packerName: { type: String, required: true, trim: true },
+  orderType: { type: String, required: true, enum: ['delivery', 'pickup'], default: 'delivery' },
+  status: { type: String, required: true, enum: ['pending', 'packed', 'delivered', 'cancelled'], default: 'pending' },
+  notes: { type: String, trim: true },
+  products: [{
+    produceTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceType', required: true },
+    weight: { type: Number, required: true, min: 0 },
+    quantity: { type: Number, default: 0, min: 0 },
+    pricePerLb: { type: Number, default: 0, min: 0 },
+    value: { type: Number, default: 0, min: 0 }
+  }],
+  totalWeight: { type: Number, default: 0, min: 0 },
+  totalValue: { type: Number, default: 0, min: 0 },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
+
 // Create indexes
 produceCategorySchema.index({ displayOrder: 1 });
 produceTypeSchema.index({ categoryId: 1, name: 1 });
 harvestEntrySchema.index({ produceTypeId: 1, harvestDate: -1 });
 pantryDistributionSchema.index({ pantryId: 1, distributionDate: -1 });
+orderSchema.index({ pantryId: 1, deliveryDate: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
 
 // Prevent re-compilation in serverless environment
 const ProduceCategory = mongoose.models.ProduceCategory || mongoose.model('ProduceCategory', produceCategorySchema);
@@ -68,11 +91,13 @@ const ProduceType = mongoose.models.ProduceType || mongoose.model('ProduceType',
 const FoodPantry = mongoose.models.FoodPantry || mongoose.model('FoodPantry', foodPantrySchema);
 const HarvestEntry = mongoose.models.HarvestEntry || mongoose.model('HarvestEntry', harvestEntrySchema);
 const PantryDistribution = mongoose.models.PantryDistribution || mongoose.model('PantryDistribution', pantryDistributionSchema);
+const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 
 module.exports = {
   ProduceCategory,
   ProduceType,
   FoodPantry,
   HarvestEntry,
-  PantryDistribution
+  PantryDistribution,
+  Order
 };

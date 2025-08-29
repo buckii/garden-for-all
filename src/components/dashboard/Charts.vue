@@ -53,46 +53,21 @@
       </div>
     </div>
 
-    <!-- Value Distribution -->
+    <!-- Period Comparison Chart -->
     <div class="bg-white rounded-lg shadow-sm border p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Value Distribution</h3>
-      <div class="space-y-4">
-        <div v-if="summary.year.value > 0" class="space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Today vs Year Target</span>
-            <span class="text-sm font-medium">
-              {{ ((summary.today.value / summary.year.value) * 100).toFixed(1) }}%
-            </span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              :style="{ width: `${Math.min(100, (summary.today.value / summary.year.value) * 100)}%` }"></div>
-          </div>
-
-          <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Week vs Year Target</span>
-            <span class="text-sm font-medium">
-              {{ ((summary.week.value / summary.year.value) * 100).toFixed(1) }}%
-            </span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-green-600 h-2 rounded-full transition-all duration-300"
-              :style="{ width: `${Math.min(100, (summary.week.value / summary.year.value) * 100)}%` }"></div>
-          </div>
-
-          <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Month vs Year Target</span>
-            <span class="text-sm font-medium">
-              {{ ((summary.month.value / summary.year.value) * 100).toFixed(1) }}%
-            </span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-yellow-600 h-2 rounded-full transition-all duration-300"
-              :style="{ width: `${Math.min(100, (summary.month.value / summary.year.value) * 100)}%` }"></div>
-          </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Period Comparisons</h3>
+      <div class="h-64">
+        <div v-if="periodComparison" class="h-full">
+          <Bar :data="periodComparisonData" :options="periodComparisonOptions" />
         </div>
-        <div v-else class="text-center text-gray-400 py-8">
-          <p>No data available for comparison</p>
+        <div v-else class="h-full flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg">
+          <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <p class="mt-2 text-sm text-gray-500">No comparison data available</p>
+          </div>
         </div>
       </div>
     </div>
@@ -283,6 +258,152 @@ const chartData = computed(() => {
     datasets
   }
 })
+
+// Calculate period comparisons
+const periodComparison = computed(() => {
+  const now = new Date()
+  const trends = props.productionTrends || []
+  
+  
+  // Helper function to calculate weight for a date range
+  const calculateWeight = (startDate: Date, endDate: Date, label: string = '') => {
+    const filtered = trends
+      .filter(trend => {
+        const trendDate = new Date(trend.date)
+        return trendDate >= startDate && trendDate <= endDate
+      })
+    
+    const total = filtered.reduce((sum, trend) => sum + (trend.weight || trend.quantity || 0), 0)
+    
+    
+    return total
+  }
+  
+  // Calculate date ranges
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  
+  // 7-day periods
+  const last7Days = new Date(today)
+  last7Days.setDate(today.getDate() - 7)
+  const previous7Days = new Date(last7Days)
+  previous7Days.setDate(last7Days.getDate() - 7)
+  
+  // 30-day periods
+  const last30Days = new Date(today)
+  last30Days.setDate(today.getDate() - 30)
+  const previous30Days = new Date(last30Days)
+  previous30Days.setDate(last30Days.getDate() - 30)
+  
+  // Year to date
+  const yearStart = new Date(now.getFullYear(), 0, 1)
+  const lastYearStart = new Date(now.getFullYear() - 1, 0, 1)
+  const lastYearToday = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
+  
+  
+  return {
+    last7: calculateWeight(last7Days, today, 'Last 7 days'),
+    previous7: calculateWeight(previous7Days, last7Days, 'Previous 7 days'),
+    last30: calculateWeight(last30Days, today, 'Last 30 days'),
+    previous30: calculateWeight(previous30Days, last30Days, 'Previous 30 days'),
+    ytd: calculateWeight(yearStart, today, 'YTD 2025'),
+    previousYtd: calculateWeight(lastYearStart, lastYearToday, 'YTD 2024')
+  }
+})
+
+const periodComparisonData = computed(() => {
+  const comp = periodComparison.value
+  
+  return {
+    labels: ['7 Days', '30 Days', 'Year to Date'],
+    datasets: [
+      {
+        label: 'Current Period',
+        data: [comp.last7, comp.last30, comp.ytd],
+        backgroundColor: '#10b981', // green-500
+        borderWidth: 0,
+        borderRadius: 4,
+      },
+      {
+        label: 'Previous Period',
+        data: [comp.previous7, comp.previous30, comp.previousYtd],
+        backgroundColor: '#d1d5db', // gray-300
+        borderWidth: 0,
+        borderRadius: 4,
+      }
+    ]
+  }
+})
+
+const periodComparisonOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'bottom' as const,
+      labels: {
+        usePointStyle: true,
+        pointStyle: 'rect',
+        padding: 12,
+        color: '#6b7280',
+        font: {
+          size: 11
+        }
+      }
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      titleColor: '#ffffff',
+      bodyColor: '#ffffff',
+      borderColor: '#10b981',
+      borderWidth: 1,
+      callbacks: {
+        label: (context: any) => {
+          const label = context.dataset.label
+          const value = context.parsed.y
+          return `${label}: ${value.toFixed(1)} lbs`
+        },
+        afterLabel: (context: any) => {
+          if (context.datasetIndex === 0) {
+            const current = context.parsed.y
+            const previous = context.chart.data.datasets[1].data[context.dataIndex]
+            const change = current - previous
+            const percentChange = previous > 0 ? ((change / previous) * 100).toFixed(1) : 'N/A'
+            const arrow = change >= 0 ? '↑' : '↓'
+            return `Change: ${arrow} ${Math.abs(change).toFixed(1)} lbs (${percentChange}%)`
+          }
+          return ''
+        }
+      }
+    }
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false
+      },
+      ticks: {
+        color: '#6b7280',
+        font: {
+          size: 11
+        }
+      }
+    },
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: 'rgba(107, 114, 128, 0.1)'
+      },
+      ticks: {
+        color: '#6b7280',
+        callback: (value: any) => `${value} lbs`,
+        font: {
+          size: 11
+        }
+      }
+    }
+  }
+}))
 
 const chartOptions = computed(() => ({
   responsive: true,
