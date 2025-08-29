@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Test</title>
+</head>
+<body>
+    <h1>Dashboard Data Test</h1>
+    <div id="summary"></div>
+    <div id="harvest"></div>
+    <div id="produce"></div>
+    <script>
+        async function testAPIs() {
+            // Test dashboard-summary
+            const summaryRes = await fetch('http://localhost:8888/.netlify/functions/dashboard-summary');
+            const summary = await summaryRes.json();
+            document.getElementById('summary').innerHTML = `<h2>Dashboard Summary</h2><pre>${JSON.stringify(summary.success, null, 2)}</pre>`;
+            
+            // Test harvest-list
+            const harvestRes = await fetch('http://localhost:8888/.netlify/functions/harvest-list');
+            const harvest = await harvestRes.json();
+            document.getElementById('harvest').innerHTML = `<h2>Harvest Entries</h2><p>Count: ${harvest.data?.entries?.length || 0}</p>`;
+            
+            // Test produce-types
+            const produceRes = await fetch('http://localhost:8888/.netlify/functions/produce-types-list');
+            const produce = await produceRes.json();
+            document.getElementById('produce').innerHTML = `<h2>Produce Types</h2><p>Count: ${produce.data?.length || 0}</p>`;
+            
+            // Check for production trends data
+            const entries = harvest.data?.entries || [];
+            const hasWeight = entries.filter(e => e.weight > 0 || e.quantity > 0).length;
+            console.log('Entries with weight/quantity:', hasWeight);
+            console.log('Sample entry:', entries[0]);
+        }
+        testAPIs();
+    </script>
+</body>
+</html>

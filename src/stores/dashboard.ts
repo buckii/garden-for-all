@@ -1,6 +1,6 @@
-import { ref, computed } from 'vue'
+import type { HarvestEntry } from '@/types/database'
 import { defineStore } from 'pinia'
-import type { HarvestEntry, FoodPantry } from '@/types/database'
+import { computed, ref } from 'vue'
 
 // Dashboard API functions
 const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
@@ -25,7 +25,8 @@ const dashboardAPI = {
   
   async getHarvestData() {
     try {
-      const response = await fetch(`${API_BASE}/harvest-list`, {
+      // Fetch 500 entries to ensure we get data for the last 12 weeks
+      const response = await fetch(`${API_BASE}/harvest-list?limit=500&sortBy=harvestDate&sortOrder=desc`, {
         headers: getAuthHeader()
       })
       const result = await response.json()
@@ -47,7 +48,7 @@ const dashboardAPI = {
       const pantries = pantriesResult.data || []
       
       // Fetch harvest entries to calculate actual deliveries
-      const harvestResponse = await fetch(`${API_BASE}/harvest-list`, {
+      const harvestResponse = await fetch(`${API_BASE}/harvest-list?limit=500`, {
         headers: getAuthHeader()
       })
       const harvestResult = await harvestResponse.json()
@@ -70,27 +71,12 @@ const dashboardAPI = {
           const entryPantryId = entry.pantryId || entry.pantry_id
           const harvestYear = new Date(entry.harvestDate || entry.harvest_date).getFullYear()
           const matches = entryPantryId === pantryId && harvestYear === currentYear
-          if (matches) {
-            console.log(`Pantry ${pantry.name} - Found harvest:`, {
-              entryId: entry._id,
-              weight: entry.weight,
-              date: entry.harvestDate || entry.harvest_date,
-              pantryId: entryPantryId
-            })
-          }
           return matches
         })
         
         const delivered = relevantEntries.reduce((total: number, entry: any) => {
           return total + (entry.weight || 0)
         }, 0)
-        
-        console.log(`Pantry ${pantry.name} (${pantryId}):`, {
-          totalEntries: harvestEntries.length,
-          relevantEntries: relevantEntries.length,
-          totalDelivered: delivered,
-          committed: totalCommitted
-        })
         
         const remaining = Math.max(0, totalCommitted - delivered)
         const percentage = totalCommitted > 0 ? (delivered / totalCommitted) * 100 : 0
@@ -205,7 +191,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
         const produceTypeId = entry.produceTypeId || entry.produce_type_id
         trends.push({
           date,
-          quantity: weightInPounds,
+          quantity: entry.quantity,
+          weight: weightInPounds,
           value: weightInPounds * (entry.produceType?.pricePerLb || 0),
           produce_type_id: produceTypeId
         })

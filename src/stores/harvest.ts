@@ -1,6 +1,6 @@
-import { ref, computed } from 'vue'
+import type { HarvestEntry, ProduceType } from '@/types/database'
 import { defineStore } from 'pinia'
-import type { HarvestEntry, ProduceType, Database } from '@/types/database'
+import { computed, ref } from 'vue'
 
 // Harvest API functions
 const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
@@ -82,21 +82,17 @@ export const useHarvestStore = defineStore('harvest', () => {
 
   // Actions
   const fetchProduceTypes = async () => {
-    console.log('🚀 fetchProduceTypes called')
     loading.value = true
     try {
       const { data, error: fetchError } = await api.getProduceTypes()
-      console.log('📦 API response:', { data, error: fetchError })
       
       if (fetchError) throw fetchError
       produceTypes.value = data || []
-      console.log('✅ produceTypes set to:', produceTypes.value.length, 'items')
     } catch (err) {
       console.error('❌ fetchProduceTypes error:', err)
       error.value = err instanceof Error ? err.message : 'Unknown error'
     } finally {
       loading.value = false
-      console.log('🏁 fetchProduceTypes finished, loading:', loading.value)
     }
   }
 
