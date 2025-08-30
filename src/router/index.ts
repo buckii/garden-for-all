@@ -57,9 +57,18 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const { isAuthenticated, isAdmin, initialize, loading } = useAuth()
   
-  // Initialize auth if not already done
+  // Always wait for auth initialization to complete
   if (loading.value) {
-    await initialize()
+    try {
+      await initialize()
+    } catch (error) {
+      console.error('Auth initialization failed:', error)
+    }
+  }
+  
+  // Wait a bit longer for localStorage to be fully available on page reload
+  if (typeof window !== 'undefined' && !isAuthenticated.value) {
+    await new Promise(resolve => setTimeout(resolve, 50))
   }
   
   // Check if route requires authentication

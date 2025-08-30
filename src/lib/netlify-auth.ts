@@ -142,9 +142,15 @@ class NetlifyAuth {
       if (response.success) {
         return { data: response.data, error: null };
       } else {
+        // If token is invalid, clear it from storage
+        if (response.error && response.error.includes('Invalid token')) {
+          this.clearToken();
+        }
         return { data: { session: null }, error: { message: response.error } };
       }
     } catch (error: any) {
+      // On network error or invalid token, clear the token
+      this.clearToken();
       return { data: { session: null }, error: { message: error.message || 'Network error' } };
     }
   }
