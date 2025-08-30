@@ -511,11 +511,11 @@ const getApproximateWeight = (entry: HarvestEntry) => {
   // Convert different units to approximate pounds
   if (entry.unit === 'pounds') {
     return entry.quantity
-  } else if (entry.unit === 'pints') {
-    // Approximate: 1 pint ≈ 0.5 pounds (varies by produce)
-    return entry.quantity * 0.5
-  } else if (entry.unit === 'bunches') {
-    // Approximate: 1 bunch ≈ 0.25 pounds (varies by produce)
+  } else if (entry.unit === 'half-pints') {
+    // Approximate: 1 half-pint ≈ 0.25 pounds (varies by produce)
+    return entry.quantity * 0.25
+  } else if (entry.unit === 'bouquets') {
+    // Approximate: 1 bouquet ≈ 0.25 pounds (varies by produce)
     return entry.quantity * 0.25
   }
   // Default fallback

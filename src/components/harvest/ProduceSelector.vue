@@ -171,8 +171,8 @@ const getCategoryName = (categoryId: string) => {
 const getUnitAbbr = (unitType: string) => {
   switch (unitType) {
     case 'pounds': return 'lb'
-    case 'pints': return 'pt'
-    case 'bunches': return 'bunch'
+    case 'half-pints': return 'half-pt'
+    case 'bouquets': return 'bouquet'
     default: return unitType
   }
 }

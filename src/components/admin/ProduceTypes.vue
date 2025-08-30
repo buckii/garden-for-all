@@ -81,7 +81,7 @@
                   <p class="text-sm font-medium text-gray-900">{{ produceType.name }}</p>
                   <p class="text-sm text-gray-500">
                     Unit: {{ produceType.unit_type }} • 
-                    Price: ${{ (produceType.price_per_lb || 0).toFixed(2) }}/{{ produceType.unit_type === 'pounds' ? 'lb' : produceType.unit_type === 'pints' ? 'pt' : 'bunch' }} •
+                    Price: ${{ (produceType.price_per_lb || 0).toFixed(2) }}/{{ produceType.unit_type === 'pounds' ? 'lb' : produceType.unit_type === 'half-pints' ? 'half-pt' : 'bouquet' }} •
                     Serving: {{ (produceType.serving_weight_oz || 0).toFixed(1) }}oz ({{ (produceType.servings_per_lb || 0).toFixed(1) }}/lb)
                   </p>
                 </div>
@@ -164,8 +164,8 @@
               >
                 <option value="">Select unit type</option>
                 <option value="pounds">Pounds</option>
-                <option value="pints">Pints</option>
-                <option value="bunches">Bunches</option>
+                <option value="half-pints">Half-pints</option>
+                <option value="bouquets">Bouquets</option>
               </select>
             </div>
             
@@ -222,7 +222,7 @@
                 step="0.01"
                 min="0"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
-                placeholder="e.g., 1.0 for pounds, 0.33 for pints"
+                placeholder="e.g., 1.0 for pounds, 0.25 for half-pints"
               />
             </div>
             

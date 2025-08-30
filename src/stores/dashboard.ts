@@ -95,18 +95,10 @@ const dashboardAPI = {
             entryWeight = entry.quantity * conversionFactor
           }
           
-          // Debug logging for pantry calculations
-          if (process.env.NODE_ENV === 'development' && entryWeight > 0) {
-            console.log(`📊 Pantry ${pantry.name} entry: ${entryWeight.toFixed(2)} lbs (${entry.harvestDate || entry.harvest_date})`)
-          }
           
           return total + entryWeight
         }, 0)
         
-        // Debug logging for final pantry totals
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`📊 Pantry ${pantry.name}: ${relevantEntries.length} entries, ${delivered.toFixed(2)} lbs delivered of ${totalCommitted} lbs committed`)
-        }
         
         const remaining = Math.max(0, totalCommitted - delivered)
         const percentage = totalCommitted > 0 ? (delivered / totalCommitted) * 100 : 0

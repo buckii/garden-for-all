@@ -45,7 +45,7 @@
 
           <!-- Step 2: Enter Quantity -->
           <QuantityInput v-if="currentStep === 'quantity'" :selected-produce="selectedProduce" :pantries="pantries"
-            :submitting="submitting" @submit="handleHarvestSubmit" @back="currentStep = 'select'" />
+            :locations="harvestLocations" :submitting="submitting" @submit="handleHarvestSubmit" @back="currentStep = 'select'" />
 
           <!-- Step 3: Review & History -->
           <HarvestHistory v-if="currentStep === 'history'" :todays-entries="todaysEntries" :produce-types="produceTypes"
@@ -89,7 +89,24 @@ const harvestLoading = computed(() => harvestStore.loading)
 
 const categories = computed(() => adminStore.categories)
 const pantries = computed(() => adminStore.foodPantries)
+const harvestLocations = ref([])
 const adminLoading = computed(() => adminStore.loading)
+
+// API base URL
+const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
+
+// Fetch harvest locations
+const fetchHarvestLocations = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/harvest-locations`)
+    if (response.ok) {
+      const result = await response.json()
+      harvestLocations.value = result.data || []
+    }
+  } catch (error) {
+    console.error('Failed to fetch harvest locations:', error)
+  }
+}
 
 const loading = computed(() => harvestLoading.value || adminLoading.value)
 
@@ -121,6 +138,7 @@ onMounted(async () => {
     harvestStore.fetchProduceTypes(),
     adminStore.fetchCategories(),
     adminStore.fetchFoodPantries(),
+    fetchHarvestLocations(),
     harvestStore.fetchTodaysHarvest(),
     harvestStore.fetchRecentEntries()
   ])

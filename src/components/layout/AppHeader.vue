@@ -30,7 +30,7 @@
             to="/harvest-history"
             class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
           >
-            Today's Harvest
+            Today
           </router-link>
           <router-link 
             to="/order"
@@ -104,7 +104,7 @@
             @click="mobileMenuOpen = false"
             class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors"
           >
-            Today's Harvest
+            Today
           </router-link>
           <router-link 
             to="/order"

@@ -7,8 +7,8 @@ const produceTypeSchema = Joi.object({
   name: Joi.string().required(),
   categoryId: Joi.string().required(),
   category_id: Joi.string().optional(), // Allow snake_case from frontend
-  unitType: Joi.string().valid('pounds', 'pints', 'bunches').required(),
-  unit_type: Joi.string().valid('pounds', 'pints', 'bunches').optional(), // Allow snake_case from frontend
+  unitType: Joi.string().valid('pounds', 'half-pints', 'bouquets').required(),
+  unit_type: Joi.string().valid('pounds', 'half-pints', 'bouquets').optional(), // Allow snake_case from frontend
   conversionFactor: Joi.number().min(0).required(),
   conversion_factor: Joi.number().min(0).optional(), // Allow snake_case from frontend
   pricePerLb: Joi.number().min(0).optional(),
