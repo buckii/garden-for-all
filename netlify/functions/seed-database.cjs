@@ -21,15 +21,23 @@ const harvestLocations = [
       city: 'City',
       state: 'State', 
       zip: '12345'
+    },
+    coordinates: {
+      latitude: -28.503716,
+      longitude: 153.4314
     }
   },
   {
     name: 'Garden',
     address: {
-      street: 'Community Garden Site',
-      city: 'City',
-      state: 'State',
-      zip: '12345'
+      street: '5101 Johnstown Rd.',
+      city: 'New Albany',
+      state: 'OH',
+      zip: '43054'
+    },
+    coordinates: {
+      latitude: 40.061204,
+      longitude: -82.835151
     }
   }
 ];
@@ -212,11 +220,21 @@ const foodPantries = [
     isActive: true
   },
   {
-    name: 'Broad Street Presbyterian Church Food Pantry',
+    name: 'Broad Street Food Pantry',
     contactInfo: {
       phone: '(614) 221-6552',
       email: 'foodpantry@bspc.org',
       address: '760 East Broad Street, Columbus, OH 43205'
+    },
+    address: {
+      street: '760 East Broad Street',
+      city: 'Columbus',
+      state: 'OH',
+      zip: '43205'
+    },
+    coordinates: {
+      latitude: 39.965287,
+      longitude: -82.979862
     },
     commitmentAmounts: {
       total: 2200,
@@ -233,6 +251,16 @@ const foodPantries = [
       phone: '(614) 855-4265',
       email: 'info@newalbanyfoodpantry.org',
       address: '79 N. High St, New Albany, OH 43054'
+    },
+    address: {
+      street: '79 N. High St',
+      city: 'New Albany',
+      state: 'OH',
+      zip: '43054'
+    },
+    coordinates: {
+      latitude: 40.084586,
+      longitude: -82.80907
     },
     commitmentAmounts: {
       total: 1500,
