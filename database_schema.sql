@@ -18,7 +18,7 @@ CREATE TABLE produce_types (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     category_id UUID REFERENCES produce_categories(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
-    unit_type TEXT NOT NULL CHECK (unit_type IN ('pounds', 'pints', 'bunches')),
+    unit_type TEXT NOT NULL CHECK (unit_type IN ('pounds', 'half-pints', 'bouquets')),
     conversion_factor DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -184,16 +184,17 @@ INSERT INTO produce_categories (name, description, display_order) VALUES
 INSERT INTO produce_types (category_id, name, unit_type, conversion_factor) VALUES
     ((SELECT id FROM produce_categories WHERE name = 'Vegetables'), 'Tomatoes', 'pounds', 3.50),
     ((SELECT id FROM produce_categories WHERE name = 'Vegetables'), 'Carrots', 'pounds', 2.00),
-    ((SELECT id FROM produce_categories WHERE name = 'Vegetables'), 'Lettuce', 'bunches', 2.50),
+    ((SELECT id FROM produce_categories WHERE name = 'Vegetables'), 'Lettuce', 'pounds', 2.50),
     ((SELECT id FROM produce_categories WHERE name = 'Vegetables'), 'Bell Peppers', 'pounds', 4.00),
     ((SELECT id FROM produce_categories WHERE name = 'Vegetables'), 'Cucumbers', 'pounds', 2.50),
     ((SELECT id FROM produce_categories WHERE name = 'Vegetables'), 'Zucchini', 'pounds', 2.00),
-    ((SELECT id FROM produce_categories WHERE name = 'Fruits'), 'Strawberries', 'pints', 5.00),
-    ((SELECT id FROM produce_categories WHERE name = 'Fruits'), 'Blueberries', 'pints', 6.00),
-    ((SELECT id FROM produce_categories WHERE name = 'Herbs'), 'Basil', 'bunches', 3.00),
-    ((SELECT id FROM produce_categories WHERE name = 'Herbs'), 'Parsley', 'bunches', 2.50),
-    ((SELECT id FROM produce_categories WHERE name = 'Flowers'), 'Sunflowers', 'bunches', 4.00),
-    ((SELECT id FROM produce_categories WHERE name = 'Flowers'), 'Zinnias', 'bunches', 3.00);
+    ((SELECT id FROM produce_categories WHERE name = 'Fruits'), 'Strawberries', 'half-pints', 5.00),
+    ((SELECT id FROM produce_categories WHERE name = 'Fruits'), 'Blueberries', 'half-pints', 6.00),
+    ((SELECT id FROM produce_categories WHERE name = 'Fruits'), 'Raspberries', 'half-pints', 7.00),
+    ((SELECT id FROM produce_categories WHERE name = 'Herbs'), 'Basil', 'pounds', 3.00),
+    ((SELECT id FROM produce_categories WHERE name = 'Herbs'), 'Parsley', 'pounds', 2.50),
+    ((SELECT id FROM produce_categories WHERE name = 'Flowers'), 'Sunflowers', 'bouquets', 4.00),
+    ((SELECT id FROM produce_categories WHERE name = 'Flowers'), 'Zinnias', 'bouquets', 3.00);
 
 INSERT INTO food_pantries (name, contact_info, commitment_amounts) VALUES
     ('New Albany Food Pantry', 

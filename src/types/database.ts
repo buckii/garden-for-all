@@ -25,8 +25,8 @@ export interface ProduceType {
   categoryId: string
   category_id?: string // API also returns snake_case
   name: string
-  unitType: 'pounds' | 'pints' | 'bunches'
-  unit_type?: 'pounds' | 'pints' | 'bunches' // API also returns snake_case
+  unitType: 'pounds' | 'half-pints' | 'bouquets'
+  unit_type?: 'pounds' | 'half-pints' | 'bouquets' // API also returns snake_case
   conversionFactor: number
   conversion_factor?: number // API also returns snake_case
   pricePerLb?: number
