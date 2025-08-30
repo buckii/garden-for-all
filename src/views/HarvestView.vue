@@ -85,6 +85,7 @@ const errorMessage = ref('')
 const todaysEntries = computed(() => harvestStore.todaysEntries)
 const produceTypes = computed(() => harvestStore.produceTypes)
 const recentEntries = computed(() => harvestStore.recentEntries)
+const harvestEntries = computed(() => harvestStore.harvestEntries)
 const harvestLoading = computed(() => harvestStore.loading)
 
 const categories = computed(() => adminStore.categories)
@@ -140,13 +141,13 @@ onMounted(async () => {
     adminStore.fetchFoodPantries(),
     fetchHarvestLocations(),
     harvestStore.fetchTodaysHarvest(),
-    harvestStore.fetchRecentEntries()
+    harvestStore.fetchRecentEntries(1000) // Fetch more entries for usage analysis
   ])
 
   // Subscribe to real-time updates
   subscribeToHarvestUpdates((data) => {
     harvestStore.fetchTodaysHarvest()
-    harvestStore.fetchRecentEntries()
+    harvestStore.fetchRecentEntries(1000)
   })
 })
 
@@ -219,7 +220,7 @@ const handleAddAnother = () => {
 const refreshData = async () => {
   await Promise.all([
     harvestStore.fetchTodaysHarvest(),
-    harvestStore.fetchRecentEntries()
+    harvestStore.fetchRecentEntries(1000)
   ])
 }
 
