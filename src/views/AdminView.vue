@@ -9,33 +9,126 @@
           <!-- Tab Navigation -->
           <div class="bg-white">
             <div class="border-b border-gray-200">
-              <!-- Desktop Tab Navigation -->
-              <nav class="-mb-px hidden sm:flex space-x-8 px-6" aria-label="Tabs">
-                <button
-                  v-for="tab in tabs"
-                  :key="tab.id"
-                  @click="activeTab = tab.id"
-                  :class="[
-                    'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
-                    activeTab === tab.id
-                      ? 'border-garden-green-500 text-garden-green-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  ]"
-                >
-                  <component :is="tab.icon" class="mr-2 h-5 w-5 inline" />
-                  {{ tab.name }}
-                </button>
-              </nav>
+              <!-- Desktop Grouped Navigation -->
+              <div class="hidden sm:flex items-center justify-between px-6 py-4">
+                <div class="flex space-x-8">
+                  <!-- Configuration Group -->
+                  <div class="relative" @mouseenter="showConfigDropdown = true" @mouseleave="showConfigDropdown = false">
+                    <button :class="[
+                      'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                      isInGroup(activeTab, 'config')
+                        ? 'bg-garden-green-100 text-garden-green-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ]">
+                      <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      </svg>
+                      Configuration
+                      <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </button>
+                    <div v-if="showConfigDropdown" class="absolute z-10 top-full w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                      <div class="py-1">
+                        <button @click="setActiveTab('categories')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'categories' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
+                          Categories
+                        </button>
+                        <button @click="setActiveTab('types')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'types' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
+                          Produce Types
+                        </button>
+                        <button @click="setActiveTab('pantries')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'pantries' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
+                          Food Pantries
+                        </button>
+                        <button @click="setActiveTab('locations')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'locations' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
+                          Harvest Locations
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Data Management Group -->
+                  <div class="relative" @mouseenter="showDataDropdown = true" @mouseleave="showDataDropdown = false">
+                    <button :class="[
+                      'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                      isInGroup(activeTab, 'data')
+                        ? 'bg-garden-green-100 text-garden-green-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ]">
+                      <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                      Data Management
+                      <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </button>
+                    <div v-if="showDataDropdown" class="absolute z-10 top-full w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                      <div class="py-1">
+                        <button @click="setActiveTab('entries')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'entries' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
+                          Harvest Entries
+                        </button>
+                        <button @click="setActiveTab('orders')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'orders' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
+                          Orders
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- User Management -->
+                  <button
+                    @click="setActiveTab('users')"
+                    :class="[
+                      'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                      activeTab === 'users'
+                        ? 'bg-garden-green-100 text-garden-green-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ]"
+                  >
+                    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                    </svg>
+                    Users
+                  </button>
+
+                  <!-- Export -->
+                  <button
+                    @click="setActiveTab('export')"
+                    :class="[
+                      'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                      activeTab === 'export'
+                        ? 'bg-garden-green-100 text-garden-green-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ]"
+                  >
+                    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Export Data
+                  </button>
+                </div>
+              </div>
               
-              <!-- Mobile Tab Dropdown -->
+              <!-- Mobile Navigation -->
               <div class="sm:hidden px-4 py-2">
                 <select
                   v-model="activeTab"
                   class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-garden-green-500 focus:outline-none focus:ring-garden-green-500"
                 >
-                  <option v-for="tab in tabs" :key="tab.id" :value="tab.id">
-                    {{ tab.name }}
-                  </option>
+                  <optgroup label="Configuration">
+                    <option value="categories">Categories</option>
+                    <option value="types">Produce Types</option>
+                    <option value="pantries">Food Pantries</option>
+                    <option value="locations">Harvest Locations</option>
+                  </optgroup>
+                  <optgroup label="Data Management">
+                    <option value="entries">Harvest Entries</option>
+                    <option value="orders">Orders</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="users">Users</option>
+                    <option value="export">Export Data</option>
+                  </optgroup>
                 </select>
               </div>
             </div>
@@ -72,6 +165,7 @@
             <ProduceCategories v-else-if="activeTab === 'categories'" />
             <ProduceTypes v-else-if="activeTab === 'types'" />
             <FoodPantries v-else-if="activeTab === 'pantries'" />
+            <HarvestLocations v-else-if="activeTab === 'locations'" />
             <HarvestEntries v-else-if="activeTab === 'entries'" />
             <OrderManagement v-else-if="activeTab === 'orders'" />
             <UserManagement v-else-if="activeTab === 'users'" />
@@ -196,7 +290,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useHarvestStore } from '@/stores/harvest'
 import { useAdminStore } from '@/stores/admin'
 import { exportHarvestData } from '@/utils/excelExport'
@@ -204,16 +299,20 @@ import AppHeader from '@/components/layout/AppHeader.vue'
 import ProduceCategories from '@/components/admin/ProduceCategories.vue'
 import ProduceTypes from '@/components/admin/ProduceTypes.vue'
 import FoodPantries from '@/components/admin/FoodPantries.vue'
+import HarvestLocations from '@/components/admin/HarvestLocations.vue'
 import HarvestEntries from '@/components/admin/HarvestEntries.vue'
 import OrderManagement from '@/components/admin/OrderManagement.vue'
 import UserManagement from '@/components/admin/UserManagement.vue'
 
+const route = useRoute()
 const harvestStore = useHarvestStore()
 const adminStore = useAdminStore()
 
 const activeTab = ref('categories')
 const exporting = ref(false)
 const exportResult = ref<any>(null)
+const showConfigDropdown = ref(false)
+const showDataDropdown = ref(false)
 
 const exportOptions = ref({
   startDate: '',
@@ -223,6 +322,11 @@ const exportOptions = ref({
 
 // Initialize stores
 onMounted(async () => {
+  // Check for tab query parameter
+  if (route.query.tab && typeof route.query.tab === 'string') {
+    activeTab.value = route.query.tab
+  }
+  
   // Fetch all admin data in parallel
   await Promise.all([
     adminStore.fetchCategories(),
@@ -231,44 +335,27 @@ onMounted(async () => {
   ])
 })
 
-// Define tab icons as strings for now
-const tabs = [
-  { 
-    id: 'categories', 
-    name: 'Categories',
-    icon: 'svg' // We'll use inline SVG
-  },
-  { 
-    id: 'types', 
-    name: 'Produce Types',
-    icon: 'svg'
-  },
-  { 
-    id: 'pantries', 
-    name: 'Food Pantries',
-    icon: 'svg'
-  },
-  { 
-    id: 'entries', 
-    name: 'Harvest Entries',
-    icon: 'svg'
-  },
-  { 
-    id: 'orders', 
-    name: 'Orders',
-    icon: 'svg'
-  },
-  { 
-    id: 'users', 
-    name: 'Users',
-    icon: 'svg'
-  },
-  { 
-    id: 'export', 
-    name: 'Export Data',
-    icon: 'svg'
+// Watch for route changes
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && typeof newTab === 'string') {
+    activeTab.value = newTab
   }
-]
+})
+
+// Helper functions for grouped navigation
+const setActiveTab = (tabId: string) => {
+  activeTab.value = tabId
+  showConfigDropdown.value = false
+  showDataDropdown.value = false
+}
+
+const isInGroup = (tabId: string, groupName: string): boolean => {
+  const groups = {
+    config: ['categories', 'types', 'pantries', 'locations'],
+    data: ['entries', 'orders']
+  }
+  return groups[groupName]?.includes(tabId) || false
+}
 
 
 const setCurrentYear = () => {
