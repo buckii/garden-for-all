@@ -49,7 +49,7 @@ const adminAPI = {
         body: JSON.stringify(data)
       })
       const result = await response.json()
-      return { data: result.data || null, error: result.success ? null : result.error }
+      return { data: result.data || null, error: result.success ? null : result.error, warning: result.warning || null }
     } catch (error: any) {
       return { data: null, error: error.message }
     }
@@ -63,7 +63,7 @@ const adminAPI = {
         body: JSON.stringify(data)
       })
       const result = await response.json()
-      return { data: result.data || null, error: result.success ? null : result.error }
+      return { data: result.data || null, error: result.success ? null : result.error, warning: result.warning || null }
     } catch (error: any) {
       return { data: null, error: error.message }
     }
@@ -90,7 +90,7 @@ const adminAPI = {
         body: JSON.stringify(data)
       })
       const result = await response.json()
-      return { data: result.data || null, error: result.success ? null : result.error }
+      return { data: result.data || null, error: result.success ? null : result.error, warning: result.warning || null }
     } catch (error: any) {
       return { data: null, error: error.message }
     }
@@ -103,7 +103,7 @@ const adminAPI = {
         body: JSON.stringify(data)
       })
       const result = await response.json()
-      return { data: result.data || null, error: result.success ? null : result.error }
+      return { data: result.data || null, error: result.success ? null : result.error, warning: result.warning || null }
     } catch (error: any) {
       return { data: null, error: error.message }
     }
@@ -130,7 +130,7 @@ const adminAPI = {
       })
       console.log('createPantry response status:', response.status, 'method was POST')
       const result = await response.json()
-      return { data: result.data || null, error: result.success ? null : result.error }
+      return { data: result.data || null, error: result.success ? null : result.error, warning: result.warning || null }
     } catch (error: any) {
       return { data: null, error: error.message }
     }
@@ -145,7 +145,7 @@ const adminAPI = {
       })
       console.log('updatePantry response status:', response.status, 'method was PUT')
       const result = await response.json()
-      return { data: result.data || null, error: result.success ? null : result.error }
+      return { data: result.data || null, error: result.success ? null : result.error, warning: result.warning || null }
     } catch (error: any) {
       return { data: null, error: error.message }
     }
@@ -296,10 +296,10 @@ export const useAdminStore = defineStore('admin', () => {
 
   const createFoodPantry = async (pantryData: any) => {
     try {
-      const { data, error: createError } = await adminAPI.createPantry(pantryData)
+      const { data, error: createError, warning } = await adminAPI.createPantry(pantryData)
       if (createError) throw new Error(createError)
       if (data) foodPantries.value.push(data)
-      return data
+      return { data, warning }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
       throw err
@@ -308,13 +308,13 @@ export const useAdminStore = defineStore('admin', () => {
 
   const updateFoodPantry = async (id: string, updates: any) => {
     try {
-      const { data, error: updateError } = await adminAPI.updatePantry(id, updates)
+      const { data, error: updateError, warning } = await adminAPI.updatePantry(id, updates)
       if (updateError) throw new Error(updateError)
       if (data) {
         const index = foodPantries.value.findIndex(f => f.id === id)
         if (index !== -1) foodPantries.value[index] = data
       }
-      return data
+      return { data, warning }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
       throw err

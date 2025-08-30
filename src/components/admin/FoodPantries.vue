@@ -67,13 +67,35 @@
                 </svg>
                 {{ (pantry.contactInfo || pantry.contact_info)?.email }}
               </p>
-              <p v-if="(pantry.contactInfo || pantry.contact_info)?.address" class="text-sm text-gray-600 flex items-start">
+              <!-- Address -->
+              <div v-if="pantry.address && (pantry.address.street || pantry.address.city)" class="text-sm text-gray-600 flex items-start">
                 <svg class="mr-2 h-4 w-4 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                {{ (pantry.contactInfo || pantry.contact_info)?.address }}
-              </p>
+                <div>
+                  <div>{{ pantry.address.street }}</div>
+                  <div>{{ pantry.address.city }}, {{ pantry.address.state }} {{ pantry.address.zip }}</div>
+                </div>
+              </div>
+              
+              <!-- Coordinates -->
+              <div class="text-xs text-gray-500 flex items-center justify-between">
+                <div v-if="pantry.coordinates" class="flex items-center">
+                  <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m-6 3l6-3"/>
+                  </svg>
+                  {{ pantry.coordinates.latitude?.toFixed(4) }}, {{ pantry.coordinates.longitude?.toFixed(4) }}
+                </div>
+                <div v-else class="text-gray-400">Not geocoded</div>
+                
+                <a v-if="pantry.coordinates" 
+                   :href="`https://www.google.com/maps?q=${pantry.coordinates.latitude},${pantry.coordinates.longitude}`"
+                   target="_blank"
+                   class="text-blue-500 hover:text-blue-700 text-xs underline ml-2">
+                  View on Map
+                </a>
+              </div>
             </div>
             
             <!-- Commitment -->
@@ -113,6 +135,11 @@
             {{ showEditModal ? 'Edit Food Pantry' : 'Add New Food Pantry' }}
           </h3>
           
+          <!-- Success/Error Messages -->
+          <div v-if="modalMessage" class="mb-6 p-4 rounded-md" :class="modalMessage.type === 'success' ? 'bg-green-50 border-l-4 border-green-400' : 'bg-red-50 border-l-4 border-red-400'">
+            <p class="text-sm" :class="modalMessage.type === 'success' ? 'text-green-700' : 'text-red-700'">{{ modalMessage.text }}</p>
+          </div>
+          
           <form @submit.prevent="handleSubmit" class="space-y-6">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -136,7 +163,7 @@
                     Phone
                   </label>
                   <input
-                    v-model="formData.contact_info.phone"
+                    v-model="formData.contactInfo.phone"
                     type="tel"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
                     placeholder="614-555-0101"
@@ -147,23 +174,63 @@
                     Email
                   </label>
                   <input
-                    v-model="formData.contact_info.email"
+                    v-model="formData.contactInfo.email"
                     type="email"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
                     placeholder="contact@pantry.org"
                   />
                 </div>
               </div>
+            </div>
+            
+            <!-- Address -->
+            <div class="space-y-4">
+              <h4 class="font-medium text-gray-900">Address</h4>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Address
+                  Street Address
                 </label>
-                <textarea
-                  v-model="formData.contact_info.address"
-                  rows="2"
+                <input
+                  v-model="formData.address.street"
+                  type="text"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
-                  placeholder="123 Main St, City, State ZIP"
-                ></textarea>
+                  placeholder="123 Main Street"
+                />
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    City
+                  </label>
+                  <input
+                    v-model="formData.address.city"
+                    type="text"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
+                    placeholder="Columbus"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    State
+                  </label>
+                  <input
+                    v-model="formData.address.state"
+                    type="text"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
+                    placeholder="OH"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    ZIP Code
+                  </label>
+                  <input
+                    v-model="formData.address.zip"
+                    type="text"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
+                    placeholder="43215"
+                  />
+                </div>
               </div>
             </div>
             
@@ -176,7 +243,7 @@
                     Vegetables (lbs)
                   </label>
                   <input
-                    v-model.number="formData.commitment_amounts.vegetables"
+                    v-model.number="formData.commitmentAmounts.vegetables"
                     type="number"
                     min="0"
                     step="0.01"
@@ -189,7 +256,7 @@
                     Fruits (lbs)
                   </label>
                   <input
-                    v-model.number="formData.commitment_amounts.fruits"
+                    v-model.number="formData.commitmentAmounts.fruits"
                     type="number"
                     min="0"
                     step="0.01"
@@ -202,7 +269,7 @@
                     Herbs (lbs)
                   </label>
                   <input
-                    v-model.number="formData.commitment_amounts.herbs"
+                    v-model.number="formData.commitmentAmounts.herbs"
                     type="number"
                     min="0"
                     step="0.01"
@@ -215,7 +282,7 @@
                     Flowers (lbs)
                   </label>
                   <input
-                    v-model.number="formData.commitment_amounts.flowers"
+                    v-model.number="formData.commitmentAmounts.flowers"
                     type="number"
                     min="0"
                     step="0.01"
@@ -229,7 +296,7 @@
                   Total Commitment
                 </label>
                 <input
-                  v-model.number="formData.commitment_amounts.total"
+                  v-model.number="formData.commitmentAmounts.total"
                   type="number"
                   min="0"
                   step="0.01"
@@ -311,15 +378,21 @@ const showDeleteModal = ref(false)
 const submitting = ref(false)
 const pantryToEdit = ref<FoodPantry | null>(null)
 const pantryToDelete = ref<FoodPantry | null>(null)
+const modalMessage = ref<{ type: 'success' | 'error', text: string } | null>(null)
 
 const formData = ref({
   name: '',
-  contact_info: {
+  contactInfo: {
     phone: '',
-    email: '',
-    address: ''
+    email: ''
   },
-  commitment_amounts: {
+  address: {
+    street: '',
+    city: '',
+    state: '',
+    zip: ''
+  },
+  commitmentAmounts: {
     vegetables: 0,
     fruits: 0,
     herbs: 0,
@@ -344,12 +417,17 @@ const editPantry = (pantry: FoodPantry) => {
   
   formData.value = {
     name: pantry.name,
-    contact_info: {
+    contactInfo: {
       phone: contactInfo?.phone || '',
-      email: contactInfo?.email || '',
-      address: contactInfo?.address || ''
+      email: contactInfo?.email || ''
     },
-    commitment_amounts: {
+    address: {
+      street: pantry.address?.street || '',
+      city: pantry.address?.city || '',
+      state: pantry.address?.state || '',
+      zip: pantry.address?.zip || ''
+    },
+    commitmentAmounts: {
       vegetables: commitmentAmounts?.vegetables || 0,
       fruits: commitmentAmounts?.fruits || 0,
       herbs: commitmentAmounts?.herbs || 0,
@@ -367,25 +445,42 @@ const confirmDelete = (pantry: FoodPantry) => {
 
 const handleSubmit = async () => {
   submitting.value = true
+  modalMessage.value = null
+  
   try {
     const submitData = {
       name: formData.value.name,
-      contactInfo: formData.value.contact_info,
-      commitmentAmounts: formData.value.commitment_amounts
+      contactInfo: formData.value.contactInfo,
+      address: formData.value.address,
+      commitmentAmounts: formData.value.commitmentAmounts
     }
 
+    let result
     if (showEditModal.value && pantryToEdit.value) {
       const pantryId = pantryToEdit.value.id || pantryToEdit.value._id
       if (!pantryId) {
         throw new Error('Pantry ID is missing')
       }
-      await adminStore.updateFoodPantry(pantryId, submitData)
+      result = await adminStore.updateFoodPantry(pantryId, submitData)
     } else {
-      await adminStore.createFoodPantry(submitData)
+      result = await adminStore.createFoodPantry(submitData)
     }
-    closeModal()
+
+    // Show success message with optional warning
+    let successMessage = `Food pantry ${showEditModal.value ? 'updated' : 'created'} successfully!`
+    if (result.warning) {
+      successMessage += ` ⚠️ ${result.warning}`
+    }
+    
+    modalMessage.value = { type: 'success', text: successMessage }
+    
+    // Close modal after showing success message
+    setTimeout(() => {
+      closeModal()
+    }, 2000)
+    
   } catch (err) {
-    console.error('Failed to save food pantry:', err)
+    modalMessage.value = { type: 'error', text: err instanceof Error ? err.message : 'Failed to save food pantry' }
   } finally {
     submitting.value = false
   }
@@ -414,14 +509,20 @@ const closeModal = () => {
   showAddModal.value = false
   showEditModal.value = false
   pantryToEdit.value = null
+  modalMessage.value = null
   formData.value = {
     name: '',
-    contact_info: {
+    contactInfo: {
       phone: '',
-      email: '',
-      address: ''
+      email: ''
     },
-    commitment_amounts: {
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      zip: ''
+    },
+    commitmentAmounts: {
       vegetables: 0,
       fruits: 0,
       herbs: 0,

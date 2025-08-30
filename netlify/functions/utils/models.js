@@ -18,13 +18,38 @@ const produceTypeSchema = new mongoose.Schema({
   servingsPerLb: { type: Number, default: 0, min: 0 }
 }, { timestamps: true });
 
+// Harvest Location Schema
+const harvestLocationSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  address: {
+    street: { type: String, required: true, trim: true },
+    city: { type: String, required: true, trim: true },
+    state: { type: String, required: true, trim: true },
+    zip: { type: String, required: true, trim: true }
+  },
+  coordinates: {
+    latitude: { type: Number },
+    longitude: { type: Number }
+  },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
 // Food Pantry Schema
 const foodPantrySchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   contactInfo: {
     phone: { type: String, trim: true },
-    email: { type: String, lowercase: true, trim: true },
-    address: { type: String, trim: true }
+    email: { type: String, lowercase: true, trim: true }
+  },
+  address: {
+    street: { type: String, trim: true },
+    city: { type: String, trim: true },
+    state: { type: String, trim: true },
+    zip: { type: String, trim: true }
+  },
+  coordinates: {
+    latitude: { type: Number },
+    longitude: { type: Number }
   },
   commitmentAmounts: {
     total: { type: Number, default: 0, min: 0 },
@@ -32,7 +57,8 @@ const foodPantrySchema = new mongoose.Schema({
     fruits: { type: Number, default: 0, min: 0 },
     herbs: { type: Number, default: 0, min: 0 },
     flowers: { type: Number, default: 0, min: 0 }
-  }
+  },
+  isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
 // Harvest Entry Schema
@@ -43,6 +69,7 @@ const harvestEntrySchema = new mongoose.Schema({
   weight: { type: Number, required: true, min: 0 }, // Weight in pounds
   weightEstimated: { type: Boolean, default: false }, // True if weight was calculated, false if manually entered
   pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: true }, // Which pantry will receive this harvest
+  locationId: { type: mongoose.Schema.Types.ObjectId, ref: 'HarvestLocation', required: true }, // Where this was harvested
   harvestDate: { type: Date, required: true },
   harvesterName: { type: String, trim: true },
   notes: { type: String, trim: true }
@@ -81,7 +108,10 @@ const orderSchema = new mongoose.Schema({
 // Create indexes
 produceCategorySchema.index({ displayOrder: 1 });
 produceTypeSchema.index({ categoryId: 1, name: 1 });
+harvestLocationSchema.index({ name: 1 });
+harvestLocationSchema.index({ isActive: 1 });
 harvestEntrySchema.index({ produceTypeId: 1, harvestDate: -1 });
+harvestEntrySchema.index({ locationId: 1, harvestDate: -1 });
 pantryDistributionSchema.index({ pantryId: 1, distributionDate: -1 });
 orderSchema.index({ pantryId: 1, deliveryDate: -1 });
 orderSchema.index({ status: 1, createdAt: -1 });
@@ -89,6 +119,7 @@ orderSchema.index({ status: 1, createdAt: -1 });
 // Prevent re-compilation in serverless environment
 const ProduceCategory = mongoose.models.ProduceCategory || mongoose.model('ProduceCategory', produceCategorySchema);
 const ProduceType = mongoose.models.ProduceType || mongoose.model('ProduceType', produceTypeSchema);
+const HarvestLocation = mongoose.models.HarvestLocation || mongoose.model('HarvestLocation', harvestLocationSchema);
 const FoodPantry = mongoose.models.FoodPantry || mongoose.model('FoodPantry', foodPantrySchema);
 const HarvestEntry = mongoose.models.HarvestEntry || mongoose.model('HarvestEntry', harvestEntrySchema);
 const PantryDistribution = mongoose.models.PantryDistribution || mongoose.model('PantryDistribution', pantryDistributionSchema);
@@ -97,6 +128,7 @@ const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 module.exports = {
   ProduceCategory,
   ProduceType,
+  HarvestLocation,
   FoodPantry,
   HarvestEntry,
   PantryDistribution,

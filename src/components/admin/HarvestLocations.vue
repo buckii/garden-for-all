@@ -65,8 +65,13 @@
 
               <!-- Coordinates -->
               <div class="col-span-2">
-                <div v-if="location.coordinates" class="text-xs text-gray-500">
-                  {{ location.coordinates.latitude?.toFixed(4) }}, {{ location.coordinates.longitude?.toFixed(4) }}
+                <div v-if="location.coordinates" class="text-xs text-gray-500 flex items-center justify-between">
+                  <span>{{ location.coordinates.latitude?.toFixed(4) }}, {{ location.coordinates.longitude?.toFixed(4) }}</span>
+                  <a :href="`https://www.google.com/maps?q=${location.coordinates.latitude},${location.coordinates.longitude}`"
+                     target="_blank"
+                     class="text-blue-500 hover:text-blue-700 text-xs underline ml-2">
+                    Map
+                  </a>
                 </div>
                 <div v-else class="text-xs text-gray-400">Not geocoded</div>
               </div>
