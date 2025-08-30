@@ -41,7 +41,7 @@
         <div class="bg-white rounded-lg shadow-sm border p-6">
           <!-- Step 1: Select Produce -->
           <ProduceSelector v-if="currentStep === 'select'" :produce-types="produceTypes" :categories="categories"
-            :loading="loading" :recently-used="recentlyUsedProduce" @select="handleProduceSelect" />
+            :loading="loading" :recently-used="recentlyUsedProduce" :harvest-entries="recentEntries" @select="handleProduceSelect" />
 
           <!-- Step 2: Enter Quantity -->
           <QuantityInput v-if="currentStep === 'quantity'" :selected-produce="selectedProduce" :pantries="pantries"

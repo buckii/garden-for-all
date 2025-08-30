@@ -76,30 +76,90 @@
       </div>
     </div>
 
-    <!-- Produce Grid -->
-    <div class="space-y-3">
+    <!-- Frequently Used Produce -->
+    <div v-if="!searchQuery" class="space-y-3">
       <h3 class="text-lg font-medium text-gray-900">
-        {{ selectedCategoryId ? getCategoryName(selectedCategoryId) : 'All Produce' }}
-        <span class="text-gray-500 font-normal">({{ filteredProduce.length }})</span>
+        {{ selectedCategoryId ? `${getCategoryName(selectedCategoryId)} - Frequently Used` : 'Frequently Used' }}
+        <span class="text-gray-500 font-normal">({{ filteredFrequentlyUsed.length }})</span>
       </h3>
       
       <div v-if="loading" class="flex justify-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-garden-green-600"></div>
       </div>
       
-      <div v-else-if="filteredProduce.length === 0" class="text-center py-12">
+      <div v-else-if="filteredFrequentlyUsed.length === 0" class="text-center py-8">
+        <p class="text-gray-500">No frequently used produce types</p>
+      </div>
+      
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <button
+          v-for="produce in filteredFrequentlyUsed"
+          :key="`freq-${produce.id}`"
+          @click="selectProduce(produce)"
+          class="bg-white border-2 border-gray-200 rounded-lg p-4 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[80px] flex flex-col justify-center touch-manipulation"
+        >
+          <div class="text-lg font-medium text-gray-900">{{ produce.name }}</div>
+          <div class="text-sm text-gray-500">{{ produce.unitType }}</div>
+          <div class="text-xs text-garden-green-600 mt-1">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Rarely Used Produce (Collapsible) -->
+    <div v-if="!searchQuery && filteredRarelyUsed.length > 0" class="space-y-3">
+      <div>
+        <button
+          @click="showUnusedProduce = !showUnusedProduce"
+          class="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+        >
+          <svg 
+            :class="['w-5 h-5 mr-2 transition-transform', showUnusedProduce ? 'rotate-90' : '']"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+          <span class="text-lg font-medium">
+            More produce types ({{ filteredRarelyUsed.length }} unused in past year)
+          </span>
+        </button>
+      </div>
+      
+      <div v-if="showUnusedProduce" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <button
+          v-for="produce in filteredRarelyUsed"
+          :key="`rare-${produce.id}`"
+          @click="selectProduce(produce)"
+          class="bg-gray-50 border-2 border-gray-200 rounded-lg p-4 text-center hover:border-garden-green-300 hover:shadow-md hover:bg-white transition-all min-h-[80px] flex flex-col justify-center touch-manipulation"
+        >
+          <div class="text-lg font-medium text-gray-700">{{ produce.name }}</div>
+          <div class="text-sm text-gray-500">{{ produce.unitType }}</div>
+          <div class="text-xs text-garden-green-600 mt-1">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Results (All Produce) -->
+    <div v-if="searchQuery" class="space-y-3">
+      <h3 class="text-lg font-medium text-gray-900">
+        Search Results
+        <span class="text-gray-500 font-normal">({{ filteredProduce.length }})</span>
+      </h3>
+      
+      <div v-if="filteredProduce.length === 0" class="text-center py-12">
         <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
         <p class="mt-4 text-lg text-gray-500">
-          {{ searchQuery ? 'No produce found matching your search' : 'No produce types available' }}
+          No produce found matching your search
         </p>
       </div>
       
       <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         <button
           v-for="produce in filteredProduce"
-          :key="produce.id"
+          :key="`search-${produce.id}`"
           @click="selectProduce(produce)"
           class="bg-white border-2 border-gray-200 rounded-lg p-4 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[80px] flex flex-col justify-center touch-manipulation"
         >
@@ -114,7 +174,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-
+import type { Database } from '@/types/database'
 
 type ProduceType = Database['public']['Tables']['produce_types']['Row']
 type ProduceCategory = Database['public']['Tables']['produce_categories']['Row']
@@ -124,6 +184,7 @@ interface Props {
   categories: ProduceCategory[]
   loading: boolean
   recentlyUsed?: ProduceType[]
+  harvestEntries?: any[] // Add harvest entries to analyze usage
 }
 
 interface Emits {
@@ -131,18 +192,46 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  recentlyUsed: () => []
+  recentlyUsed: () => [],
+  harvestEntries: () => []
 })
 
 const emit = defineEmits<Emits>()
 
 const selectedCategoryId = ref<string | null>(null)
 const searchQuery = ref('')
+const showUnusedProduce = ref(false)
 
-const filteredProduce = computed(() => {
-  let filtered = props.produceTypes
+// Analyze produce usage in the past 12 months
+const produceUsageAnalysis = computed(() => {
+  const twelveMonthsAgo = new Date()
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12)
+  
+  const usedProduceIds = new Set()
+  
+  // Analyze harvest entries to find which produce types were used
+  props.harvestEntries.forEach(entry => {
+    const entryDate = new Date(entry.harvestDate || entry.harvest_date || entry.createdAt || entry.created_at)
+    if (entryDate >= twelveMonthsAgo) {
+      const produceId = entry.produceTypeId || entry.produce_type_id
+      if (produceId) {
+        usedProduceIds.add(String(produceId))
+      }
+    }
+  })
+  
+  return {
+    usedProduceIds,
+    frequentlyUsed: props.produceTypes.filter(p => usedProduceIds.has(String(p.id || p._id))),
+    rarelyUsed: props.produceTypes.filter(p => !usedProduceIds.has(String(p.id || p._id)))
+  }
+})
 
-  // Filter by category - ensure string comparison
+// Filtered frequently used produce
+const filteredFrequentlyUsed = computed(() => {
+  let filtered = produceUsageAnalysis.value.frequentlyUsed
+
+  // Filter by category
   if (selectedCategoryId.value) {
     filtered = filtered.filter(p => {
       const pCategoryId = String(p.category_id || p.categoryId || '')
@@ -161,6 +250,36 @@ const filteredProduce = computed(() => {
   }
 
   return filtered.sort((a, b) => a.name.localeCompare(b.name))
+})
+
+// Filtered rarely used produce
+const filteredRarelyUsed = computed(() => {
+  let filtered = produceUsageAnalysis.value.rarelyUsed
+
+  // Filter by category
+  if (selectedCategoryId.value) {
+    filtered = filtered.filter(p => {
+      const pCategoryId = String(p.category_id || p.categoryId || '')
+      const selectedId = String(selectedCategoryId.value)
+      return pCategoryId === selectedId
+    })
+  }
+
+  // Filter by search query
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(p => 
+      p.name.toLowerCase().includes(query) ||
+      getCategoryName(p.category_id).toLowerCase().includes(query)
+    )
+  }
+
+  return filtered.sort((a, b) => a.name.localeCompare(b.name))
+})
+
+// Combined filtered produce for backward compatibility and count display
+const filteredProduce = computed(() => {
+  return [...filteredFrequentlyUsed.value, ...filteredRarelyUsed.value]
 })
 
 const getCategoryName = (categoryId: string) => {
