@@ -1,11 +1,13 @@
 const Joi = require('joi');
 const { connectDB } = require('./utils/db.js');
-const { HarvestEntry, ProduceType, FoodPantry } = require('./utils/models.js');
+const { HarvestEntry, ProduceType, FoodPantry, HarvestLocation } = require('./utils/models.js');
 const { createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
 
 const createHarvestSchema = Joi.object({
   produce_type_id: Joi.string().optional(),
   produceTypeId: Joi.string().optional(),
+  location_id: Joi.string().optional(),
+  locationId: Joi.string().optional(),
   quantity: Joi.number().min(0).required(),
   unit: Joi.string().required(),
   weight: Joi.number().min(0).optional(), // Optional - will be calculated if not provided
@@ -40,6 +42,7 @@ exports.handler = async function(event, context) {
 
     // Support both snake_case and camelCase field names
     const produceTypeId = body.produce_type_id || body.produceTypeId;
+    const locationId = body.location_id || body.locationId;
     const pantryId = body.pantry_id || body.pantryId;
     const quantity = body.quantity;
     const unit = body.unit;
@@ -52,6 +55,9 @@ exports.handler = async function(event, context) {
     if (!produceTypeId) {
       return createErrorResponse(400, 'Produce type ID is required');
     }
+    if (!locationId) {
+      return createErrorResponse(400, 'Location ID is required');
+    }
     if (!pantryId) {
       return createErrorResponse(400, 'Pantry ID is required');
     }
@@ -60,6 +66,12 @@ exports.handler = async function(event, context) {
     const produceType = await ProduceType.findById(produceTypeId);
     if (!produceType) {
       return createErrorResponse(400, 'Invalid produce type');
+    }
+
+    // Verify location exists
+    const location = await HarvestLocation.findById(locationId);
+    if (!location) {
+      return createErrorResponse(400, 'Invalid harvest location');
     }
 
     // Verify pantry exists
@@ -85,6 +97,7 @@ exports.handler = async function(event, context) {
     // Create harvest entry
     const entry = new HarvestEntry({
       produceTypeId,
+      locationId,
       pantryId,
       quantity,
       unit,
@@ -107,6 +120,10 @@ exports.handler = async function(event, context) {
         }
       },
       {
+        path: 'locationId',
+        model: 'HarvestLocation'
+      },
+      {
         path: 'pantryId',
         model: 'FoodPantry'
       }
@@ -117,6 +134,8 @@ exports.handler = async function(event, context) {
       _id: entry._id,
       produce_type_id: entry.produceTypeId._id,
       produceTypeId: entry.produceTypeId._id,
+      location_id: entry.locationId._id,
+      locationId: entry.locationId._id,
       pantry_id: entry.pantryId._id,
       pantryId: entry.pantryId._id,
       quantity: entry.quantity,
@@ -146,6 +165,11 @@ exports.handler = async function(event, context) {
           name: entry.produceTypeId.categoryId.name,
           description: entry.produceTypeId.categoryId.description
         }
+      },
+      location: {
+        _id: entry.locationId._id,
+        name: entry.locationId.name,
+        address: entry.locationId.address
       },
       pantry: {
         _id: entry.pantryId._id,

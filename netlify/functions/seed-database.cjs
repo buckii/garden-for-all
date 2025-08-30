@@ -1,5 +1,5 @@
 const { connectDB } = require('./utils/db.js');
-const { ProduceCategory, ProduceType, FoodPantry, HarvestEntry } = require('./utils/models.js');
+const { ProduceCategory, ProduceType, HarvestLocation, FoodPantry, HarvestEntry } = require('./utils/models.js');
 const { createResponse, createErrorResponse } = require('./utils/auth.js');
 const fs = require('fs');
 const path = require('path');
@@ -12,9 +12,31 @@ const categories = [
   { name: 'Vegetables', description: 'General vegetables and root crops', displayOrder: 4 }
 ];
 
+// Harvest Locations
+const harvestLocations = [
+  {
+    name: 'Farm',
+    address: {
+      street: 'Main Farm Location',
+      city: 'City',
+      state: 'State', 
+      zip: '12345'
+    }
+  },
+  {
+    name: 'Garden',
+    address: {
+      street: 'Community Garden Site',
+      city: 'City',
+      state: 'State',
+      zip: '12345'
+    }
+  }
+];
+
 function parseQuantityAndUnit(quantityStr) {
   if (!quantityStr) {
-    return { quantity: 0, unit: 'items' };
+    return { quantity: 0, unit: 'pounds' };
   }
   
   // Clean the string and convert to lowercase for matching
@@ -24,30 +46,16 @@ function parseQuantityAndUnit(quantityStr) {
   const numberMatch = cleaned.match(/^(\d+(?:\.\d+)?)/);
   const quantity = numberMatch ? parseFloat(numberMatch[1]) : 0;
   
-  // Common unit patterns (ignoring size descriptors like "large" and "small")
-  if (cleaned.includes('bag')) {
-    return { quantity, unit: 'bags' };
+  // Map to new unit system
+  if (cleaned.includes('pint') || cleaned.includes('berry') || cleaned.includes('raspberry')) {
+    return { quantity, unit: 'half-pints' };
   }
-  if (cleaned.includes('box')) {
-    return { quantity, unit: 'boxes' };
-  }
-  if (cleaned.includes('bunch')) {
-    return { quantity, unit: 'bunches' };
-  }
-  if (cleaned.includes('pint')) {
-    return { quantity, unit: 'pints' };
-  }
-  if (cleaned.includes('pound') || cleaned.includes('lb')) {
-    return { quantity, unit: 'items' };
+  if (cleaned.includes('bunch') || cleaned.includes('bouquet') || cleaned.includes('flower')) {
+    return { quantity, unit: 'bouquets' };
   }
   
-  // If it's just a number with no unit, assume items/pieces
-  if (/^\d+(?:\.\d+)?$/.test(cleaned)) {
-    return { quantity, unit: 'items' };
-  }
-  
-  // Default fallback
-  return { quantity, unit: 'items' };
+  // Default to pounds for everything else
+  return { quantity, unit: 'pounds' };
 }
 
 function loadDataFromCSV() {
@@ -83,10 +91,10 @@ function loadDataFromCSV() {
     
     // Default values for missing nutritional/pricing data
     const defaultValues = {
-      'Fruit': { servingWeightOz: 5.0, servingsPerLb: 3.2, pricePerLb: 2.0, conversionFactor: 1.0, unitType: 'items' },
-      'Greens': { servingWeightOz: 3.0, servingsPerLb: 5.33, pricePerLb: 2.5, conversionFactor: 0.19, unitType: 'bunches' },
-      'Herbs': { servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.0, conversionFactor: 0.03, unitType: 'bunches' },
-      'Vegetables': { servingWeightOz: 4.0, servingsPerLb: 4.0, pricePerLb: 1.5, conversionFactor: 1.0, unitType: 'items' }
+      'Fruit': { servingWeightOz: 5.0, servingsPerLb: 3.2, pricePerLb: 2.0, conversionFactor: 1.0, unitType: 'pounds' },
+      'Greens': { servingWeightOz: 3.0, servingsPerLb: 5.33, pricePerLb: 2.5, conversionFactor: 1.0, unitType: 'pounds' },
+      'Herbs': { servingWeightOz: 0.5, servingsPerLb: 32.0, pricePerLb: 8.0, conversionFactor: 1.0, unitType: 'bouquets' },
+      'Vegetables': { servingWeightOz: 4.0, servingsPerLb: 4.0, pricePerLb: 1.5, conversionFactor: 1.0, unitType: 'pounds' }
     };
     
     // Process each line
@@ -397,6 +405,30 @@ exports.handler = async function(event, context) {
     createdCategories.forEach(category => {
       categoryMap[category.name] = category._id;
     });
+
+    // Create harvest locations (only if they don't exist or if we cleared data)
+    console.log('Creating harvest locations...');
+    let createdLocations;
+    if (shouldClearData) {
+      createdLocations = await HarvestLocation.insertMany(harvestLocations);
+      console.log(`Created ${createdLocations.length} harvest locations`);
+    } else {
+      // Get existing locations or create missing ones
+      createdLocations = [];
+      for (const locationData of harvestLocations) {
+        let location = await HarvestLocation.findOne({ 
+          name: { $regex: new RegExp(`^${locationData.name}$`, 'i') } 
+        });
+        if (!location) {
+          location = await HarvestLocation.create(locationData);
+          console.log(`Created harvest location: ${location.name}`);
+        } else {
+          console.log(`Found existing harvest location: ${location.name}`);
+        }
+        createdLocations.push(location);
+      }
+    }
+    console.log(`Using ${createdLocations.length} harvest locations`);
 
     // Create produce types with category references and pricing data
     console.log('Creating produce types...');
