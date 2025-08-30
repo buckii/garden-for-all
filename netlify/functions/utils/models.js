@@ -51,15 +51,26 @@ const foodPantrySchema = new mongoose.Schema({
     latitude: { type: Number },
     longitude: { type: Number }
   },
-  commitmentAmounts: {
-    total: { type: Number, default: 0, min: 0 },
-    vegetables: { type: Number, default: 0, min: 0 },
-    fruits: { type: Number, default: 0, min: 0 },
-    herbs: { type: Number, default: 0, min: 0 },
-    flowers: { type: Number, default: 0, min: 0 }
-  },
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
+
+// Pantry Commitment Schema
+const pantryCommitmentSchema = new mongoose.Schema({
+  pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: true },
+  year: { type: Number, required: true },
+  weeklyCommitment: {
+    vegetables: { type: Number, default: 0, min: 0 }, // lbs per week
+    fruits: { type: Number, default: 0, min: 0 },
+    herbs: { type: Number, default: 0, min: 0 },
+    flowers: { type: Number, default: 0, min: 0 },
+    total: { type: Number, default: 0, min: 0 }
+  },
+  isActive: { type: Boolean, default: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+}, { timestamps: true });
+
+// Index for efficient querying
+pantryCommitmentSchema.index({ pantryId: 1, year: 1, isActive: 1 });
 
 // Harvest Entry Schema
 const harvestEntrySchema = new mongoose.Schema({
@@ -121,6 +132,7 @@ const ProduceCategory = mongoose.models.ProduceCategory || mongoose.model('Produ
 const ProduceType = mongoose.models.ProduceType || mongoose.model('ProduceType', produceTypeSchema);
 const HarvestLocation = mongoose.models.HarvestLocation || mongoose.model('HarvestLocation', harvestLocationSchema);
 const FoodPantry = mongoose.models.FoodPantry || mongoose.model('FoodPantry', foodPantrySchema);
+const PantryCommitment = mongoose.models.PantryCommitment || mongoose.model('PantryCommitment', pantryCommitmentSchema);
 const HarvestEntry = mongoose.models.HarvestEntry || mongoose.model('HarvestEntry', harvestEntrySchema);
 const PantryDistribution = mongoose.models.PantryDistribution || mongoose.model('PantryDistribution', pantryDistributionSchema);
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
@@ -130,6 +142,7 @@ module.exports = {
   ProduceType,
   HarvestLocation,
   FoodPantry,
+  PantryCommitment,
   HarvestEntry,
   PantryDistribution,
   Order

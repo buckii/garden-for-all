@@ -98,20 +98,18 @@
               </div>
             </div>
             
-            <!-- Commitment -->
-            <div v-if="pantry.commitmentAmounts || pantry.commitment_amounts" class="pt-3 border-t border-gray-200">
-              <p class="text-sm font-medium text-gray-700 mb-2">Annual Commitment</p>
-              <div class="space-y-1">
-                <p class="text-sm text-gray-600">
-                  Total: <span class="font-medium text-garden-green-600">{{ (pantry.commitmentAmounts || pantry.commitment_amounts)?.total || 0 }} lbs</span>
-                </p>
-                <div class="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                  <span>Vegetables: {{ (pantry.commitmentAmounts || pantry.commitment_amounts)?.vegetables || 0 }} lbs</span>
-                  <span>Fruits: {{ (pantry.commitmentAmounts || pantry.commitment_amounts)?.fruits || 0 }} lbs</span>
-                  <span>Herbs: {{ (pantry.commitmentAmounts || pantry.commitment_amounts)?.herbs || 0 }} lbs</span>
-                  <span>Flowers: {{ (pantry.commitmentAmounts || pantry.commitment_amounts)?.flowers || 0 }} lbs</span>
-                </div>
+            <!-- Commitment Management -->
+            <div class="pt-3 border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-700">Weekly Commitments</p>
+                <button
+                  @click="manageCommitments(pantry)"
+                  class="text-xs text-garden-green-600 hover:text-garden-green-700 font-medium"
+                >
+                  Manage
+                </button>
               </div>
+              <p class="text-xs text-gray-500 mt-1">Set weekly produce commitments and track progress</p>
             </div>
           </div>
         </div>
@@ -234,78 +232,6 @@
               </div>
             </div>
             
-            <!-- Commitment Amounts -->
-            <div class="space-y-4">
-              <h4 class="font-medium text-gray-900">Annual Commitment (Dollar Values)</h4>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Vegetables (lbs)
-                  </label>
-                  <input
-                    v-model.number="formData.commitmentAmounts.vegetables"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Fruits (lbs)
-                  </label>
-                  <input
-                    v-model.number="formData.commitmentAmounts.fruits"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Herbs (lbs)
-                  </label>
-                  <input
-                    v-model.number="formData.commitmentAmounts.herbs"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Flowers (lbs)
-                  </label>
-                  <input
-                    v-model.number="formData.commitmentAmounts.flowers"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Total Commitment
-                </label>
-                <input
-                  v-model.number="formData.commitmentAmounts.total"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
-                  placeholder="Total annual commitment (lbs)"
-                />
-              </div>
-            </div>
-            
             <div class="flex justify-end space-x-3 pt-6 border-t">
               <button
                 type="button"
@@ -360,12 +286,20 @@
         </div>
       </div>
     </div>
+
+    <!-- Commitment Management Modal -->
+    <CommitmentManagement 
+      :show="showCommitmentModal" 
+      :pantry="selectedPantryForCommitments"
+      @close="closeCommitmentModal"
+      @updated="handleCommitmentUpdate" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAdminStore } from '@/stores/admin'
+import CommitmentManagement from './CommitmentManagement.vue'
 
 
 type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
@@ -375,9 +309,11 @@ const adminStore = useAdminStore()
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
+const showCommitmentModal = ref(false)
 const submitting = ref(false)
 const pantryToEdit = ref<FoodPantry | null>(null)
 const pantryToDelete = ref<FoodPantry | null>(null)
+const selectedPantryForCommitments = ref<FoodPantry | null>(null)
 const modalMessage = ref<{ type: 'success' | 'error', text: string } | null>(null)
 
 const formData = ref({
@@ -391,13 +327,6 @@ const formData = ref({
     city: '',
     state: '',
     zip: ''
-  },
-  commitmentAmounts: {
-    vegetables: 0,
-    fruits: 0,
-    herbs: 0,
-    flowers: 0,
-    total: 0
   }
 })
 
@@ -413,7 +342,6 @@ const editPantry = (pantry: FoodPantry) => {
   
   // Handle both camelCase (from API) and snake_case (legacy) field naming
   const contactInfo = pantry.contactInfo || pantry.contact_info
-  const commitmentAmounts = pantry.commitmentAmounts || pantry.commitment_amounts
   
   formData.value = {
     name: pantry.name,
@@ -426,13 +354,6 @@ const editPantry = (pantry: FoodPantry) => {
       city: pantry.address?.city || '',
       state: pantry.address?.state || '',
       zip: pantry.address?.zip || ''
-    },
-    commitmentAmounts: {
-      vegetables: commitmentAmounts?.vegetables || 0,
-      fruits: commitmentAmounts?.fruits || 0,
-      herbs: commitmentAmounts?.herbs || 0,
-      flowers: commitmentAmounts?.flowers || 0,
-      total: commitmentAmounts?.total || 0
     }
   }
   showEditModal.value = true
@@ -443,6 +364,21 @@ const confirmDelete = (pantry: FoodPantry) => {
   showDeleteModal.value = true
 }
 
+const manageCommitments = (pantry: FoodPantry) => {
+  selectedPantryForCommitments.value = pantry
+  showCommitmentModal.value = true
+}
+
+const closeCommitmentModal = () => {
+  showCommitmentModal.value = false
+  selectedPantryForCommitments.value = null
+}
+
+const handleCommitmentUpdate = () => {
+  // Optional: Refresh pantry data if needed
+  console.log('Commitment updated for pantry:', selectedPantryForCommitments.value?.name)
+}
+
 const handleSubmit = async () => {
   submitting.value = true
   modalMessage.value = null
@@ -451,8 +387,7 @@ const handleSubmit = async () => {
     const submitData = {
       name: formData.value.name,
       contactInfo: formData.value.contactInfo,
-      address: formData.value.address,
-      commitmentAmounts: formData.value.commitmentAmounts
+      address: formData.value.address
     }
 
     let result
@@ -521,13 +456,6 @@ const closeModal = () => {
       city: '',
       state: '',
       zip: ''
-    },
-    commitmentAmounts: {
-      vegetables: 0,
-      fruits: 0,
-      herbs: 0,
-      flowers: 0,
-      total: 0
     }
   }
 }

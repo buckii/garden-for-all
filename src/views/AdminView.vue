@@ -37,9 +37,6 @@
                         <button @click="setActiveTab('types')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'types' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
                           Produce Types
                         </button>
-                        <button @click="setActiveTab('pantries')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'pantries' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
-                          Food Pantries
-                        </button>
                         <button @click="setActiveTab('locations')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'locations' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
                           Harvest Locations
                         </button>
@@ -65,6 +62,9 @@
                     </button>
                     <div v-if="showDataDropdown" class="absolute z-10 top-full w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                       <div class="py-1">
+                        <button @click="setActiveTab('pantries')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'pantries' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
+                          Food Pantries
+                        </button>
                         <button @click="setActiveTab('entries')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'entries' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
                           Harvest Entries
                         </button>
@@ -118,10 +118,10 @@
                   <optgroup label="Configuration">
                     <option value="categories">Categories</option>
                     <option value="types">Produce Types</option>
-                    <option value="pantries">Food Pantries</option>
                     <option value="locations">Harvest Locations</option>
                   </optgroup>
                   <optgroup label="Data Management">
+                    <option value="pantries">Food Pantries</option>
                     <option value="entries">Harvest Entries</option>
                     <option value="orders">Orders</option>
                   </optgroup>
@@ -351,8 +351,8 @@ const setActiveTab = (tabId: string) => {
 
 const isInGroup = (tabId: string, groupName: string): boolean => {
   const groups = {
-    config: ['categories', 'types', 'pantries', 'locations'],
-    data: ['entries', 'orders']
+    config: ['categories', 'types', 'locations'],
+    data: ['pantries', 'entries', 'orders']
   }
   return groups[groupName]?.includes(tabId) || false
 }

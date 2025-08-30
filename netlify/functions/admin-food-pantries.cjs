@@ -61,13 +61,6 @@ const foodPantrySchema = Joi.object({
     state: Joi.string().allow('').optional(),
     zip: Joi.string().allow('').optional()
   }).optional(),
-  commitmentAmounts: Joi.object({
-    total: Joi.number().min(0).optional(),
-    vegetables: Joi.number().min(0).optional(),
-    fruits: Joi.number().min(0).optional(),
-    herbs: Joi.number().min(0).optional(),
-    flowers: Joi.number().min(0).optional()
-  }).optional(),
   isActive: Joi.boolean().optional()
 });
 
