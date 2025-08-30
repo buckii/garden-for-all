@@ -8,7 +8,7 @@
 [functions]
   node_bundler = "esbuild"
   external_node_modules = ["mongoose"]
-  included_files = ["netlify/functions/**"]
+  included_files = ["netlify/functions/**", "data/**"]
 
 [[headers]]
   for = "/.netlify/functions/*"
