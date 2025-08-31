@@ -45,17 +45,35 @@ exports.handler = async function(event, context) {
       HarvestEntry.find({ harvestDate: { $gte: startOfYear } }).populate('produceTypeId')
     ]);
 
+    // Debug logging
+    console.log('Dashboard Summary Debug:');
+    console.log('Today:', today.toISOString());
+    console.log('Daily entries count:', dailyEntries.length);
+    console.log('Weekly entries count:', weeklyEntries.length);
+    console.log('Monthly entries count:', monthlyEntries.length);
+    console.log('Yearly entries count:', yearlyEntries.length);
+    
+    if (yearlyEntries.length > 0) {
+      console.log('Sample entry:', {
+        weight: yearlyEntries[0].weight,
+        quantity: yearlyEntries[0].quantity,
+        unit: yearlyEntries[0].unit,
+        harvestDate: yearlyEntries[0].harvestDate,
+        produceType: yearlyEntries[0].produceTypeId?.name,
+        pricePerLb: yearlyEntries[0].produceTypeId?.pricePerLb
+      });
+    }
+
     // Helper function to calculate summary
     const calculateSummary = (entries) => {
       return entries.reduce((acc, entry) => {
-        // Convert quantity to pounds using conversion factor
-        const conversionFactor = entry.produceTypeId?.conversionFactor || 1;
-        const quantityInPounds = entry.quantity * conversionFactor;
-        acc.totalQuantity += quantityInPounds;
+        // Use weight field which is already in pounds
+        const weightInPounds = entry.weight || 0;
+        acc.totalQuantity += weightInPounds;
         
         // Calculate value using price per pound
         const pricePerLb = entry.produceTypeId?.pricePerLb || 0;
-        const value = quantityInPounds * pricePerLb;
+        const value = weightInPounds * pricePerLb;
         acc.totalValue += value;
         acc.count += 1;
         
