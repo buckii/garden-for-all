@@ -217,12 +217,11 @@ type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
 
 const dashboardStore = useDashboardStore()
 const harvestStore = useHarvestStore()
-const { subscribeToHarvestUpdates } = usePusher()
+const { subscribeToHarvestUpdates, subscribeToAdminUpdates, subscribeToDashboardUpdates } = usePusher()
 const { isAuthenticated } = useAuth()
 
 const selectedPantry = ref<FoodPantry | null>(null)
 const currentTime = ref(new Date().toLocaleTimeString())
-const refreshInterval = ref<NodeJS.Timeout | null>(null)
 
 
 // Store getters - use computed to maintain reactivity
@@ -268,16 +267,16 @@ onMounted(async () => {
     harvestStore.fetchProduceTypes()
   ])
 
-  // Set up real-time updates
-  subscribeToHarvestUpdates(() => {
+  // Set up real-time updates for data changes
+  const handleDataUpdate = () => {
+    console.log('📊 Received real-time update, refreshing dashboard data...')
     dashboardStore.fetchAll()
-  })
+  }
 
-  // Auto-refresh every 30 seconds
-  refreshInterval.value = setInterval(() => {
-    dashboardStore.fetchAll()
-    currentTime.value = new Date().toLocaleTimeString()
-  }, 30000)
+  // Subscribe to all relevant events
+  subscribeToHarvestUpdates(handleDataUpdate)
+  subscribeToAdminUpdates(handleDataUpdate)
+  subscribeToDashboardUpdates(handleDataUpdate)
 
   // Update clock every second
   setInterval(() => {
@@ -286,9 +285,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  if (refreshInterval.value) {
-    clearInterval(refreshInterval.value)
-  }
+  // No polling intervals to clean up anymore
 })
 
 const refreshData = async () => {

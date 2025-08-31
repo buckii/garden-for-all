@@ -14,3 +14,4 @@ export const pusher = new Pusher(pusherKey, {
 
 export const gardenChannel = pusher.subscribe('garden-harvest')
 export const adminChannel = pusher.subscribe('garden-admin')
+export const dashboardChannel = pusher.subscribe('garden-dashboard')

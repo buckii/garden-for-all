@@ -2,6 +2,7 @@ const Joi = require('joi');
 const { connectDB } = require('./utils/db.js');
 const { FoodPantry } = require('./utils/models.js');
 const { validateToken, extractToken, createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
+const { pantryUpdates } = require('./utils/pusher.js');
 
 async function geocodeAddress(addressObj) {
   try {
@@ -131,6 +132,9 @@ exports.handler = async function(event, context) {
         if (body.address && !geocodedCoordinates) {
           responseData.warning = 'Pantry saved but geocoding failed. Coordinates not available.';
         }
+
+        // Send real-time update
+        await pantryUpdates.created(responseData.data);
         
         return createResponse(201, responseData);
 
@@ -189,6 +193,9 @@ exports.handler = async function(event, context) {
           updateResponse.warning = 'Pantry updated but geocoding failed. Coordinates not available.';
         }
 
+        // Send real-time update
+        await pantryUpdates.updated(updateResponse.data);
+
         return createResponse(200, updateResponse);
 
       case 'DELETE':
@@ -201,6 +208,9 @@ exports.handler = async function(event, context) {
         if (!deletedPantry) {
           return createErrorResponse(404, 'Food pantry not found');
         }
+
+        // Send real-time update
+        await pantryUpdates.deleted(id);
 
         return createResponse(200, { success: true, message: 'Food pantry deleted successfully' });
 

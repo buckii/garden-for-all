@@ -600,7 +600,9 @@ exports.handler = async function(event, context) {
           weight: entry.weight,
           weightEstimated: false,
           pantryId: pantryId,
+          locationId: createdLocations[0]._id, // Use the first harvest location (Farm)
           harvestDate: entry.harvestDate,
+          harvesterName: 'Seeded Data',
           notes: entry.notes
         });
       }

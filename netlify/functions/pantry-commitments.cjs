@@ -2,6 +2,7 @@ const Joi = require('joi');
 const { connectDB } = require('./utils/db.js');
 const { PantryCommitment, HarvestEntry } = require('./utils/models.js');
 const { validateToken, extractToken, createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
+const { commitmentUpdates } = require('./utils/pusher.js');
 
 const commitmentSchema = Joi.object({
   pantryId: Joi.string().required(),
@@ -123,6 +124,9 @@ async function createCommitment(body, user) {
     await commitment.save();
     await commitment.populate('pantryId', 'name');
 
+    // Send real-time update
+    await commitmentUpdates.created(commitment);
+
     return createResponse(201, {
       success: true,
       data: commitment
@@ -160,6 +164,9 @@ async function updateCommitment(body, params, user) {
       return createErrorResponse(404, 'Commitment not found');
     }
 
+    // Send real-time update
+    await commitmentUpdates.updated(commitment);
+
     return createResponse(200, {
       success: true,
       data: commitment
@@ -186,6 +193,9 @@ async function deleteCommitment(params) {
     if (!commitment) {
       return createErrorResponse(404, 'Commitment not found');
     }
+
+    // Send real-time update
+    await commitmentUpdates.deleted(id);
 
     return createResponse(200, {
       success: true,

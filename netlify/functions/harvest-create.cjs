@@ -2,6 +2,7 @@ const Joi = require('joi');
 const { connectDB } = require('./utils/db.js');
 const { HarvestEntry, ProduceType, FoodPantry, HarvestLocation } = require('./utils/models.js');
 const { createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
+const { harvestUpdates } = require('./utils/pusher.js');
 
 const createHarvestSchema = Joi.object({
   produce_type_id: Joi.string().optional(),
@@ -176,6 +177,9 @@ exports.handler = async function(event, context) {
         name: entry.pantryId.name
       }
     };
+
+    // Send real-time update
+    await harvestUpdates.created(transformedEntry);
 
     return createResponse(201, {
       success: true,

@@ -2,6 +2,7 @@ const { connectDB } = require('./utils/db.js');
 const { validateToken, extractToken, createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
 const { Order, FoodPantry, ProduceType } = require('./utils/models.js');
 const { User } = require('./utils/User.js');
+const { orderUpdates } = require('./utils/pusher.js');
 
 exports.handler = async function(event, context) {
   if (event.httpMethod === 'OPTIONS') {
@@ -107,6 +108,9 @@ async function createOrder(event, user) {
       .populate('pantryId')
       .populate('products.produceTypeId')
       .populate('createdBy', 'email');
+
+    // Send real-time update
+    await orderUpdates.created(populatedOrder);
 
     return createResponse(201, {
       success: true,
@@ -280,6 +284,9 @@ async function updateOrder(event, user) {
     .populate('createdBy', 'email')
     .populate('updatedBy', 'email');
 
+    // Send real-time update
+    await orderUpdates.updated(updatedOrder);
+
     return createResponse(200, {
       success: true,
       data: updatedOrder
@@ -306,6 +313,9 @@ async function deleteOrder(event, user) {
     }
 
     await Order.findByIdAndDelete(orderId);
+
+    // Send real-time update
+    await orderUpdates.deleted(orderId);
 
     return createResponse(200, {
       success: true,
