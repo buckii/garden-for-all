@@ -116,6 +116,12 @@ exports.handler = async function(event, context) {
           unit_type: entry.produceTypeId.unitType,
           conversionFactor: entry.produceTypeId.conversionFactor,
           conversion_factor: entry.produceTypeId.conversionFactor,
+          pricePerLb: entry.produceTypeId.pricePerLb,
+          price_per_lb: entry.produceTypeId.pricePerLb,
+          servingWeightOz: entry.produceTypeId.servingWeightOz,
+          serving_weight_oz: entry.produceTypeId.servingWeightOz,
+          servingsPerLb: entry.produceTypeId.servingsPerLb,
+          servings_per_lb: entry.produceTypeId.servingsPerLb,
           categoryId: entry.produceTypeId.categoryId?._id,
           category: entry.produceTypeId.categoryId ? {
             _id: entry.produceTypeId.categoryId._id,

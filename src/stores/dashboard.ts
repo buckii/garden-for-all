@@ -25,8 +25,8 @@ const dashboardAPI = {
   
   async getHarvestData() {
     try {
-      // Fetch 2000 entries to ensure we get data for year-over-year comparisons
-      const response = await fetch(`${API_BASE}/harvest-list?limit=2000&sortBy=harvestDate&sortOrder=desc`, {
+      // Fetch only the last 20 entries for recent activity display
+      const response = await fetch(`${API_BASE}/harvest-list?limit=20&sortBy=harvestDate&sortOrder=desc`, {
         headers: getAuthHeader()
       })
       const result = await response.json()
@@ -35,6 +35,30 @@ const dashboardAPI = {
       return { data: entries, error: null }
     } catch (error: any) {
       return { data: [], error: error.message }
+    }
+  },
+
+  async getProductionTrends(weeks = 12) {
+    try {
+      const response = await fetch(`${API_BASE}/production-trends?weeks=${weeks}`, {
+        headers: getAuthHeader()
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+
+  async getPeriodComparison() {
+    try {
+      const response = await fetch(`${API_BASE}/period-comparison`, {
+        headers: getAuthHeader()
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
     }
   },
   
@@ -147,6 +171,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const summary = ref<DashboardSummary>(defaultSummary)
   const harvestData = ref<HarvestEntry[]>([])
   const pantryProgress = ref<any[]>([])
+  const productionTrendsData = ref<any>(null)
+  const periodComparisonData = ref<any>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -201,28 +227,11 @@ export const useDashboardStore = defineStore('dashboard', () => {
   })
 
   const productionTrends = computed(() => {
-    const trends = []
-    const entries = Array.isArray(harvestData.value) ? harvestData.value : []
-    entries.forEach(entry => {
-      // Use actual weight if available, otherwise calculate from quantity
-      const weightInPounds = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
-      
-      // Only include entries with either quantity > 0 or weight > 0
-      if (entry.quantity > 0 || weightInPounds > 0) {
-        const date = new Date(entry.harvestDate).toISOString().split('T')[0]
-        const produceTypeId = entry.produceTypeId || entry.produce_type_id
-        trends.push({
-          date,
-          quantity: entry.quantity,
-          weight: weightInPounds,
-          value: weightInPounds * (entry.produceType?.pricePerLb || 0),
-          produce_type_id: produceTypeId
-        })
-      }
-    })
-    return trends
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .slice(-500) // Get more data for 12 weeks of trends
+    return productionTrendsData.value || { labels: [], datasets: [], summary: null }
+  })
+
+  const periodComparison = computed(() => {
+    return periodComparisonData.value
   })
 
   const fetchSummary = async () => {
@@ -255,6 +264,26 @@ export const useDashboardStore = defineStore('dashboard', () => {
     }
   }
 
+  const fetchProductionTrends = async () => {
+    try {
+      const { data, error: fetchError } = await dashboardAPI.getProductionTrends()
+      if (fetchError) throw new Error(fetchError)
+      productionTrendsData.value = data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    }
+  }
+
+  const fetchPeriodComparison = async () => {
+    try {
+      const { data, error: fetchError } = await dashboardAPI.getPeriodComparison()
+      if (fetchError) throw new Error(fetchError)
+      periodComparisonData.value = data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    }
+  }
+
   const fetchAll = async () => {
     loading.value = true
     error.value = null
@@ -263,7 +292,9 @@ export const useDashboardStore = defineStore('dashboard', () => {
       await Promise.all([
         fetchSummary(),
         fetchHarvestData(),
-        fetchPantryProgress()
+        fetchPantryProgress(),
+        fetchProductionTrends(),
+        fetchPeriodComparison()
       ])
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
@@ -288,6 +319,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     recentEntries,
     produceBreakdown,
     productionTrends,
+    periodComparison,
     
     // Raw summary data
     rawSummary: summary,

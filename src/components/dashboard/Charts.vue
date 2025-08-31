@@ -4,7 +4,7 @@
     <div class="bg-white rounded-lg shadow-sm border p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Production Trends (Last 12 Weeks)</h3>
       <div class="h-64">
-        <div v-if="productionTrends.length > 0" class="h-full">
+        <div v-if="productionTrends && productionTrends.datasets.length > 0" class="h-full">
           <Bar :data="chartData" :options="chartOptions" />
         </div>
         <div v-else class="h-full flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg">
@@ -155,177 +155,50 @@ interface Props {
   summary: DashboardSummary
   recentEntries: HarvestEntry[]
   produceBreakdown: { name: string; quantity: number; value: number }[]
-  productionTrends: { date: string; quantity: number; weight?: number; value: number; produce_type_id?: string }[]
+  productionTrends: { labels: string[]; datasets: any[]; summary: any } | null
+  periodComparison: any | null
   produceTypes: ProduceType[]
 }
 
 const props = defineProps<Props>()
 
 const chartData = computed(() => {
-  // Group trends by week and product (last 12 weeks)
-  const weeklyData = new Map<string, Map<string, number>>()
-  const productTotals = new Map<string, number>()
-  const now = new Date()
-
-  // Generate labels for the last 12 weeks
-  const weeks = []
-  for (let i = 11; i >= 0; i--) {
-    const weekStart = new Date(now)
-    weekStart.setDate(now.getDate() - (i * 7 + now.getDay()))
-    const weekKey = formatWeek(weekStart)
-    weeks.push(weekKey)
-    weeklyData.set(weekKey, new Map())
-  }
-
-  // Aggregate daily trends into weekly totals by product and calculate totals
-  props.productionTrends.forEach(trend => {
-    // Find the produce type for this trend
-    const produceType = props.produceTypes.find(p =>
-      p.id === trend.produce_type_id || p._id === trend.produce_type_id
-    )
-    const productName = produceType?.name || 'Unknown Product'
-
-    const date = new Date(trend.date + 'T00:00:00')
-    const weekStart = new Date(date)
-    weekStart.setDate(date.getDate() - date.getDay()) // Get start of week (Sunday)
-    const weekKey = formatWeek(weekStart)
-
-    if (weeklyData.has(weekKey)) {
-      const weekProducts = weeklyData.get(weekKey)!
-      // Use weight if available, otherwise fall back to quantity
-      const weight = trend.weight || trend.quantity || 0
-      weekProducts.set(productName, (weekProducts.get(productName) || 0) + weight)
-    }
-
-    // Track total production for each product over the 12-week period
-    const weight = trend.weight || trend.quantity || 0
-    productTotals.set(productName, (productTotals.get(productName) || 0) + weight)
-  })
-
-  // Get top 5 products by total production
-  const sortedProducts = Array.from(productTotals.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(entry => entry[0])
-
-  // Generate colors for products
-  const productColors = {
-    0: '#10b981', // green-500
-    1: '#f59e0b', // amber-500
-    2: '#8b5cf6', // violet-500
-    3: '#ef4444', // red-500
-    4: '#3b82f6', // blue-500
-    'Other': '#6b7280' // gray-500
-  }
-
-  // Create datasets for top 5 products
-  const datasets = sortedProducts.map((product, index) => ({
-    label: product,
-    data: weeks.map(week => {
-      const weekProducts = weeklyData.get(week)!
-      return weekProducts.get(product) || 0
-    }),
-    backgroundColor: productColors[index as keyof typeof productColors],
-    borderWidth: 0,
-    borderRadius: 2,
-  }))
-
-  // Add "Other" dataset for all remaining products
-  const otherData = weeks.map(week => {
-    const weekProducts = weeklyData.get(week)!
-    let otherTotal = 0
-    weekProducts.forEach((quantity, product) => {
-      if (!sortedProducts.includes(product)) {
-        otherTotal += quantity
-      }
-    })
-    return otherTotal
-  })
-
-  // Only add "Other" dataset if there's actually other data
-  if (otherData.some(value => value > 0)) {
-    datasets.push({
-      label: 'Other',
-      data: otherData,
-      backgroundColor: productColors['Other'],
-      borderWidth: 0,
-      borderRadius: 2,
-    })
+  // Use server-side processed data directly
+  if (!props.productionTrends) {
+    return { labels: [], datasets: [] }
   }
 
   return {
-    labels: weeks,
-    datasets
+    labels: props.productionTrends.labels,
+    datasets: props.productionTrends.datasets
   }
 })
 
-// Calculate period comparisons
+// Use period comparison data from API
 const periodComparison = computed(() => {
-  const now = new Date()
-  const trends = props.productionTrends || []
-  
-  
-  // Helper function to calculate weight for a date range
-  const calculateWeight = (startDate: Date, endDate: Date, label: string = '') => {
-    const filtered = trends
-      .filter(trend => {
-        const trendDate = new Date(trend.date)
-        return trendDate >= startDate && trendDate <= endDate
-      })
-    
-    const total = filtered.reduce((sum, trend) => sum + (trend.weight || trend.quantity || 0), 0)
-    
-    
-    return total
-  }
-  
-  // Calculate date ranges
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  
-  // 7-day periods
-  const last7Days = new Date(today)
-  last7Days.setDate(today.getDate() - 7)
-  const previous7Days = new Date(last7Days)
-  previous7Days.setDate(last7Days.getDate() - 7)
-  
-  // 30-day periods
-  const last30Days = new Date(today)
-  last30Days.setDate(today.getDate() - 30)
-  const previous30Days = new Date(last30Days)
-  previous30Days.setDate(last30Days.getDate() - 30)
-  
-  // Year to date
-  const yearStart = new Date(now.getFullYear(), 0, 1)
-  const lastYearStart = new Date(now.getFullYear() - 1, 0, 1)
-  const lastYearToday = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
-  
-  
-  return {
-    last7: calculateWeight(last7Days, today, 'Last 7 days'),
-    previous7: calculateWeight(previous7Days, last7Days, 'Previous 7 days'),
-    last30: calculateWeight(last30Days, today, 'Last 30 days'),
-    previous30: calculateWeight(previous30Days, last30Days, 'Previous 30 days'),
-    ytd: calculateWeight(yearStart, today, 'YTD 2025'),
-    previousYtd: calculateWeight(lastYearStart, lastYearToday, 'YTD 2024')
-  }
+  return props.periodComparison
 })
 
 const periodComparisonData = computed(() => {
   const comp = periodComparison.value
+  
+  if (!comp) {
+    return { labels: [], datasets: [] }
+  }
   
   return {
     labels: ['7 Days', '30 Days', 'Year to Date'],
     datasets: [
       {
         label: 'Current Period',
-        data: [comp.last7, comp.last30, comp.ytd],
+        data: [comp.last7Days, comp.last30Days, comp.currentYtd],
         backgroundColor: '#10b981', // green-500
         borderWidth: 0,
         borderRadius: 4,
       },
       {
         label: 'Previous Period',
-        data: [comp.previous7, comp.previous30, comp.previousYtd],
+        data: [comp.previous7Days, comp.previous30Days, comp.previousYtd],
         backgroundColor: '#d1d5db', // gray-300
         borderWidth: 0,
         borderRadius: 4,
@@ -365,10 +238,14 @@ const periodComparisonOptions = computed(() => ({
         },
         afterLabel: (context: any) => {
           if (context.datasetIndex === 0) {
+            const comp = periodComparison.value
+            if (!comp) return ''
+            
+            const changes = [comp.change7Days, comp.change30Days, comp.changeYtd]
+            const percentChange = changes[context.dataIndex].toFixed(1)
             const current = context.parsed.y
             const previous = context.chart.data.datasets[1].data[context.dataIndex]
             const change = current - previous
-            const percentChange = previous > 0 ? ((change / previous) * 100).toFixed(1) : 'N/A'
             const arrow = change >= 0 ? '↑' : '↓'
             return `Change: ${arrow} ${Math.abs(change).toFixed(1)} lbs (${percentChange}%)`
           }

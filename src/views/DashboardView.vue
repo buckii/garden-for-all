@@ -79,7 +79,7 @@
             </div>
           </div>
           <Charts v-else :summary="summary" :recent-entries="recentEntries" :produce-breakdown="produceBreakdown"
-            :production-trends="productionTrends" :produce-types="produceTypes" />
+            :production-trends="productionTrends" :period-comparison="periodComparison" :produce-types="produceTypes" />
         </div>
 
         <!-- Pantry Commitment Tracker -->
@@ -230,6 +230,7 @@ const recentEntries = computed(() => dashboardStore.recentEntries)
 const pantryProgress = computed(() => dashboardStore.pantryProgress)
 const produceBreakdown = computed(() => dashboardStore.produceBreakdown)
 const productionTrends = computed(() => dashboardStore.productionTrends)
+const periodComparison = computed(() => dashboardStore.periodComparison)
 const loading = computed(() => dashboardStore.loading)
 const error = computed(() => dashboardStore.error)
 
@@ -269,7 +270,6 @@ onMounted(async () => {
 
   // Set up real-time updates for data changes
   const handleDataUpdate = () => {
-    console.log('📊 Received real-time update, refreshing dashboard data...')
     dashboardStore.fetchAll()
   }
 

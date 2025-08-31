@@ -17,14 +17,14 @@ const harvestLocations = [
   {
     name: 'Farm',
     address: {
-      street: 'Main Farm Location',
-      city: 'City',
-      state: 'State', 
-      zip: '12345'
+      street: '5580 Johnstown-Alexandria Rd',
+      city: 'Johnstown',
+      state: 'OH', 
+      zip: '43031'
     },
     coordinates: {
-      latitude: -28.503716,
-      longitude: 153.4314
+      latitude: 40.1375,
+      longitude: -82.6672
     }
   },
   {
