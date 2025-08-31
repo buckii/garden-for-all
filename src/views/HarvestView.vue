@@ -111,15 +111,22 @@ const fetchHarvestLocations = async () => {
 
 const loading = computed(() => harvestLoading.value || adminLoading.value)
 
-// Recently used produce (from recent entries)
+// Recently used produce (from recent entries, within 2 months)
 const recentlyUsedProduce = computed(() => {
   const recentProduceIds = new Set()
   const recentProduce: ProduceType[] = []
   const entries = harvestStore.recentEntries || []
   const produces = harvestStore.produceTypes || []
+  
+  // Filter entries to only include those from the last 2 months
+  const twoMonthsAgo = new Date()
+  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2)
 
   for (const entry of entries.slice(0, 6)) {
-    if (!recentProduceIds.has(entry.produce_type_id)) {
+    const entryDate = new Date(entry.harvestDate || entry.harvest_date)
+    
+    // Only include entries from the last 2 months
+    if (entryDate >= twoMonthsAgo && !recentProduceIds.has(entry.produce_type_id)) {
       const produce = produces.find(p => p.id === entry.produce_type_id)
       if (produce) {
         recentProduce.push(produce)
@@ -143,6 +150,7 @@ onMounted(async () => {
     harvestStore.fetchTodaysHarvest(),
     harvestStore.fetchRecentEntries(1000) // Fetch more entries for usage analysis
   ])
+  
 
   // Subscribe to real-time updates
   subscribeToHarvestUpdates((data) => {

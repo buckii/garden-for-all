@@ -65,8 +65,13 @@ export const useHarvestStore = defineStore('harvest', () => {
 
   // Computed
   const todaysEntries = computed(() => {
-    const today = new Date().toISOString().split('T')[0]
-    return harvestEntries.value.filter(entry => entry.harvestDate === today)
+    // Use Eastern timezone to match the backend
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
+    
+    return harvestEntries.value.filter(entry => {
+      const entryDate = typeof entry.harvestDate === 'string' ? entry.harvestDate.split('T')[0] : entry.harvestDate
+      return entryDate === today
+    })
   })
 
   const totalQuantityToday = computed(() => {
@@ -99,8 +104,8 @@ export const useHarvestStore = defineStore('harvest', () => {
   const fetchTodaysHarvest = async () => {
     loading.value = true
     try {
-      const today = new Date().toISOString().split('T')[0]
-      const { data, error: fetchError } = await api.getHarvestEntries(today)
+      // Fetch recent entries instead of filtering by date on server to avoid timezone issues
+      const { data, error: fetchError } = await api.getHarvestEntries()
       
       if (fetchError) throw fetchError
       

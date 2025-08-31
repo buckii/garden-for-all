@@ -3,7 +3,10 @@
     <!-- Header with Summary -->
     <div class="bg-white rounded-lg shadow-sm border p-6">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-900">Today's Harvest</h2>
+        <div>
+          <h2 class="text-xl font-bold text-gray-900">Today's Harvest</h2>
+          <p class="text-sm text-gray-500 mt-1">{{ formatTodaysDate }}</p>
+        </div>
         <div class="text-right">
           <p class="text-sm text-gray-500">Total Entries</p>
           <p class="text-2xl font-bold text-garden-green-600">{{ todaysEntries.length }}</p>
@@ -36,6 +39,9 @@
         </svg>
         <p class="mt-4 text-lg text-gray-500">No harvest entries today</p>
         <p class="text-sm text-gray-400">Start by adding your first harvest entry</p>
+        <button @click="$emit('refresh')" class="mt-3 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+          Refresh to check for new entries
+        </button>
       </div>
 
       <div v-else class="space-y-3">
@@ -146,6 +152,15 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+const formatTodaysDate = computed(() => {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+})
 
 const totalQuantity = computed(() => {
   return props.todaysEntries.reduce((total, entry) => {

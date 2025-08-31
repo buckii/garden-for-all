@@ -25,8 +25,8 @@ const dashboardAPI = {
   
   async getHarvestData() {
     try {
-      // Fetch only the last 20 entries for recent activity display
-      const response = await fetch(`${API_BASE}/harvest-list?limit=20&sortBy=harvestDate&sortOrder=desc`, {
+      // Fetch enough entries to calculate monthly totals accurately (last 1000 entries)
+      const response = await fetch(`${API_BASE}/harvest-list?limit=1000&sortBy=harvestDate&sortOrder=desc`, {
         headers: getAuthHeader()
       })
       const result = await response.json()
@@ -41,6 +41,18 @@ const dashboardAPI = {
   async getProductionTrends(weeks = 12) {
     try {
       const response = await fetch(`${API_BASE}/production-trends?weeks=${weeks}`, {
+        headers: getAuthHeader()
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: null }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+
+  async getMonthlyProduceBreakdown() {
+    try {
+      const response = await fetch(`${API_BASE}/production-trends?period=month`, {
         headers: getAuthHeader()
       })
       const result = await response.json()
@@ -172,6 +184,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const harvestData = ref<HarvestEntry[]>([])
   const pantryProgress = ref<any[]>([])
   const productionTrendsData = ref<any>(null)
+  const monthlyBreakdownData = ref<any>(null)
   const periodComparisonData = ref<any>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -208,22 +221,14 @@ export const useDashboardStore = defineStore('dashboard', () => {
   })
   
   const produceBreakdown = computed(() => {
-    const breakdown = new Map()
-    const entries = Array.isArray(harvestData.value) ? harvestData.value : []
-    entries.forEach(entry => {
-      // Use actual weight if available, otherwise calculate from quantity
-      const weightInPounds = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
-      
-      // Only include entries with either quantity > 0 or weight > 0
-      if (entry.quantity > 0 || weightInPounds > 0) {
-        const name = entry.produceType?.name || 'Unknown'
-        const existing = breakdown.get(name) || { name, quantity: 0, value: 0 }
-        existing.quantity += weightInPounds
-        existing.value += weightInPounds * (entry.produceType?.pricePerLb || 0)
-        breakdown.set(name, existing)
-      }
-    })
-    return Array.from(breakdown.values()).sort((a, b) => b.quantity - a.quantity)
+    if (!monthlyBreakdownData.value?.productTotals) return []
+    
+    // Convert server-side productTotals to the format expected by the chart
+    return Object.entries(monthlyBreakdownData.value.productTotals).map(([name, quantity]) => ({
+      name,
+      quantity: Number(quantity),
+      value: 0 // Value calculation would need to be added to the API if needed
+    }))
   })
 
   const productionTrends = computed(() => {
@@ -274,6 +279,16 @@ export const useDashboardStore = defineStore('dashboard', () => {
     }
   }
 
+  const fetchMonthlyBreakdown = async () => {
+    try {
+      const { data, error: fetchError } = await dashboardAPI.getMonthlyProduceBreakdown()
+      if (fetchError) throw new Error(fetchError)
+      monthlyBreakdownData.value = data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    }
+  }
+
   const fetchPeriodComparison = async () => {
     try {
       const { data, error: fetchError } = await dashboardAPI.getPeriodComparison()
@@ -294,6 +309,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
         fetchHarvestData(),
         fetchPantryProgress(),
         fetchProductionTrends(),
+        fetchMonthlyBreakdown(),
         fetchPeriodComparison()
       ])
     } catch (err) {
@@ -334,6 +350,9 @@ export const useDashboardStore = defineStore('dashboard', () => {
     fetchSummary,
     fetchHarvestData,
     fetchPantryProgress,
+    fetchProductionTrends,
+    fetchMonthlyBreakdown,
+    fetchPeriodComparison,
     fetchAll,
     clearError,
   }

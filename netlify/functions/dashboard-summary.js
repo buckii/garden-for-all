@@ -1,6 +1,7 @@
 const { connectDB } = require('./utils/db.js');
 const { HarvestEntry, ProduceType, FoodPantry, PantryDistribution } = require('./utils/models.js');
 const { createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
+const { getEasternDateString } = require('./utils/date.js');
 
 exports.handler = async function(event, context) {
   if (event.httpMethod === 'OPTIONS') {
@@ -16,8 +17,8 @@ exports.handler = async function(event, context) {
 
     // Dashboard is now public - no authentication required
 
-    // Get local date string and parse as date without timezone
-    const localDateStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
+    // Get Eastern timezone date consistently
+    const localDateStr = getEasternDateString(); // YYYY-MM-DD format in Eastern timezone
     const today = new Date(localDateStr + 'T00:00:00.000Z');
     
     const tomorrow = new Date(today);

@@ -532,12 +532,13 @@ exports.handler = async function(event, context) {
     let createdHarvestEntries = 0;
     
     if (shouldClearData || await HarvestEntry.countDocuments() === 0) {
-      // Create mappings for lookups
+      // Create mappings for lookups (case-insensitive)
       const produceTypeMap = {};
       const allProduceTypes = await ProduceType.find({}).populate('categoryId');
       allProduceTypes.forEach(pt => {
         const categoryName = pt.categoryId.name;
-        const key = `${categoryName}:${pt.name}`;
+        // Store with lowercase key for case-insensitive lookup
+        const key = `${categoryName.toLowerCase()}:${pt.name.toLowerCase()}`;
         produceTypeMap[key] = pt._id;
       });
       
@@ -561,6 +562,12 @@ exports.handler = async function(event, context) {
         if (pantry.name.includes('Motherful')) {
           pantryMap['motherful'] = pantry._id;
         }
+        if (pantry.name.includes('Food Pantry Network') && pantry.name.includes('Brice')) {
+          pantryMap['fpn brice'] = pantry._id;
+        }
+        if (pantry.name.includes('Market Street')) {
+          pantryMap['market street'] = pantry._id;
+        }
       });
       
       // Use first pantry as default for entries without pantry specified
@@ -571,10 +578,24 @@ exports.handler = async function(event, context) {
       let skippedCount = 0;
       
       for (const entry of harvestEntries) {
-        const productKey = `${entry.type}:${entry.product}`;
-        const produceTypeId = produceTypeMap[productKey];
+        // Use lowercase key for case-insensitive lookup
+        const productKey = `${entry.type.toLowerCase()}:${entry.product.toLowerCase()}`;
+        let produceTypeId = produceTypeMap[productKey];
+        
+        
+        // If not found with category:product key, try to find by product name only
+        if (!produceTypeId) {
+          const fallbackProduceType = allProduceTypes.find(pt => 
+            pt.name.toLowerCase() === entry.product.toLowerCase()
+          );
+          if (fallbackProduceType) {
+            produceTypeId = fallbackProduceType._id;
+            console.log(`🔄 Using fallback for ${entry.product}: found in ${fallbackProduceType.categoryId.name} category instead of ${entry.type}`);
+          }
+        }
         
         if (!produceTypeId) {
+          console.log(`❌ Skipping entry for ${entry.product} (${entry.type}) - no produce type found`);
           skippedCount++;
           continue;
         }
@@ -585,10 +606,18 @@ exports.handler = async function(event, context) {
           const pantryKey = entry.pantry.toLowerCase().trim();
           if (pantryMap[pantryKey]) {
             pantryId = pantryMap[pantryKey];
+          } else {
+            // Log unmapped pantries for debugging
+            if (entry.product.toLowerCase() === 'watermelon') {
+              console.log(`⚠️  No mapping for pantry "${entry.pantry}" (key: "${pantryKey}") for watermelon entry`);
+            }
           }
         }
         
         if (!pantryId) {
+          if (entry.product.toLowerCase() === 'watermelon') {
+            console.log(`❌ Skipping watermelon entry due to missing pantry: ${entry.pantry}`);
+          }
           skippedCount++;
           continue;
         }
@@ -606,6 +635,13 @@ exports.handler = async function(event, context) {
           notes: entry.notes
         });
       }
+      
+      // Count watermelon entries to be inserted for debugging
+      const watermelonToInsert = harvestEntriesToInsert.filter(entry => {
+        const pt = allProduceTypes.find(pt => pt._id.toString() === entry.produceTypeId.toString());
+        return pt && pt.name === 'Watermelon';
+      });
+      console.log(`🍉 About to insert ${watermelonToInsert.length} watermelon entries out of ${harvestEntriesToInsert.length} total entries`);
       
       // Batch insert in chunks of 500 for better performance
       const chunkSize = 500;

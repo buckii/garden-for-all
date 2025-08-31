@@ -3,6 +3,7 @@ const { connectDB } = require('./utils/db.js');
 const { HarvestEntry, ProduceType, FoodPantry, HarvestLocation } = require('./utils/models.js');
 const { createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
 const { harvestUpdates } = require('./utils/pusher.js');
+const { getEasternDateString } = require('./utils/date.js');
 
 const createHarvestSchema = Joi.object({
   produce_type_id: Joi.string().optional(),
@@ -48,7 +49,7 @@ exports.handler = async function(event, context) {
     const quantity = body.quantity;
     const unit = body.unit;
     const providedWeight = body.weight;
-    const harvestDate = body.harvest_date || body.harvestDate || new Date();
+    const harvestDate = body.harvest_date || body.harvestDate || getEasternDateString();
     const harvesterName = body.harvester_name || body.harvesterName;
     const notes = body.notes;
 
@@ -104,7 +105,7 @@ exports.handler = async function(event, context) {
       unit,
       weight,
       weightEstimated,
-      harvestDate: new Date(harvestDate),
+      harvestDate: typeof harvestDate === 'string' ? harvestDate : getEasternDateString(),
       harvesterName: harvesterName || undefined,
       notes: notes || undefined
     });

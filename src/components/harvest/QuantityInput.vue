@@ -232,8 +232,11 @@ const weight = ref<number | undefined>(undefined)
 const selectedLocationId = ref<string>(localStorage.getItem('lastLocationId') || '')
 const selectedPantryId = ref<string>(localStorage.getItem('lastPantryId') || '')
 const harvesterName = ref(localStorage.getItem('harvesterName') || '')
-const harvestDate = ref(localStorage.getItem('lastHarvestDate') || new Date().toISOString().split('T')[0])
+const harvestDate = ref(new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }))
 const notes = ref('')
+
+// Clean up old localStorage entry for harvest date
+localStorage.removeItem('lastHarvestDate')
 const showNotesField = ref(false)
 const activeField = ref<'quantity' | 'weight'>('quantity')
 
@@ -360,10 +363,9 @@ const handleSubmit = () => {
     submitData.weight = estimatedWeight.value
   }
 
-  // Save form values to localStorage for next time
+  // Save form values to localStorage for next time (but not harvest date)
   localStorage.setItem('lastLocationId', selectedLocationId.value)
   localStorage.setItem('lastPantryId', selectedPantryId.value)
-  localStorage.setItem('lastHarvestDate', harvestDate.value)
 
   emit('submit', submitData)
 }
@@ -400,22 +402,17 @@ watch(selectedPantryId, (newId) => {
   }
 })
 
-// Save harvest date to localStorage when it changes
-watch(harvestDate, (newDate) => {
-  if (newDate) {
-    localStorage.setItem('lastHarvestDate', newDate)
-  }
-})
+// Don't save harvest date to localStorage - always use today's date
 
-// Reset form when produce changes (but keep harvester name, pantry, and date)
+// Reset form when produce changes (but keep harvester name and pantry)
 watch(() => props.selectedProduce, () => {
   quantity.value = 0
   displayValue.value = '0'
   weight.value = undefined
-  // Keep location, pantry, harvester name, and harvest date from localStorage
+  // Keep location, pantry, harvester name but always reset date to today
   selectedLocationId.value = localStorage.getItem('lastLocationId') || ''
   selectedPantryId.value = localStorage.getItem('lastPantryId') || ''
-  harvestDate.value = localStorage.getItem('lastHarvestDate') || new Date().toISOString().split('T')[0]
+  harvestDate.value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
   notes.value = ''
   showNotesField.value = false
   // Set active field based on unit type

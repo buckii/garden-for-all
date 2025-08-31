@@ -11,6 +11,7 @@
         </div>
         <div class="ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">Today</div>
+          <div class="text-xs text-gray-400 mb-1">{{ todayDate }}</div>
           <div class="text-2xl font-bold text-gray-900">
             {{ summary.today.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
@@ -32,6 +33,7 @@
         </div>
         <div class="ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">This Week</div>
+          <div class="text-xs text-gray-400 mb-1">{{ weekRange }}</div>
           <div class="text-2xl font-bold text-gray-900">
             {{ summary.week.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
@@ -53,6 +55,7 @@
         </div>
         <div class="ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">This Month</div>
+          <div class="text-xs text-gray-400 mb-1">{{ monthRange }}</div>
           <div class="text-2xl font-bold text-gray-900">
             {{ summary.month.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
@@ -74,6 +77,7 @@
         </div>
         <div class="ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">Year to Date</div>
+          <div class="text-xs text-gray-400 mb-1">{{ yearRange }}</div>
           <div class="text-2xl font-bold text-gray-900">
             {{ summary.year.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
@@ -87,6 +91,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 interface DashboardSummary {
   today: { quantity: number; value: number }
   week: { quantity: number; value: number }
@@ -98,5 +104,29 @@ interface Props {
   summary: DashboardSummary
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+// Date range calculations
+const todayDate = computed(() => {
+  return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+})
+
+const weekRange = computed(() => {
+  const now = new Date()
+  const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay())
+  const endOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + 6)
+  
+  return `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+})
+
+const monthRange = computed(() => {
+  const now = new Date()
+  return now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+})
+
+const yearRange = computed(() => {
+  const now = new Date()
+  const startOfYear = new Date(now.getFullYear(), 0, 1)
+  return `${startOfYear.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+})
 </script>

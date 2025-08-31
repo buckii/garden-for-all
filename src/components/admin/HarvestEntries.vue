@@ -107,12 +107,18 @@
               </td>
               <td class="px-6 py-4">
                 <div class="text-sm">
-                  <div class="font-medium text-gray-900">
-                    {{ entry.quantity }} {{ entry.unit }}
-                  </div>
-                  <div class="text-gray-500">
+                  <div v-if="entry.unit === 'pounds'" class="font-medium text-gray-900">
                     {{ entry.weight?.toFixed(2) || '0.00' }} lbs
-                    <span v-if="entry.weightEstimated" class="text-xs">(est.)</span>
+                    <span v-if="entry.weightEstimated" class="text-xs text-gray-500">(est.)</span>
+                  </div>
+                  <div v-else>
+                    <div class="font-medium text-gray-900">
+                      {{ entry.quantity }} {{ entry.unit }}
+                    </div>
+                    <div class="text-gray-500">
+                      {{ entry.weight?.toFixed(2) || '0.00' }} lbs
+                      <span v-if="entry.weightEstimated" class="text-xs">(est.)</span>
+                    </div>
                   </div>
                 </div>
               </td>
@@ -554,9 +560,12 @@ const deleteEntry = async (entry: any) => {
   }
 }
 
-// Format date
+// Format date - treat date string as local date to avoid timezone shifts
 const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString()
+  // Parse YYYY-MM-DD as local date instead of UTC to avoid timezone issues
+  const [year, month, day] = dateStr.split('-').map(Number)
+  const localDate = new Date(year, month - 1, day)
+  return localDate.toLocaleDateString()
 }
 
 // Get unit for selected produce type
