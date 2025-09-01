@@ -392,6 +392,125 @@ const foodPantries = [
       flowers: 125
     },
     isActive: true
+  },
+  {
+    name: 'Northridge Food Pantry',
+    county: 'Licking County',
+    contactInfo: {
+      phone: '(614) 555-0100',
+      email: 'info@northridgepantry.org',
+      address: 'Northridge, OH (Contact for specific location)'
+    },
+    commitmentAmounts: {
+      total: 1300,
+      vegetables: 600,
+      fruits: 400,
+      herbs: 150,
+      flowers: 150
+    },
+    isActive: true
+  },
+  {
+    name: 'Common Ground Free Store',
+    county: 'Franklin County',
+    contactInfo: {
+      phone: '(614) 555-0101',
+      email: 'info@commonground.org',
+      address: 'Columbus, OH (Contact for specific location)'
+    },
+    commitmentAmounts: {
+      total: 800,
+      vegetables: 400,
+      fruits: 250,
+      herbs: 75,
+      flowers: 75
+    },
+    isActive: true
+  },
+  {
+    name: 'NNEMAP Food Pantry',
+    county: 'Franklin County',
+    contactInfo: {
+      phone: '(614) 555-0102',
+      email: 'info@nnemap.org',
+      address: 'Columbus, OH (Contact for specific location)'
+    },
+    commitmentAmounts: {
+      total: 900,
+      vegetables: 450,
+      fruits: 300,
+      herbs: 75,
+      flowers: 75
+    },
+    isActive: true
+  },
+  {
+    name: 'In The Garden',
+    county: 'Franklin County',
+    contactInfo: {
+      phone: '(614) 555-0103',
+      email: 'info@inthegarden.org',
+      address: 'Columbus, OH (Contact for specific location)'
+    },
+    commitmentAmounts: {
+      total: 600,
+      vegetables: 300,
+      fruits: 200,
+      herbs: 50,
+      flowers: 50
+    },
+    isActive: true
+  },
+  {
+    name: 'Church Pantry',
+    county: 'Franklin County',
+    contactInfo: {
+      phone: '(614) 555-0104',
+      email: 'info@churchpantry.org',
+      address: 'Columbus, OH (Contact for specific location)'
+    },
+    commitmentAmounts: {
+      total: 700,
+      vegetables: 350,
+      fruits: 250,
+      herbs: 50,
+      flowers: 50
+    },
+    isActive: true
+  },
+  {
+    name: 'Other',
+    county: 'Other',
+    contactInfo: {
+      phone: '(614) 555-0105',
+      email: 'info@other.org',
+      address: 'Various Locations'
+    },
+    commitmentAmounts: {
+      total: 500,
+      vegetables: 250,
+      fruits: 150,
+      herbs: 50,
+      flowers: 50
+    },
+    isActive: true
+  },
+  {
+    name: 'Stygler Food Pantry',
+    county: 'Other',
+    contactInfo: {
+      phone: '(614) 555-0106',
+      email: 'info@stygler.org',
+      address: 'Contact for specific location'
+    },
+    commitmentAmounts: {
+      total: 400,
+      vegetables: 200,
+      fruits: 100,
+      herbs: 50,
+      flowers: 50
+    },
+    isActive: true
   }
 ];
 
@@ -577,6 +696,40 @@ exports.handler = async function(event, context) {
         }
         if (pantry.name.includes('Market Street')) {
           pantryMap['market street'] = pantry._id;
+        }
+        if (pantry.name.includes('Northridge')) {
+          pantryMap['northridge'] = pantry._id;
+          pantryMap['northridge'] = pantry._id; // Handle case variation
+        }
+        if (pantry.name.includes('Community Bags')) {
+          pantryMap['bags'] = pantry._id;
+          pantryMap['community bags'] = pantry._id;
+        }
+        if (pantry.name.includes('Common Ground')) {
+          pantryMap['common ground'] = pantry._id;
+        }
+        if (pantry.name.includes('NNEMAP')) {
+          pantryMap['nnemap'] = pantry._id;
+        }
+        if (pantry.name.includes('In The Garden')) {
+          pantryMap['in the garden'] = pantry._id;
+        }
+        if (pantry.name.includes('Church')) {
+          pantryMap['church'] = pantry._id;
+        }
+        if (pantry.name.includes('Other')) {
+          pantryMap['other'] = pantry._id;
+        }
+        if (pantry.name.includes('Faith Care')) {
+          pantryMap['faith care'] = pantry._id;
+        }
+        if (pantry.name.includes('Farmers Market') || pantry.name.includes('Farmer\'s Market')) {
+          pantryMap['farmer\'s market'] = pantry._id;
+          pantryMap['farmers\' market'] = pantry._id;
+          pantryMap['farmers market'] = pantry._id;
+        }
+        if (pantry.name.includes('Stygler')) {
+          pantryMap['stygler'] = pantry._id;
         }
       });
       
