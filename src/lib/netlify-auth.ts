@@ -210,17 +210,11 @@ class NetlifyAuth {
   }
 
   onAuthStateChange(callback: (event: string, session: Session | null) => void) {
-    // Simplified auth state change - check session on page load
-    this.getSession().then(({ data }) => {
-      if (data.session) {
-        callback('SIGNED_IN', data.session);
-      } else {
-        callback('SIGNED_OUT', null);
-      }
-    });
-
+    // Don't call getSession() immediately - let the caller handle initial session check
+    // This prevents duplicate calls when both initialize() and onAuthStateChange() are called
+    
     // Listen for storage changes (for multi-tab support)
-    window.addEventListener('storage', (e) => {
+    const storageListener = (e: StorageEvent) => {
       if (e.key === 'auth_token') {
         if (e.newValue) {
           this.token = e.newValue;
@@ -232,14 +226,16 @@ class NetlifyAuth {
           callback('SIGNED_OUT', null);
         }
       }
-    });
+    };
+
+    window.addEventListener('storage', storageListener);
 
     // Return unsubscribe function
     return {
       data: {
         subscription: {
           unsubscribe: () => {
-            // In a real implementation, you'd clean up listeners here
+            window.removeEventListener('storage', storageListener);
           }
         }
       }

@@ -15,15 +15,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 
-const { loading: authLoading, initialize } = useAuth()
-
-onMounted(async () => {
-  await initialize()
-})
+const { loading: authLoading } = useAuth()
 </script>
 
 <style>

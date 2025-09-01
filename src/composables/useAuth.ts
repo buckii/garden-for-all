@@ -21,6 +21,9 @@ const user = ref<User | null>(null)
 const session = ref<Session | null>(null)
 const loading = ref(true)
 
+// Ensure initialization only happens once
+let initializationPromise: Promise<void> | null = null
+
 export const useAuth = () => {
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
@@ -66,19 +69,33 @@ export const useAuth = () => {
   }
 
   const initialize = async () => {
-    loading.value = true
-    
-    const { data: { session: currentSession } } = await supabase.auth.getSession()
-    session.value = currentSession
-    user.value = currentSession?.user ?? null
-    
-    supabase.auth.onAuthStateChange((_event, currentSession) => {
-      session.value = currentSession
-      user.value = currentSession?.user ?? null
-      loading.value = false
-    })
-    
-    loading.value = false
+    // Return the existing promise if initialization is already in progress
+    if (initializationPromise) {
+      return initializationPromise
+    }
+
+    // Create the initialization promise
+    initializationPromise = (async () => {
+      loading.value = true
+      
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession()
+        session.value = currentSession
+        user.value = currentSession?.user ?? null
+        
+        // Only set up auth state change listener once
+        supabase.auth.onAuthStateChange((_event, currentSession) => {
+          session.value = currentSession
+          user.value = currentSession?.user ?? null
+        })
+      } catch (error) {
+        console.error('Auth initialization failed:', error)
+      } finally {
+        loading.value = false
+      }
+    })()
+
+    return initializationPromise
   }
 
   return {
