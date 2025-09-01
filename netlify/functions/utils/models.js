@@ -51,6 +51,17 @@ const foodPantrySchema = new mongoose.Schema({
     latitude: { type: Number },
     longitude: { type: Number }
   },
+  commitmentAmounts: {
+    total: { type: Number, default: 0, min: 0 },
+    vegetables: { type: Number, default: 0, min: 0 },
+    fruits: { type: Number, default: 0, min: 0 },
+    herbs: { type: Number, default: 0, min: 0 },
+    flowers: { type: Number, default: 0, min: 0 },
+    spring: { type: Number, default: 0, min: 0 },
+    summer: { type: Number, default: 0, min: 0 },
+    fall: { type: Number, default: 0, min: 0 },
+    winter: { type: Number, default: 0, min: 0 }
+  },
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
