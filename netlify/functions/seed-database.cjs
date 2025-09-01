@@ -205,6 +205,7 @@ const { produceData, harvestEntries } = loadDataFromCSV();
 const foodPantries = [
   {
     name: 'GRIN (Gahanna Residents in Need)',
+    county: 'Franklin County',
     contactInfo: {
       phone: '(614) 214-4747',
       email: 'info@grin4gahanna.org',
@@ -221,6 +222,7 @@ const foodPantries = [
   },
   {
     name: 'Broad Street Food Pantry',
+    county: 'Franklin County',
     contactInfo: {
       phone: '(614) 221-6552',
       email: 'foodpantry@bspc.org',
@@ -247,6 +249,7 @@ const foodPantries = [
   },
   {
     name: 'New Albany Food Pantry (NAFP)',
+    county: 'Franklin County',
     contactInfo: {
       phone: '(614) 855-4265',
       email: 'info@newalbanyfoodpantry.org',
@@ -273,6 +276,7 @@ const foodPantries = [
   },
   {
     name: 'Vineyard Columbus Northside Food Pantry',
+    county: 'Franklin County',
     contactInfo: {
       phone: '(614) 268-0477',
       email: 'northside@vineyardcolumbus.org',
@@ -289,6 +293,7 @@ const foodPantries = [
   },
   {
     name: 'Motherful Columbus',
+    county: 'Franklin County',
     contactInfo: {
       phone: '(614) 735-8467',
       email: 'info@motherful.org',
@@ -305,6 +310,7 @@ const foodPantries = [
   },
   {
     name: 'Food Pantry Network - Brice Street',
+    county: 'Licking County',
     contactInfo: {
       phone: '(740) 344-7401',
       email: 'info@fpnlc.org',
@@ -321,6 +327,7 @@ const foodPantries = [
   },
   {
     name: 'Faith Care Ministry',
+    county: 'Licking County',
     contactInfo: {
       phone: '(614) 555-0123',
       email: 'info@faithcare.org',
@@ -337,6 +344,7 @@ const foodPantries = [
   },
   {
     name: 'Market Street Community Pantry',
+    county: 'Licking County',
     contactInfo: {
       phone: '(614) 555-0456',
       email: 'info@marketstreetpantry.org',
@@ -353,6 +361,7 @@ const foodPantries = [
   },
   {
     name: 'Community Bags Food Pantry',
+    county: 'Licking County',
     contactInfo: {
       phone: '(614) 555-0789',
       email: 'bags@communityhelp.org',
@@ -369,6 +378,7 @@ const foodPantries = [
   },
   {
     name: 'New Albany Farmers Market',
+    county: 'Franklin County',
     contactInfo: {
       phone: '(614) 855-4265',
       email: 'market@newalbanyfarmersmarket.org',

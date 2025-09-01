@@ -37,6 +37,12 @@ const harvestLocationSchema = new mongoose.Schema({
 // Food Pantry Schema
 const foodPantrySchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
+  county: { 
+    type: String, 
+    enum: ['Franklin County', 'Licking County', 'Other'],
+    default: 'Franklin County',
+    required: true
+  },
   contactInfo: {
     phone: { type: String, trim: true },
     email: { type: String, lowercase: true, trim: true }
@@ -65,7 +71,69 @@ const foodPantrySchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
-// Pantry Commitment Schema
+// Commitment Schema - supports both pantry-specific and county-level commitments
+const commitmentSchema = new mongoose.Schema({
+  // Commitment can be to a specific pantry OR a county
+  pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: false },
+  county: { 
+    type: String, 
+    enum: ['Franklin County', 'Licking County', 'Other', null],
+    required: false
+  },
+  
+  // Commitment details
+  year: { type: Number, required: true },
+  
+  // Commitment can be for specific produce types or total weight
+  commitmentType: {
+    type: String,
+    enum: ['total', 'produce_type'],
+    required: true
+  },
+  
+  // If commitmentType is 'produce_type', this references the specific produce
+  produceTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceType', required: false },
+  
+  // Weight commitment in pounds
+  weightLbs: { type: Number, required: true, min: 0 },
+  
+  // Optional seasonal breakdown (percentage of annual commitment)
+  seasonalBreakdown: {
+    spring: { type: Number, default: 25, min: 0, max: 100 },
+    summer: { type: Number, default: 40, min: 0, max: 100 },
+    fall: { type: Number, default: 25, min: 0, max: 100 },
+    winter: { type: Number, default: 10, min: 0, max: 100 }
+  },
+  
+  notes: { type: String, trim: true },
+  isActive: { type: Boolean, default: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }
+}, { timestamps: true });
+
+// Validation: either pantryId or county must be specified, not both
+commitmentSchema.pre('validate', function(next) {
+  if ((this.pantryId && this.county) || (!this.pantryId && !this.county)) {
+    next(new Error('Commitment must be to either a specific pantry OR a county, not both or neither'));
+  } else {
+    next();
+  }
+});
+
+// Validation: if commitmentType is 'produce_type', produceTypeId must be specified
+commitmentSchema.pre('validate', function(next) {
+  if (this.commitmentType === 'produce_type' && !this.produceTypeId) {
+    next(new Error('Produce type must be specified for produce-specific commitments'));
+  } else {
+    next();
+  }
+});
+
+// Index for efficient querying
+commitmentSchema.index({ pantryId: 1, year: 1, isActive: 1 });
+commitmentSchema.index({ county: 1, year: 1, isActive: 1 });
+commitmentSchema.index({ produceTypeId: 1, year: 1, isActive: 1 });
+
+// Legacy Pantry Commitment Schema (kept for backward compatibility)
 const pantryCommitmentSchema = new mongoose.Schema({
   pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: true },
   year: { type: Number, required: true },
@@ -143,6 +211,7 @@ const ProduceCategory = mongoose.models.ProduceCategory || mongoose.model('Produ
 const ProduceType = mongoose.models.ProduceType || mongoose.model('ProduceType', produceTypeSchema);
 const HarvestLocation = mongoose.models.HarvestLocation || mongoose.model('HarvestLocation', harvestLocationSchema);
 const FoodPantry = mongoose.models.FoodPantry || mongoose.model('FoodPantry', foodPantrySchema);
+const Commitment = mongoose.models.Commitment || mongoose.model('Commitment', commitmentSchema);
 const PantryCommitment = mongoose.models.PantryCommitment || mongoose.model('PantryCommitment', pantryCommitmentSchema);
 const HarvestEntry = mongoose.models.HarvestEntry || mongoose.model('HarvestEntry', harvestEntrySchema);
 const PantryDistribution = mongoose.models.PantryDistribution || mongoose.model('PantryDistribution', pantryDistributionSchema);
@@ -153,6 +222,7 @@ module.exports = {
   ProduceType,
   HarvestLocation,
   FoodPantry,
+  Commitment,
   PantryCommitment,
   HarvestEntry,
   PantryDistribution,
