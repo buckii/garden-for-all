@@ -30,9 +30,10 @@ exports.handler = async function(event, context) {
     .populate('pantryId', 'name')
     .sort({ harvestDate: -1 });
 
-    // Get all orders in the same date range
+    // Get all orders that reduce inventory (ready and completed orders)
     const orders = await Order.find({
-      deliveryDate: { $gte: startDate, $lte: today }
+      deliveryDate: { $gte: startDate, $lte: today },
+      status: { $in: ['ready', 'completed'] }
     })
     .populate('pantryId', 'name')
     .lean();

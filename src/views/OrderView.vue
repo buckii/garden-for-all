@@ -439,6 +439,51 @@
         </div>
       </div>
     </div>
+
+    <!-- Order Confirmation Modal -->
+    <div v-if="showConfirmationModal" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeConfirmationModal"></div>
+        <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+          <div class="text-center">
+            <!-- Success Icon -->
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+              <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            
+            <!-- Title -->
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Order Created Successfully!</h3>
+            
+            <!-- Order Summary -->
+            <div v-if="createdOrder" class="text-left bg-gray-50 rounded-lg p-4 mb-4">
+              <h4 class="font-medium text-gray-900 mb-2">Order Summary:</h4>
+              <div class="space-y-1 text-sm text-gray-600">
+                <p><span class="font-medium">Pantry:</span> {{ createdOrder.pantryId?.name }}</p>
+                <p><span class="font-medium">Delivery Date:</span> {{ formatDate(createdOrder.deliveryDate) }}</p>
+                <p><span class="font-medium">Packer:</span> {{ createdOrder.packerName }}</p>
+                <p><span class="font-medium">Total Weight:</span> {{ createdOrder.totalWeight?.toFixed(1) }} lbs</p>
+                <p><span class="font-medium">Total Value:</span> ${{ createdOrder.totalValue?.toFixed(2) }}</p>
+                <p><span class="font-medium">Items:</span> {{ createdOrder.products?.length }} product types</p>
+              </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex space-x-3">
+              <button @click="closeConfirmationModal"
+                class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                Close
+              </button>
+              <button @click="createAnotherOrder"
+                class="flex-1 px-4 py-2 bg-garden-green-600 text-white rounded-lg hover:bg-garden-green-700 transition-colors">
+                Create Another Order
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -475,6 +520,8 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const success = ref<string | null>(null)
 const showMobileCart = ref(false)
+const showConfirmationModal = ref(false)
+const createdOrder = ref<any>(null)
 
 // API base URL
 const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
@@ -561,6 +608,48 @@ const getProductName = (produceTypeId: string) => {
   return produceType?.name || 'Unknown Product'
 }
 
+// Helper function to format date
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  })
+}
+
+// Modal functions
+const closeConfirmationModal = () => {
+  showConfirmationModal.value = false
+  createdOrder.value = null
+  // Reload the page to reset the form
+  window.location.reload()
+}
+
+const createAnotherOrder = () => {
+  showConfirmationModal.value = false
+  createdOrder.value = null
+  
+  // Reset form
+  form.value = {
+    harvestLocationId: '',
+    pantryId: '',
+    deliveryDate: '',
+    pickupTime: '',
+    packerName: '',
+    orderType: 'delivery',
+    notes: '',
+    products: []
+  }
+  
+  // Clear dependent data
+  weeklyCommitments.value = []
+  availableInventory.value = []
+  
+  // Set default date
+  setDefaultDate()
+}
+
 // Methods
 const addProduct = () => {
   form.value.products.push({
@@ -618,16 +707,21 @@ const addCommitmentToOrder = (commitment: any) => {
   const produceTypeId = commitment.produceTypeId?._id || commitment.produceTypeId?.id
   if (!produceTypeId) return
 
+  // Use minimum of available inventory and committed amount
+  const availableWeight = commitment.harvestedWeight || 0
+  const committedWeight = commitment.weeklyWeightLbs || 0
+  const weightToAdd = Math.min(availableWeight, committedWeight)
+
   const existingIndex = form.value.products.findIndex(p => p.produceTypeId === produceTypeId)
 
   if (existingIndex >= 0) {
-    // Update existing product with commitment weight
-    form.value.products[existingIndex].weight = commitment.weeklyWeightLbs
+    // Update existing product with minimum available/committed weight
+    form.value.products[existingIndex].weight = weightToAdd
   } else {
-    // Add new product with commitment weight
+    // Add new product with minimum available/committed weight
     form.value.products.push({
       produceTypeId: produceTypeId,
-      weight: commitment.weeklyWeightLbs
+      weight: weightToAdd
     })
   }
 }
@@ -908,7 +1002,7 @@ const submitOrder = async () => {
       orderType: form.value.orderType,
       notes: form.value.notes,
       products: form.value.products.filter(p => p.produceTypeId && p.weight > 0),
-      status: 'draft',
+      status: 'ready',
       createdAt: new Date().toISOString()
     }
 
@@ -925,28 +1019,9 @@ const submitOrder = async () => {
       throw new Error('Failed to create order')
     }
 
-    success.value = 'Order created successfully!'
-
-    // Reset form
-    form.value = {
-      harvestLocationId: '',
-      pantryId: '',
-      deliveryDate: '',
-      pickupTime: '',
-      packerName: '',
-      orderType: 'delivery',
-      notes: '',
-      products: []
-    }
-
-    // Clear dependent data
-    weeklyCommitments.value = []
-    availableInventory.value = []
-
-    // Redirect after a moment
-    setTimeout(() => {
-      router.push('/dashboard')
-    }, 2000)
+    const result = await response.json()
+    createdOrder.value = result.data
+    showConfirmationModal.value = true
 
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to create order'
