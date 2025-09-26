@@ -1,5 +1,6 @@
 const { connectDB } = require('./utils/db.js');
-const { ProduceCategory, ProduceType, HarvestLocation, FoodPantry, HarvestEntry } = require('./utils/models.js');
+const { ProduceCategory, ProduceType, HarvestLocation, FoodPantry, HarvestEntry, Commitment, Order } = require('./utils/models.js');
+const { User } = require('./utils/User.js');
 const { createResponse, createErrorResponse } = require('./utils/auth.js');
 const fs = require('fs');
 const path = require('path');
@@ -73,13 +74,45 @@ function loadDataFromCSV() {
     const lines = csvContent.split('\n');
     const header = lines[0].split('\t');
     
-    // Find column indices (header has extra spaces due to tab separation)
-    const typeIndex = header.findIndex(col => col.trim() === 'Type');
-    const productIndex = header.findIndex(col => col.trim() === 'Product');
-    const quantityIndex = header.findIndex(col => col.trim() === 'Quantity');
-    const weightIndex = header.findIndex(col => col.trim() === 'Weight (lbs)');
-    const dateIndex = header.findIndex(col => col.trim() === 'Delivery Date');
-    const pantryIndex = header.findIndex(col => col.trim() === 'Pantry');
+    // Clean and log header for debugging
+    const cleanHeader = header.map(col => col.trim());
+    console.log('CSV Header columns:', cleanHeader);
+    
+    // Find column indices dynamically from first row
+    const typeIndex = cleanHeader.findIndex(col => col === 'Type');
+    const productIndex = cleanHeader.findIndex(col => col === 'Product');
+    const quantityIndex = cleanHeader.findIndex(col => col === 'Quantity');
+    const weightIndex = cleanHeader.findIndex(col => col === 'Weight (lbs)');
+    const dateIndex = cleanHeader.findIndex(col => col === 'Delivery Date');
+    
+    // Find Month and Year columns (if they exist) to skip them
+    const monthIndex = cleanHeader.findIndex(col => col === 'Month');
+    const yearIndex = cleanHeader.findIndex(col => col === 'Year');
+    
+    // Find Pantry column - should be the last column after skipping Month/Year
+    let pantryIndex = cleanHeader.findIndex(col => col === 'Pantry');
+    
+    // If Pantry column not found by name, use the last column that's not Month or Year
+    if (pantryIndex === -1) {
+      for (let i = cleanHeader.length - 1; i >= 0; i--) {
+        if (i !== monthIndex && i !== yearIndex && cleanHeader[i] !== '') {
+          pantryIndex = i;
+          console.log(`Using column "${cleanHeader[i]}" at index ${i} as Pantry column`);
+          break;
+        }
+      }
+    }
+    
+    console.log('Column indices:', {
+      type: typeIndex,
+      product: productIndex,
+      quantity: quantityIndex,
+      weight: weightIndex,
+      date: dateIndex,
+      month: monthIndex,
+      year: yearIndex,
+      pantry: pantryIndex
+    });
     
     if (typeIndex === -1 || productIndex === -1 || weightIndex === -1 || dateIndex === -1) {
       throw new Error('Required columns (Type, Product, Weight, Delivery Date) not found in CSV');
@@ -200,6 +233,84 @@ function loadDataFromCSV() {
 
 // Load data from CSV
 const { produceData, harvestEntries } = loadDataFromCSV();
+
+// 2025 Weekly Commitment Schedule for Broad Street Food Pantry (Mondays)
+const broadStreetCommitments = [
+  // Lettuce weeks (Apr-Jun)
+  { week: '2025-04-21', produce: 'Lettuce', weight: 25 },
+  { week: '2025-04-28', produce: 'Lettuce', weight: 25 },
+  { week: '2025-05-05', produce: 'Lettuce', weight: 25 },
+  { week: '2025-05-12', produce: 'Lettuce', weight: 25 },
+  { week: '2025-05-19', produce: 'Lettuce', weight: 25 },
+  { week: '2025-05-26', produce: 'Lettuce', weight: 25 },
+  { week: '2025-06-02', produce: 'Lettuce', weight: 25 },
+  { week: '2025-06-09', produce: 'Lettuce', weight: 25 },
+  { week: '2025-06-16', produce: 'Lettuce', weight: 25 },
+  { week: '2025-06-23', produce: 'Lettuce', weight: 25 },
+  
+  // Mixed weeks starting Jun 30 (Monday)
+  { week: '2025-06-30', produce: 'Okra', weight: 15 },
+  { week: '2025-06-30', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-06-30', produce: 'Carrots', weight: 75 },
+  
+  // July weeks
+  { week: '2025-07-07', produce: 'Okra', weight: 15 },
+  { week: '2025-07-07', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-07-07', produce: 'Raspberries', weight: 25 },
+  
+  { week: '2025-07-14', produce: 'Okra', weight: 15 },
+  { week: '2025-07-14', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-07-14', produce: 'Raspberries', weight: 25 },
+  
+  { week: '2025-07-21', produce: 'Okra', weight: 15 },
+  { week: '2025-07-21', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-07-21', produce: 'Raspberries', weight: 25 },
+  
+  { week: '2025-07-28', produce: 'Okra', weight: 15 },
+  { week: '2025-07-28', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-07-28', produce: 'Raspberries', weight: 25 },
+  { week: '2025-07-28', produce: 'Carrots', weight: 75 },
+  
+  // August weeks
+  { week: '2025-08-04', produce: 'Okra', weight: 15 },
+  { week: '2025-08-04', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-08-04', produce: 'Raspberries', weight: 25 },
+  
+  { week: '2025-08-11', produce: 'Okra', weight: 15 },
+  { week: '2025-08-11', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-08-11', produce: 'Raspberries', weight: 25 },
+  
+  { week: '2025-08-18', produce: 'Okra', weight: 15 },
+  { week: '2025-08-18', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-08-18', produce: 'Raspberries', weight: 25 },
+  
+  { week: '2025-08-25', produce: 'Okra', weight: 15 },
+  { week: '2025-08-25', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-08-25', produce: 'Raspberries', weight: 25 },
+  { week: '2025-08-25', produce: 'Carrots', weight: 75 },
+  
+  // September weeks
+  { week: '2025-09-01', produce: 'Okra', weight: 15 },
+  { week: '2025-09-01', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-09-01', produce: 'Raspberries', weight: 25 },
+  
+  { week: '2025-09-08', produce: 'Okra', weight: 15 },
+  { week: '2025-09-08', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-09-08', produce: 'Raspberries', weight: 25 },
+  
+  { week: '2025-09-15', produce: 'Okra', weight: 15 },
+  { week: '2025-09-15', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-09-15', produce: 'Raspberries', weight: 25 },
+  
+  { week: '2025-09-22', produce: 'Okra', weight: 15 },
+  { week: '2025-09-22', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-09-22', produce: 'Raspberries', weight: 25 },
+  { week: '2025-09-22', produce: 'Carrots', weight: 75 },
+  
+  { week: '2025-09-29', produce: 'Okra', weight: 15 },
+  { week: '2025-09-29', produce: 'Cherry Tomatoes', weight: 30 },
+  { week: '2025-09-29', produce: 'Raspberries', weight: 25 }
+];
 
 // Central Ohio food pantries based on Garden for All data
 const foodPantries = [
@@ -511,6 +622,33 @@ const foodPantries = [
       flowers: 50
     },
     isActive: true
+  },
+  {
+    name: 'OSU Newark Student Food Pantry (Campus Corner)',
+    county: 'Licking County',
+    contactInfo: {
+      phone: '(740) 364-9578',
+      email: 'campuscornerpantry@osu.edu',
+      address: 'John L. and Christine Warner Library and Student Center, Room 233, 1179 University Drive, Newark, OH 43055'
+    },
+    address: {
+      street: '1179 University Drive',
+      city: 'Newark',
+      state: 'OH',
+      zip: '43055'
+    },
+    coordinates: {
+      latitude: 40.058396,
+      longitude: -82.401842
+    },
+    commitmentAmounts: {
+      total: 1200,
+      vegetables: 500,
+      fruits: 400,
+      herbs: 150,
+      flowers: 150
+    },
+    isActive: true
   }
 ];
 
@@ -530,7 +668,9 @@ exports.handler = async function(event, context) {
     // Clear existing data only if requested
     if (shouldClearData) {
       console.log('Clearing existing data...');
+      await Order.deleteMany({});
       await HarvestEntry.deleteMany({});
+      await Commitment.deleteMany({});
       await ProduceType.deleteMany({});
       await ProduceCategory.deleteMany({});
       await FoodPantry.deleteMany({});
@@ -731,6 +871,11 @@ exports.handler = async function(event, context) {
         if (pantry.name.includes('Stygler')) {
           pantryMap['stygler'] = pantry._id;
         }
+        if (pantry.name.includes('OSU Newark') || pantry.name.includes('Campus Corner')) {
+          pantryMap['osu newark'] = pantry._id;
+          pantryMap['campus corner'] = pantry._id;
+          pantryMap['osu'] = pantry._id;
+        }
       });
       
       // Use first pantry as default for entries without pantry specified
@@ -825,6 +970,217 @@ exports.handler = async function(event, context) {
       createdHarvestEntries = existingCount;
     }
 
+    // Create orders from harvest entries (grouped by date and pantry)
+    console.log('Creating orders from harvest entries...');
+    let createdOrders = 0;
+    
+    if (shouldClearData || await Order.countDocuments() === 0) {
+      // Find admin user for createdBy field
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@gardenforall.org';
+      let adminUser = await User.findOne({ email: adminEmail });
+      
+      if (!adminUser) {
+        console.log('No admin user found, skipping order creation');
+        return;
+      }
+      // Get all harvest entries with populated data
+      const allHarvestEntries = await HarvestEntry.find({})
+        .populate('produceTypeId')
+        .populate('pantryId')
+        .sort({ harvestDate: 1 });
+      
+      // Group harvest entries by date and pantry
+      const orderGroups = new Map();
+      
+      allHarvestEntries.forEach(entry => {
+        if (!entry.pantryId || !entry.produceTypeId) return;
+        
+        // Create key: "YYYY-MM-DD:pantryId"
+        const dateKey = entry.harvestDate.toISOString().split('T')[0];
+        const groupKey = `${dateKey}:${entry.pantryId._id}`;
+        
+        if (!orderGroups.has(groupKey)) {
+          orderGroups.set(groupKey, {
+            pantryId: entry.pantryId._id,
+            pantryName: entry.pantryId.name,
+            deliveryDate: entry.harvestDate,
+            entries: []
+          });
+        }
+        
+        orderGroups.get(groupKey).entries.push(entry);
+      });
+      
+      console.log(`Found ${orderGroups.size} unique date/pantry combinations for orders`);
+      
+      const ordersToInsert = [];
+      
+      for (const [groupKey, group] of orderGroups) {
+        // Skip groups with less than 2 items (not worth making an order)
+        if (group.entries.length < 2) continue;
+        
+        // Calculate total weight and value for the order
+        let totalWeight = 0;
+        let totalValue = 0;
+        const products = [];
+        
+        // Group products by type within the same order
+        const productMap = new Map();
+        
+        group.entries.forEach(entry => {
+          const productKey = entry.produceTypeId._id.toString();
+          const weight = entry.weight || 0;
+          const pricePerLb = entry.produceTypeId.pricePerLb || 0;
+          const value = weight * pricePerLb;
+          
+          if (!productMap.has(productKey)) {
+            productMap.set(productKey, {
+              produceTypeId: entry.produceTypeId._id,
+              weight: 0,
+              quantity: 0,
+              pricePerLb: pricePerLb,
+              value: 0
+            });
+          }
+          
+          const product = productMap.get(productKey);
+          product.weight += weight;
+          product.quantity += entry.quantity || 0;
+          product.value += value;
+          
+          totalWeight += weight;
+          totalValue += value;
+        });
+        
+        // Convert map to array
+        productMap.forEach(product => {
+          products.push(product);
+        });
+        
+        // Determine order type and status based on date
+        const deliveryDate = new Date(group.deliveryDate);
+        const now = new Date();
+        let status = 'completed'; // Most historical orders are completed
+        let orderType = 'delivery';
+        
+        // If order is within last 30 days, make some in-progress or ready
+        const daysDiff = (now - deliveryDate) / (1000 * 60 * 60 * 24);
+        if (daysDiff < 30) {
+          const rand = Math.random();
+          if (rand < 0.3) status = 'ready';
+          else if (rand < 0.5) status = 'in-progress';
+          else status = 'completed';
+        }
+        
+        // Some orders are pickups
+        if (Math.random() < 0.2) {
+          orderType = 'pickup';
+        }
+        
+        // Generate realistic packer names
+        const packerNames = [
+          'Garden Volunteer', 'Farm Team', 'Harvest Crew', 'Community Helper',
+          'Student Volunteer', 'Master Gardener', 'Farm Assistant', 'Garden Club'
+        ];
+        const packerName = packerNames[Math.floor(Math.random() * packerNames.length)];
+        
+        ordersToInsert.push({
+          pantryId: group.pantryId,
+          deliveryDate: deliveryDate,
+          pickupTime: orderType === 'pickup' ? '10:00' : null,
+          packerName: packerName,
+          orderType: orderType,
+          status: status,
+          notes: `Generated from harvest entries on ${deliveryDate.toLocaleDateString()}`,
+          products: products,
+          totalWeight: Math.round(totalWeight * 100) / 100, // Round to 2 decimals
+          totalValue: Math.round(totalValue * 100) / 100,
+          createdBy: adminUser._id, // Admin user created
+          updatedBy: adminUser._id
+        });
+      }
+      
+      console.log(`Creating ${ordersToInsert.length} orders from grouped harvest entries`);
+      
+      if (ordersToInsert.length > 0) {
+        // Insert orders in chunks
+        const chunkSize = 100;
+        for (let i = 0; i < ordersToInsert.length; i += chunkSize) {
+          const chunk = ordersToInsert.slice(i, i + chunkSize);
+          await Order.insertMany(chunk);
+          createdOrders += chunk.length;
+        }
+        
+        console.log(`Created ${createdOrders} orders`);
+      }
+    } else {
+      const existingCount = await Order.countDocuments();
+      console.log(`${existingCount} orders already exist`);
+      createdOrders = existingCount;
+    }
+
+    // Create commitments for Broad Street Food Pantry
+    console.log('Creating commitments for Broad Street Food Pantry...');
+    let createdCommitments = 0;
+    
+    // Find Broad Street Food Pantry
+    const broadStreetPantry = await FoodPantry.findOne({ 
+      name: { $regex: /Broad Street/i } 
+    });
+    
+    if (broadStreetPantry) {
+      // Create produce type mapping for quick lookup
+      const allProduceTypes = await ProduceType.find({}).populate('categoryId');
+      const produceTypeMap = {};
+      allProduceTypes.forEach(pt => {
+        produceTypeMap[pt.name.toLowerCase()] = pt._id;
+      });
+      
+      // Only create commitments if we cleared data or no commitments exist
+      if (shouldClearData || await Commitment.countDocuments({ pantryId: broadStreetPantry._id }) === 0) {
+        const commitmentsToInsert = [];
+        
+        for (const commitment of broadStreetCommitments) {
+          const produceTypeId = produceTypeMap[commitment.produce.toLowerCase()];
+          if (produceTypeId) {
+            // Parse week date and ensure it's a Monday
+            const [year, month, day] = commitment.week.split('-').map(Number);
+            const weekStartDate = new Date(year, month - 1, day);
+            
+            // Verify it's a Monday (1 = Monday)
+            if (weekStartDate.getDay() === 1) {
+              commitmentsToInsert.push({
+                pantryId: broadStreetPantry._id,
+                weekStartDate: weekStartDate,
+                commitmentType: 'produce_type',
+                produceTypeId: produceTypeId,
+                weeklyWeightLbs: commitment.weight,
+                notes: `Seeded commitment - ${commitment.produce}`,
+                isActive: true,
+                createdBy: null // System created
+              });
+            } else {
+              console.warn(`Skipping ${commitment.week} - not a Monday`);
+            }
+          } else {
+            console.warn(`Could not find produce type for: ${commitment.produce}`);
+          }
+        }
+        
+        if (commitmentsToInsert.length > 0) {
+          await Commitment.insertMany(commitmentsToInsert);
+          createdCommitments = commitmentsToInsert.length;
+          console.log(`Created ${createdCommitments} commitments for Broad Street Food Pantry`);
+        }
+      } else {
+        const existingCount = await Commitment.countDocuments({ pantryId: broadStreetPantry._id });
+        console.log(`${existingCount} commitments already exist for Broad Street Food Pantry`);
+        createdCommitments = existingCount;
+      }
+    } else {
+      console.warn('Could not find Broad Street Food Pantry');
+    }
+
     // Get final produce type list for debugging
     const finalProduceTypes = await ProduceType.find({}).populate('categoryId').sort({ name: 1 });
     const produceTypesList = finalProduceTypes.map(pt => ({
@@ -841,6 +1197,8 @@ exports.handler = async function(event, context) {
         produceTypes: createdProduceTypes.length,
         foodPantries: createdPantries.length,
         harvestEntries: createdHarvestEntries,
+        orders: createdOrders,
+        commitments: createdCommitments,
         produceTypesList: produceTypesList
       }
     });
