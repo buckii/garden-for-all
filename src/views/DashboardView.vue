@@ -84,16 +84,12 @@
 
         <!-- Pantry Commitment Tracker -->
         <div class="space-y-4">
-          <div v-if="loading" class="bg-white rounded-lg shadow-sm border p-6">
-            <div class="flex justify-center items-center py-8">
-              <div class="text-center">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-garden-green-600 mx-auto mb-3"></div>
-                <p class="text-gray-500 text-sm">Loading pantry commitments...</p>
-              </div>
-            </div>
-          </div>
-          <CommitmentTracker v-else :pantry-progress="pantryProgress" :loading="loading"
-            @view-details="viewPantryDetails" />
+          <CommitmentTracker :loading="loading" />
+        </div>
+
+        <!-- Annual Commitment Progress -->
+        <div class="space-y-4">
+          <AnnualCommitmentProgress :loading="loading" />
         </div>
       </div>
     </div>
@@ -108,100 +104,11 @@
       </svg>
     </button>
 
-    <!-- Pantry Details Modal -->
-    <div v-if="selectedPantry" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-10 mx-auto p-6 border max-w-2xl shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-semibold text-gray-900">{{ selectedPantry.name }}</h3>
-            <button @click="selectedPantry = null" class="text-gray-400 hover:text-gray-600">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <div class="space-y-6">
-            <!-- Progress Overview -->
-            <div v-if="selectedPantryProgress" class="bg-garden-green-50 rounded-lg p-4">
-              <h4 class="font-semibold text-gray-800 mb-3">Progress Overview</h4>
-              <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="text-center">
-                  <div class="text-2xl font-bold text-garden-green-600">{{ selectedPantryProgress.percentage.toFixed(1)
-                  }}%</div>
-                  <div class="text-sm text-gray-600">Complete</div>
-                </div>
-                <div class="text-center">
-                  <div class="text-2xl font-bold text-gray-900">{{ selectedPantryProgress.remaining.toFixed(1) }}</div>
-                  <div class="text-sm text-gray-600">lbs Remaining</div>
-                </div>
-              </div>
-
-              <!-- Progress Bar -->
-              <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
-                <div class="bg-garden-green-600 h-3 rounded-full transition-all duration-300"
-                  :style="{ width: `${Math.min(100, selectedPantryProgress.percentage)}%` }"></div>
-              </div>
-              <div class="flex justify-between text-sm text-gray-600">
-                <span>{{ selectedPantryProgress.delivered.toFixed(1) }} lbs delivered</span>
-                <span>{{ selectedPantryProgress.committed.toFixed(1) }} lbs committed</span>
-              </div>
-            </div>
-
-            <!-- Annual Commitments -->
-            <div v-if="selectedPantry.commitmentAmounts">
-              <h4 class="font-semibold text-gray-800 mb-3">Annual Commitments</h4>
-              <div class="bg-gray-50 rounded-lg p-4">
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                  <div class="text-center p-3 bg-white rounded-lg">
-                    <div class="text-xl font-bold text-garden-green-600">{{ selectedPantry.commitmentAmounts.total || 0
-                    }}</div>
-                    <div class="text-sm text-gray-600">Total lbs</div>
-                  </div>
-                  <div class="space-y-2">
-                    <div class="flex justify-between text-sm">
-                      <span class="text-gray-600">Vegetables:</span>
-                      <span class="font-medium">{{ selectedPantry.commitmentAmounts.vegetables || 0 }} lbs</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                      <span class="text-gray-600">Fruits:</span>
-                      <span class="font-medium">{{ selectedPantry.commitmentAmounts.fruits || 0 }} lbs</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                      <span class="text-gray-600">Herbs:</span>
-                      <span class="font-medium">{{ selectedPantry.commitmentAmounts.herbs || 0 }} lbs</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                      <span class="text-gray-600">Flowers:</span>
-                      <span class="font-medium">{{ selectedPantry.commitmentAmounts.flowers || 0 }} lbs</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Delivery History Placeholder -->
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <div class="flex items-center">
-                <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <h5 class="font-medium text-yellow-800">Delivery Tracking</h5>
-                  <p class="text-sm text-yellow-700">Delivery tracking system is not yet implemented. Progress currently
-                    shows 0% for all pantries.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import AnnualCommitmentProgress from '@/components/dashboard/AnnualCommitmentProgress.vue'
 import Charts from '@/components/dashboard/Charts.vue'
 import CommitmentTracker from '@/components/dashboard/CommitmentTracker.vue'
 import ProductionSummary from '@/components/dashboard/ProductionSummary.vue'
@@ -213,21 +120,17 @@ import { useHarvestStore } from '@/stores/harvest'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 
-type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
-
 const dashboardStore = useDashboardStore()
 const harvestStore = useHarvestStore()
 const { subscribeToHarvestUpdates, subscribeToAdminUpdates, subscribeToDashboardUpdates } = usePusher()
 const { isAuthenticated } = useAuth()
 
-const selectedPantry = ref<FoodPantry | null>(null)
 const currentTime = ref(new Date().toLocaleTimeString())
 
 
 // Store getters - use computed to maintain reactivity
 const summary = computed(() => dashboardStore.summary)
 const recentEntries = computed(() => dashboardStore.recentEntries)
-const pantryProgress = computed(() => dashboardStore.pantryProgress)
 const produceBreakdown = computed(() => dashboardStore.produceBreakdown)
 const productionTrends = computed(() => dashboardStore.productionTrends)
 const periodComparison = computed(() => dashboardStore.periodComparison)
@@ -235,12 +138,6 @@ const loading = computed(() => dashboardStore.loading)
 const error = computed(() => dashboardStore.error)
 
 const produceTypes = computed(() => harvestStore.produceTypes)
-
-// Get progress data for the selected pantry
-const selectedPantryProgress = computed(() => {
-  if (!selectedPantry.value) return null
-  return pantryProgress.value.find(p => p.pantry.id === selectedPantry.value?.id) || null
-})
 
 const currentDate = computed(() => {
   return new Date().toLocaleDateString('en-US', {
@@ -290,10 +187,6 @@ onUnmounted(() => {
 
 const refreshData = async () => {
   await dashboardStore.fetchAll()
-}
-
-const viewPantryDetails = (pantry: FoodPantry) => {
-  selectedPantry.value = pantry
 }
 
 const toggleFullscreen = () => {
