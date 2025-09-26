@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50">
     <AppHeader />
 
-    <div class="max-w-4xl mx-auto px-4 py-6">
+    <div class="max-w-7xl mx-auto px-4 py-6">
       <!-- Page Header -->
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 font-poppins">Create New Order</h1>
@@ -40,7 +40,122 @@
         </div>
       </div>
 
-      <form @submit.prevent="submitOrder" class="space-y-6">
+      <!-- Mobile Cart Button -->
+      <div class="lg:hidden fixed bottom-4 right-4 z-50">
+        <button @click="showMobileCart = !showMobileCart" 
+          class="bg-gray-900 text-white rounded-full p-4 shadow-lg hover:bg-gray-800 transition-colors relative">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6h9m-9-6h9m0 0v6a1 1 0 01-1 1H8a1 1 0 01-1-1v-6z"></path>
+          </svg>
+          <span v-if="form.products.length > 0" 
+            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center">
+            {{ form.products.length }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Mobile Cart Slide-out -->
+      <div v-if="showMobileCart" 
+        class="lg:hidden fixed inset-0 z-40 overflow-hidden"
+        @click="showMobileCart = false">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="absolute right-0 top-0 h-full w-80 bg-white shadow-xl transform transition-transform" 
+          @click.stop>
+          <div class="p-4 border-b">
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-semibold">Order Items</h3>
+              <button @click="showMobileCart = false" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex-1 overflow-auto p-4">
+            <!-- Mobile Product List with editing -->
+            <div v-if="form.products.length > 0" class="space-y-3 mb-6">
+              <div v-for="(product, index) in form.products" :key="index"
+                class="p-3 bg-gray-50 rounded-lg">
+                <div class="space-y-3">
+                  <!-- Product Selection -->
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Product</label>
+                    <select v-model="product.produceTypeId" required
+                      class="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-1 focus:ring-garden-green-500 focus:border-garden-green-500">
+                      <option value="">Select product...</option>
+                      <option v-for="produceType in produceTypes" :key="produceType.id || produceType._id"
+                        :value="produceType.id || produceType._id">
+                        {{ produceType.name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Weight and Remove -->
+                  <div class="flex gap-2">
+                    <div class="flex-1">
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Weight (lbs)</label>
+                      <input type="number" v-model.number="product.weight" step="0.1" min="0" required
+                        class="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-1 focus:ring-garden-green-500 focus:border-garden-green-500">
+                    </div>
+                    <div class="flex items-end">
+                      <button type="button" @click="removeProduct(index)"
+                        class="px-2 py-1 text-red-600 hover:text-red-800 border border-red-300 rounded hover:bg-red-50 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-else class="text-center py-8 text-gray-500">
+              <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              <p class="text-sm">No items in order</p>
+            </div>
+
+            <!-- Mobile Order Summary -->
+            <div v-if="form.products.length > 0" class="border-t pt-4 space-y-3 mb-6">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Total Weight:</span>
+                <span class="font-semibold">{{ totalWeight.toFixed(1) }} lbs</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Product Types:</span>
+                <span class="font-semibold">{{ totalProducts }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Estimated Value:</span>
+                <span class="font-semibold">${{ estimatedValue.toFixed(2) }}</span>
+              </div>
+            </div>
+
+            <!-- Mobile Submit Buttons -->
+            <div class="space-y-3">
+              <button @click="submitOrder" :disabled="loading || form.products.length === 0"
+                class="w-full px-4 py-3 bg-garden-green-600 text-white rounded-lg hover:bg-garden-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <span v-if="loading">Creating Order...</span>
+                <span v-else>Create Order</span>
+              </button>
+              <router-link to="/dashboard"
+                class="block w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                Cancel
+              </router-link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Layout -->
+      <div class="lg:flex lg:gap-8">
+        <!-- Main Content -->
+        <div class="lg:w-2/3">
+          <form @submit.prevent="submitOrder" class="space-y-6">
         <!-- Order Details Card -->
         <div class="bg-white rounded-lg shadow-sm border p-6">
           <h2 class="text-xl font-semibold text-gray-900 mb-4">Order Details</h2>
@@ -116,27 +231,94 @@
         <!-- Weekly Commitment Section -->
         <div v-if="form.pantryId && weeklyCommitments.length > 0" class="bg-white rounded-lg shadow-sm border p-6">
           <h2 class="text-xl font-semibold text-gray-900 mb-4">This Week's Commitments for {{ selectedPantryName }}</h2>
-          <div class="space-y-3">
-            <div v-for="commitment in weeklyCommitments" :key="commitment._id" 
+          
+          <div v-if="commitmentsWithInventory.length > 0 || commitmentsWithoutInventory.length > 0" class="space-y-3">
+            <!-- Commitments with inventory (original format) -->
+            <div v-for="commitment in commitmentsWithInventory" :key="commitment._id" 
               class="flex items-center justify-between p-4 bg-garden-green-50 rounded-lg">
-              <div>
+              <div class="flex-1">
                 <h3 class="font-medium text-gray-900">{{ commitment.produceTypeId?.name || 'Category: ' + commitment.categoryId?.name }}</h3>
-                <p class="text-sm text-gray-600">{{ commitment.weeklyWeightLbs }} lbs committed</p>
+                <div class="flex items-center space-x-4 mt-1">
+                  <p class="text-sm text-gray-600">{{ commitment.weeklyWeightLbs }} lbs committed</p>
+                  <span class="text-gray-300">•</span>
+                  <p class="text-sm text-green-600">
+                    {{ commitment.harvestedWeight.toFixed(1) }} lbs available in inventory
+                  </p>
+                </div>
+                <!-- Progress bar -->
+                <div class="mt-2">
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="h-2 bg-green-500 rounded-full transition-all duration-300" 
+                         :style="{ width: `${Math.min((commitment.harvestedWeight / commitment.weeklyWeightLbs) * 100, 100)}%` }">
+                    </div>
+                  </div>
+                  <p class="text-xs text-green-600 mt-1">
+                    {{ ((commitment.harvestedWeight / commitment.weeklyWeightLbs) * 100).toFixed(0) }}% of commitment available
+                  </p>
+                </div>
               </div>
-              <button type="button" @click="addCommitmentToOrder(commitment)"
-                class="px-4 py-2 bg-garden-green-600 text-white rounded-lg hover:bg-garden-green-700 transition-colors">
-                Add to Order
-              </button>
+              
+              <div class="ml-4">
+                <button type="button" @click="addCommitmentToOrder(commitment)"
+                        class="px-4 py-2 bg-garden-green-600 text-white rounded-lg hover:bg-garden-green-700 transition-colors">
+                  Add to Order
+                </button>
+              </div>
             </div>
+
+            <!-- Commitments without inventory -->
+            <div v-for="commitment in commitmentsWithoutInventory" :key="commitment._id" 
+              class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div class="flex-1">
+                <h3 class="font-medium text-gray-900">{{ commitment.produceTypeId?.name || 'Category: ' + commitment.categoryId?.name }}</h3>
+                <div class="flex items-center space-x-4 mt-1">
+                  <p class="text-sm text-gray-600">{{ commitment.weeklyWeightLbs }} lbs committed</p>
+                  <span class="text-gray-300">•</span>
+                  <p class="text-sm text-amber-600">
+                    {{ commitment.harvestedWeight.toFixed(1) }} lbs available in inventory
+                  </p>
+                </div>
+                <!-- Progress bar -->
+                <div class="mt-2">
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="h-2 bg-red-500 rounded-full transition-all duration-300" 
+                         :style="{ width: `${Math.min((commitment.harvestedWeight / commitment.weeklyWeightLbs) * 100, 100)}%` }">
+                    </div>
+                  </div>
+                  <p class="text-xs text-red-600 mt-1">
+                    {{ ((commitment.harvestedWeight / commitment.weeklyWeightLbs) * 100).toFixed(0) }}% of commitment fulfilled
+                  </p>
+                  
+                  <!-- Show shortage info -->
+                  <p class="text-xs text-red-500 mt-1">
+                    {{ (commitment.weeklyWeightLbs - commitment.harvestedWeight).toFixed(1) }}lbs still needed
+                  </p>
+                </div>
+              </div>
+              
+              <div class="ml-4">
+                <div class="px-4 py-2 bg-gray-100 text-gray-500 rounded-lg text-sm">
+                  No Inventory
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div v-else class="text-center py-8 text-gray-500">
+            <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <p class="text-sm">All weekly commitments have been added to your order</p>
           </div>
         </div>
 
         <!-- Available Inventory Section -->
-        <div v-if="form.harvestLocationId && availableInventory.length > 0" class="bg-white rounded-lg shadow-sm border p-6">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Available Inventory at {{ selectedHarvestLocationName }}</h2>
-          <p class="text-gray-600 mb-4">Items harvested in the past 2 weeks but not yet added to an order</p>
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            <div v-for="item in availableInventory" :key="item.produceType?.name" 
+        <div v-if="availableInventory.length > 0" class="bg-white rounded-lg shadow-sm border p-6">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Available Inventory</h2>
+          <p class="text-gray-600 mb-4">Items harvested but not yet allocated to orders</p>
+          
+          <div v-if="filteredAvailableInventory.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div v-for="item in filteredAvailableInventory" :key="item.produceType?.name" 
               class="p-3 border border-gray-200 rounded-lg hover:border-garden-green-300 transition-colors">
               <h3 class="font-medium text-gray-900">{{ item.produceType?.name }}</h3>
               <p class="text-sm text-gray-600">{{ item.totalWeight.toFixed(1) }} lbs available</p>
@@ -147,116 +329,115 @@
               </button>
             </div>
           </div>
+          
+          <div v-else class="text-center py-8 text-gray-500">
+            <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <p class="text-sm">All available inventory items have been added to your order</p>
+          </div>
         </div>
 
-        <!-- Products Section -->
+        <!-- Add Other Product Section -->
         <div class="bg-white rounded-lg shadow-sm border p-6">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold text-gray-900">Products</h2>
+          <div class="flex justify-between items-center">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900">Other Products</h2>
+              <p class="text-gray-600 text-sm mt-1">Add products not shown in commitments or available inventory</p>
+            </div>
             <button type="button" @click="addProduct"
               class="px-4 py-2 bg-garden-green-600 text-white rounded-lg hover:bg-garden-green-700 transition-colors">
-              Add Product
+              Add Other Product
             </button>
           </div>
+        </div>
+          </form>
+        </div>
 
-          <!-- Quick Add from This Week -->
-          <div v-if="weeklyHarvests.length > 0" class="mb-6 p-4 bg-garden-green-50 rounded-lg">
-            <h3 class="text-sm font-medium text-garden-green-800 mb-3">Quick Add from This Week's Harvest</h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              <button v-for="harvest in weeklyHarvests" :key="harvest.produceType?.name" type="button"
-                @click="quickAddProduct(harvest)"
-                class="px-3 py-2 text-sm bg-white border border-garden-green-200 rounded-md hover:bg-garden-green-100 text-garden-green-700 transition-colors">
-                {{ harvest.produceType?.name }}
-                <span class="block text-xs text-gray-500">{{ harvest.totalWeight.toFixed(1) }} lbs available</span>
-              </button>
-            </div>
-          </div>
+        <!-- Cart Sidebar (Desktop) -->
+        <div class="hidden lg:block lg:w-1/3">
+          <div class="sticky top-6">
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+              <h2 class="text-xl font-semibold text-gray-900 mb-4">Order Items</h2>
+              
+              <!-- Product List with editing -->
+              <div v-if="form.products.length > 0" class="space-y-3 mb-6">
+                <div v-for="(product, index) in form.products" :key="index"
+                  class="p-3 bg-gray-50 rounded-lg">
+                  <div class="space-y-3">
+                    <!-- Product Selection -->
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Product</label>
+                      <select v-model="product.produceTypeId" required
+                        class="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-1 focus:ring-garden-green-500 focus:border-garden-green-500">
+                        <option value="">Select product...</option>
+                        <option v-for="produceType in produceTypes" :key="produceType.id || produceType._id"
+                          :value="produceType.id || produceType._id">
+                          {{ produceType.name }}
+                        </option>
+                      </select>
+                    </div>
 
-          <!-- Product List -->
-          <div class="space-y-4">
-            <div v-for="(product, index) in form.products" :key="index"
-              class="grid grid-cols-12 gap-4 p-4 border border-gray-200 rounded-lg">
-
-              <!-- Product Selection -->
-              <div class="col-span-12 md:col-span-5">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
-                <select v-model="product.produceTypeId" required
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-garden-green-500 focus:border-garden-green-500">
-                  <option value="">Select product...</option>
-                  <option v-for="produceType in produceTypes" :key="produceType.id || produceType._id"
-                    :value="produceType.id || produceType._id">
-                    {{ produceType.name }}
-                  </option>
-                </select>
+                    <!-- Weight and Remove -->
+                    <div class="flex gap-2">
+                      <div class="flex-1">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Weight (lbs)</label>
+                        <input type="number" v-model.number="product.weight" step="0.1" min="0" required
+                          class="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-1 focus:ring-garden-green-500 focus:border-garden-green-500">
+                      </div>
+                      <div class="flex items-end">
+                        <button type="button" @click="removeProduct(index)"
+                          class="px-2 py-1 text-red-600 hover:text-red-800 border border-red-300 rounded hover:bg-red-50 transition-colors">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <!-- Weight -->
-              <div class="col-span-12 md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Weight (lbs)</label>
-                <input type="number" v-model.number="product.weight" step="0.1" min="0" required
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-garden-green-500 focus:border-garden-green-500">
+              <div v-else class="text-center py-8 text-gray-500">
+                <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <p class="text-sm">No items in order</p>
               </div>
 
-              <!-- Quantity (optional) -->
-              <div class="col-span-12 md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                <input type="number" v-model.number="product.quantity" min="0"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-garden-green-500 focus:border-garden-green-500">
+              <!-- Order Summary -->
+              <div v-if="form.products.length > 0" class="border-t pt-4 space-y-3 mb-6">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Total Weight:</span>
+                  <span class="font-semibold">{{ totalWeight.toFixed(1) }} lbs</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Product Types:</span>
+                  <span class="font-semibold">{{ totalProducts }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Estimated Value:</span>
+                  <span class="font-semibold">${{ estimatedValue.toFixed(2) }}</span>
+                </div>
               </div>
 
-              <!-- Remove Button -->
-              <div class="col-span-12 md:col-span-2 flex items-end">
-                <button type="button" @click="removeProduct(index)"
-                  class="w-full px-3 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors">
-                  Remove
+              <!-- Submit Buttons -->
+              <div class="space-y-3">
+                <button @click="submitOrder" :disabled="loading || form.products.length === 0"
+                  class="w-full px-4 py-3 bg-garden-green-600 text-white rounded-lg hover:bg-garden-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <span v-if="loading">Creating Order...</span>
+                  <span v-else>Create Order</span>
                 </button>
+                <router-link to="/dashboard"
+                  class="block w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                  Cancel
+                </router-link>
               </div>
             </div>
-
-            <div v-if="form.products.length === 0" class="text-center py-8 text-gray-500">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-              <p class="mt-2">No products added yet</p>
-              <button type="button" @click="addProduct"
-                class="mt-2 text-garden-green-600 hover:text-garden-green-700">Add your first product</button>
-            </div>
           </div>
         </div>
-
-        <!-- Order Summary -->
-        <div v-if="form.products.length > 0" class="bg-white rounded-lg shadow-sm border p-6">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div class="text-center p-4 bg-gray-50 rounded-lg">
-              <div class="text-2xl font-bold text-garden-green-600">{{ totalWeight.toFixed(1) }}</div>
-              <div class="text-sm text-gray-600">Total Weight (lbs)</div>
-            </div>
-            <div class="text-center p-4 bg-gray-50 rounded-lg">
-              <div class="text-2xl font-bold text-garden-green-600">{{ totalProducts }}</div>
-              <div class="text-sm text-gray-600">Product Types</div>
-            </div>
-            <div class="text-center p-4 bg-gray-50 rounded-lg">
-              <div class="text-2xl font-bold text-garden-green-600">${{ estimatedValue.toFixed(2) }}</div>
-              <div class="text-sm text-gray-600">Estimated Value</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Submit Button -->
-        <div class="flex justify-end space-x-4">
-          <router-link to="/dashboard"
-            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-            Cancel
-          </router-link>
-          <button type="submit" :disabled="loading || form.products.length === 0"
-            class="px-6 py-3 bg-garden-green-600 text-white rounded-lg hover:bg-garden-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-            <span v-if="loading">Creating Order...</span>
-            <span v-else>Create Order</span>
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
@@ -280,7 +461,6 @@ const form = ref({
   products: [] as Array<{
     produceTypeId: string
     weight: number
-    quantity?: number
   }>
 })
 
@@ -294,6 +474,7 @@ const availableInventory = ref<any[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const success = ref<string | null>(null)
+const showMobileCart = ref(false)
 
 // API base URL
 const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
@@ -338,12 +519,53 @@ const estimatedValue = computed(() => {
   }, 0)
 })
 
+// Get produce type IDs that are already in the cart
+const cartProduceTypeIds = computed(() => {
+  return form.value.products.map(product => product.produceTypeId).filter(Boolean)
+})
+
+// Get produce type names that are already in the cart for filtering inventory
+const cartProduceTypeNames = computed(() => {
+  return form.value.products.map(product => {
+    const produceType = produceTypes.value.find(pt => (pt.id || pt._id) === product.produceTypeId)
+    return produceType?.name
+  }).filter(Boolean)
+})
+
+// Separate commitments with and without inventory, filtered by cart contents
+const commitmentsWithInventory = computed(() => {
+  return weeklyCommitments.value.filter(commitment => {
+    const produceTypeId = commitment.produceTypeId?._id || commitment.produceTypeId?.id
+    return commitment.harvestedWeight > 0 && !cartProduceTypeIds.value.includes(produceTypeId)
+  })
+})
+
+const commitmentsWithoutInventory = computed(() => {
+  return weeklyCommitments.value.filter(commitment => {
+    const produceTypeId = commitment.produceTypeId?._id || commitment.produceTypeId?.id
+    return commitment.harvestedWeight <= 0 && !cartProduceTypeIds.value.includes(produceTypeId)
+  })
+})
+
+// Filter available inventory to exclude items already in cart
+const filteredAvailableInventory = computed(() => {
+  return availableInventory.value.filter(item => {
+    const itemName = item.produceType?.name || item.produceType
+    return !cartProduceTypeNames.value.includes(itemName)
+  })
+})
+
+// Helper function to get product name
+const getProductName = (produceTypeId: string) => {
+  const produceType = produceTypes.value.find(pt => (pt.id || pt._id) === produceTypeId)
+  return produceType?.name || 'Unknown Product'
+}
+
 // Methods
 const addProduct = () => {
   form.value.products.push({
     produceTypeId: '',
-    weight: 0,
-    quantity: 0
+    weight: 0
   })
 }
 
@@ -361,24 +583,33 @@ const quickAddProduct = (harvest: any) => {
     // Add new product
     form.value.products.push({
       produceTypeId: harvest.produceType?.id || harvest.produceType?._id,
-      weight: 1,
-      quantity: 1
+      weight: 1
     })
   }
 }
 
 const quickAddFromInventory = (item: any) => {
-  const existingIndex = form.value.products.findIndex(p => p.produceTypeId === (item.produceType?.id || item.produceType?._id))
+  // Need to find the actual produceTypeId from the available produceTypes
+  // The item structure is item.produceType.name, not item.produceType
+  const itemName = item.produceType?.name || item.produceType
+  const produceType = produceTypes.value.find(pt => pt.name === itemName)
+  const produceTypeId = produceType?.id || produceType?._id
+  
+  if (!produceTypeId) {
+    console.error('Could not find produce type for:', itemName)
+    return
+  }
+
+  const existingIndex = form.value.products.findIndex(p => p.produceTypeId === produceTypeId)
 
   if (existingIndex >= 0) {
-    // Update existing product
-    form.value.products[existingIndex].weight += 1
+    // Update existing product by adding the available weight
+    form.value.products[existingIndex].weight += item.totalWeight
   } else {
-    // Add new product
+    // Add new product with the total available weight
     form.value.products.push({
-      produceTypeId: item.produceType?.id || item.produceType?._id,
-      weight: 1,
-      quantity: 1
+      produceTypeId: produceTypeId,
+      weight: item.totalWeight
     })
   }
 }
@@ -396,11 +627,11 @@ const addCommitmentToOrder = (commitment: any) => {
     // Add new product with commitment weight
     form.value.products.push({
       produceTypeId: produceTypeId,
-      weight: commitment.weeklyWeightLbs,
-      quantity: Math.ceil(commitment.weeklyWeightLbs) // Rough estimate
+      weight: commitment.weeklyWeightLbs
     })
   }
 }
+
 
 // Change handlers
 const onHarvestLocationChange = () => {
@@ -473,82 +704,144 @@ const fetchWeeklyCommitments = async () => {
     monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1))
     const mondayStr = monday.toISOString().split('T')[0]
 
-    const response = await fetch(`${API_BASE}/commitments?pantryId=${form.value.pantryId}&startDate=${mondayStr}&endDate=${mondayStr}`, {
-      headers: getAuthHeader()
+    // Fetch both commitments and available inventory
+    const [commitmentsResponse, inventoryResponse] = await Promise.all([
+      fetch(`${API_BASE}/commitments?pantryId=${form.value.pantryId}&startDate=${mondayStr}&endDate=${mondayStr}`, {
+        headers: getAuthHeader()
+      }),
+      fetch(`${API_BASE}/available-inventory?days=14`, {
+        headers: getAuthHeader()
+      })
+    ])
+
+    const commitmentsResult = await commitmentsResponse.json()
+    const inventoryResult = await inventoryResponse.json()
+    
+    const commitments = commitmentsResult.data || []
+    const inventoryItems = inventoryResult.data?.items || []
+
+    // Create a map of available inventory by produce type name
+    const availableInventoryMap = new Map()
+    inventoryItems.forEach(item => {
+      const produceTypeName = item.produceType
+      availableInventoryMap.set(produceTypeName, item.totalWeight)
     })
-    const result = await response.json()
-    weeklyCommitments.value = result.data || []
+
+    // Enhance commitments with available inventory data
+    weeklyCommitments.value = commitments.map(commitment => {
+      const produceTypeName = commitment.produceTypeId?.name || commitment.categoryId?.name
+      const availableWeight = availableInventoryMap.get(produceTypeName) || 0
+      
+      return {
+        ...commitment,
+        harvestedWeight: availableWeight // Rename this to be more accurate: availableWeight
+      }
+    })
+
+    // Also populate availableInventory for the non-commitment inventory section
+    // Transform inventory data to match expected format
+    const grouped = new Map()
+    
+    inventoryItems.forEach((item: any) => {
+      const key = item.produceType
+      
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          produceType: {
+            name: item.produceType,
+            unitType: 'pounds',
+            conversionFactor: 1
+          },
+          totalWeight: 0,
+          entries: [],
+          daysOld: item.daysOld
+        })
+      }
+      
+      const group = grouped.get(key)
+      group.totalWeight += item.totalWeight
+      
+      // Add entry details for each pantry
+      item.pantries.forEach((pantry: any) => {
+        group.entries.push({
+          harvestDate: item.harvestDate,
+          weight: pantry.weight,
+          pantryName: pantry.name,
+          daysOld: item.daysOld
+        })
+      })
+    })
+    
+    // Convert to array and sort by available weight
+    availableInventory.value = Array.from(grouped.values())
+      .filter(item => item.totalWeight > 0.1) // Only show meaningful amounts
+      .sort((a, b) => b.totalWeight - a.totalWeight)
+
   } catch (err) {
     console.error('Failed to fetch weekly commitments:', err)
     weeklyCommitments.value = []
+    availableInventory.value = []
   }
 }
 
 const fetchAvailableInventory = async () => {
-  if (!form.value.harvestLocationId) {
-    availableInventory.value = []
-    return
-  }
-
   try {
-    // Get date range for past 2 weeks
-    const twoWeeksAgo = new Date()
-    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14)
-    const today = new Date()
-
-    const startDate = twoWeeksAgo.toISOString().split('T')[0]
-    const endDate = today.toISOString().split('T')[0]
-
-    // Fetch harvest entries from this location in the past 2 weeks
-    const harvestResponse = await fetch(`${API_BASE}/harvest-list?locationId=${form.value.harvestLocationId}&startDate=${startDate}&endDate=${endDate}&limit=1000`, {
+    // Fetch available inventory using the dedicated endpoint
+    const params = new URLSearchParams({
+      days: '14' // Get inventory for last 14 days
+    })
+    
+    const response = await fetch(`${API_BASE}/available-inventory?${params}`, {
       headers: getAuthHeader()
     })
-    const harvestResult = await harvestResponse.json()
-    const harvestEntries = harvestResult.data?.entries || harvestResult.data || []
-
-    // Fetch existing orders to exclude already ordered items
-    const ordersResponse = await fetch(`${API_BASE}/orders?startDate=${startDate}&endDate=${endDate}`, {
-      headers: getAuthHeader()
-    })
-    const ordersResult = await ordersResponse.json()
-    const orders = ordersResult.data || []
-
-    // Get all product entries that are already in orders
-    const orderedProductIds = new Set()
-    orders.forEach((order: any) => {
-      if (order.products) {
-        order.products.forEach((product: any) => {
-          // Track produce type IDs that have been ordered
-          orderedProductIds.add(product.produceTypeId)
-        })
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        availableInventory.value = []
+        return
       }
-    })
-
-    // Group harvest entries by produce type, excluding those already ordered
+      throw new Error('Failed to fetch available inventory')
+    }
+    
+    const result = await response.json()
+    const inventoryItems = result.data?.items || []
+    
+    // Transform inventory data to match expected format for the order form
     const grouped = new Map()
-    harvestEntries.forEach((entry: any) => {
-      const produceTypeId = entry.produceTypeId || entry.produce_type_id
+    
+    inventoryItems.forEach((item: any) => {
+      const key = item.produceType
       
-      // Skip if this produce type has been ordered recently
-      if (orderedProductIds.has(produceTypeId)) return
-      
-      const weight = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
-
-      if (!grouped.has(produceTypeId)) {
-        grouped.set(produceTypeId, {
-          produceType: entry.produceType,
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          produceType: {
+            name: item.produceType,
+            unitType: 'pounds',
+            conversionFactor: 1
+          },
           totalWeight: 0,
-          entries: []
+          entries: [],
+          daysOld: item.daysOld
         })
       }
-
-      const group = grouped.get(produceTypeId)
-      group.totalWeight += weight
-      group.entries.push(entry)
+      
+      const group = grouped.get(key)
+      group.totalWeight += item.totalWeight
+      
+      // Add entry details for each pantry
+      item.pantries.forEach((pantry: any) => {
+        group.entries.push({
+          harvestDate: item.harvestDate,
+          weight: pantry.weight,
+          pantryName: pantry.name,
+          daysOld: item.daysOld
+        })
+      })
     })
-
+    
+    // Convert to array and sort by available weight
     availableInventory.value = Array.from(grouped.values())
-      .filter(item => item.totalWeight > 0)
+      .filter(item => item.totalWeight > 0.1) // Only show meaningful amounts
       .sort((a, b) => b.totalWeight - a.totalWeight)
 
   } catch (err) {
