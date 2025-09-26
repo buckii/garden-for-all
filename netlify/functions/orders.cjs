@@ -40,8 +40,6 @@ exports.handler = async function(event, context) {
 async function createOrder(event, user) {
   try {
     const orderData = JSON.parse(event.body);
-    console.log('Creating order with data:', JSON.stringify(orderData, null, 2));
-    console.log('User creating order:', user.email);
     
     // Validate required fields
     if (!orderData.pantryId || !orderData.deliveryDate || !orderData.packerName || !orderData.products || orderData.products.length === 0) {
@@ -100,8 +98,6 @@ async function createOrder(event, user) {
     });
 
     await order.save();
-    
-    console.log('Order saved successfully:', order._id);
 
     // Populate the order for response
     const populatedOrder = await Order.findById(order._id)
@@ -119,7 +115,6 @@ async function createOrder(event, user) {
     
   } catch (error) {
     console.error('Create order error:', error);
-    console.error('Error details:', error.message, error.stack);
     return createErrorResponse(500, `Failed to create order: ${error.message}`);
   }
 }

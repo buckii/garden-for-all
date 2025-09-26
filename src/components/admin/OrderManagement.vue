@@ -293,7 +293,7 @@ const fetchOrders = async (page = 1) => {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: pagination.value.limit.toString(),
-      sortBy: 'createdAt',
+      sortBy: 'deliveryDate',
       sortOrder: 'desc'
     })
     
