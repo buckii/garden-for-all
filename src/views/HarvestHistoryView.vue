@@ -9,8 +9,8 @@
         <p class="text-gray-600">Today's harvests and upcoming orders</p>
       </div>
 
-      <!-- Two Column Layout -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Three Column Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Left Column: Today's Harvest -->
         <div>
           <div class="mb-4">
@@ -26,6 +26,101 @@
             @add-another="handleAddAnother"
             @refresh="refreshData"
           />
+        </div>
+
+        <!-- Middle Column: Available Inventory -->
+        <div>
+          <div class="mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Available Inventory</h2>
+            <p class="text-sm text-gray-500">Harvested but not allocated to orders</p>
+          </div>
+          
+          <!-- Inventory Loading State -->
+          <div v-if="inventoryLoading" class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex justify-center items-center py-8">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-garden-green-600 mx-auto mb-3"></div>
+                <p class="text-gray-500 text-sm">Loading inventory...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inventory Error State -->
+          <div v-else-if="inventoryError" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {{ inventoryError }}
+          </div>
+
+          <!-- Inventory List -->
+          <div v-else class="space-y-3">
+            <div v-if="unallocatedInventory.length === 0" class="bg-white rounded-lg shadow-sm border p-6">
+              <div class="text-center py-8">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v1M9 4V3a1 1 0 00-1-1H4a1 1 0 00-1 1v1" />
+                </svg>
+                <p class="mt-4 text-gray-500">All harvests are allocated</p>
+                <p class="text-xs text-gray-400 mt-1">Great job! Everything is organized.</p>
+              </div>
+            </div>
+
+            <!-- Inventory Items -->
+            <div v-else v-for="item in unallocatedInventory" :key="`${item.produceType}-${item.harvestDate}`"
+              class="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
+              
+              <!-- Item Header -->
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <h3 class="font-semibold text-gray-900">{{ item.produceType }}</h3>
+                  <div class="text-sm text-gray-500">
+                    Harvested {{ formatInventoryDate(item.harvestDate) }}
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-lg font-bold text-garden-green-600">{{ item.totalWeight.toFixed(1) }} lbs</div>
+                  <div v-if="item.totalValue > 0" class="text-xs text-gray-500">${{ item.totalValue.toFixed(2) }}</div>
+                </div>
+              </div>
+
+              <!-- Item Details -->
+              <div v-if="item.pantries.length > 1" class="mt-3 pt-3 border-t border-gray-200">
+                <div class="text-xs text-gray-500 mb-2">Distribution:</div>
+                <div class="space-y-1">
+                  <div v-for="pantry in item.pantries" :key="pantry.name"
+                    class="flex justify-between text-sm">
+                    <span class="text-gray-600">{{ pantry.name }}</span>
+                    <span class="font-medium">{{ pantry.weight.toFixed(1) }} lbs</span>
+                  </div>
+                </div>
+              </div>
+              <div v-else-if="item.pantries.length === 1" class="mt-1">
+                <div class="text-xs text-gray-500">
+                  For {{ item.pantries[0].name }}
+                </div>
+              </div>
+
+              <!-- Age indicator -->
+              <div v-if="item.daysOld > 0" class="mt-2">
+                <div :class="[
+                  'inline-flex px-2 py-1 rounded-full text-xs font-medium',
+                  item.daysOld <= 1 ? 'bg-green-100 text-green-800' :
+                  item.daysOld <= 3 ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                ]">
+                  {{ item.daysOld === 0 ? 'Today' : 
+                     item.daysOld === 1 ? '1 day old' : 
+                     `${item.daysOld} days old` }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Create Order Button -->
+            <div v-if="unallocatedInventory.length > 0" class="mt-6">
+              <router-link to="/order"
+                class="block w-full text-center py-3 px-4 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium">
+                📦 Create Order from Inventory
+              </router-link>
+            </div>
+          </div>
         </div>
 
         <!-- Right Column: Orders -->
@@ -192,6 +287,11 @@ const expandedOrder = ref<string | null>(null)
 const showEditModal = ref(false)
 const selectedOrderForEdit = ref<any>(null)
 
+// Inventory state
+const unallocatedInventory = ref<any[]>([])
+const inventoryLoading = ref(false)
+const inventoryError = ref<string | null>(null)
+
 // API base URL
 const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
 
@@ -237,6 +337,40 @@ const fetchUpcomingOrders = async () => {
     upcomingOrders.value = []
   } finally {
     ordersLoading.value = false
+  }
+}
+
+// Fetch unallocated inventory using the dedicated endpoint
+const fetchUnallocatedInventory = async () => {
+  inventoryLoading.value = true
+  inventoryError.value = null
+  
+  try {
+    const params = new URLSearchParams({
+      days: '14' // Get inventory for last 14 days
+    })
+    
+    const response = await fetch(`${API_BASE}/available-inventory?${params}`, {
+      headers: getAuthHeader()
+    })
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Not authenticated, show empty inventory
+        unallocatedInventory.value = []
+        return
+      }
+      throw new Error('Failed to fetch available inventory')
+    }
+    
+    const result = await response.json()
+    unallocatedInventory.value = result.data?.items || []
+    
+  } catch (err) {
+    inventoryError.value = err instanceof Error ? err.message : 'Failed to fetch inventory'
+    unallocatedInventory.value = []
+  } finally {
+    inventoryLoading.value = false
   }
 }
 
@@ -306,6 +440,26 @@ const getProduceName = (product: any) => {
   return produceType?.name || 'Unknown Product'
 }
 
+const formatInventoryDate = (dateString: string) => {
+  const date = new Date(dateString)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const itemDate = new Date(dateString)
+  itemDate.setHours(0, 0, 0, 0)
+  
+  const diffTime = today.getTime() - itemDate.getTime()
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) return 'today'
+  if (diffDays === 1) return 'yesterday'
+  if (diffDays <= 7) return `${diffDays} days ago`
+  
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
 onMounted(async () => {
   // Wait for the next tick to ensure all reactive connections are established
   await nextTick()
@@ -316,7 +470,8 @@ onMounted(async () => {
     adminStore.fetchFoodPantries(),
     harvestStore.fetchTodaysHarvest(),
     harvestStore.fetchRecentEntries(),
-    fetchUpcomingOrders()
+    fetchUpcomingOrders(),
+    fetchUnallocatedInventory()
   ])
 
   // Subscribe to real-time updates
@@ -324,6 +479,7 @@ onMounted(async () => {
     harvestStore.fetchTodaysHarvest()
     harvestStore.fetchRecentEntries()
     fetchUpcomingOrders()
+    fetchUnallocatedInventory()
   })
 })
 
@@ -348,7 +504,8 @@ const refreshData = async () => {
   await Promise.all([
     harvestStore.fetchTodaysHarvest(),
     harvestStore.fetchRecentEntries(),
-    fetchUpcomingOrders()
+    fetchUpcomingOrders(),
+    fetchUnallocatedInventory()
   ])
 }
 

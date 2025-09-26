@@ -69,7 +69,26 @@ function parseQuantityAndUnit(quantityStr) {
 
 function loadDataFromCSV() {
   try {
-    const csvPath = path.resolve('data/harvestentries.csv');
+    // Try multiple possible paths for the CSV file
+    const possiblePaths = [
+      path.resolve('data/harvestentries.csv'),  // From root directory
+      path.resolve('../../data/harvestentries.csv'),  // From functions directory
+      path.resolve(__dirname, '../../data/harvestentries.csv')  // Relative to this file
+    ];
+    
+    let csvPath = null;
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        csvPath = testPath;
+        break;
+      }
+    }
+    
+    if (!csvPath) {
+      throw new Error(`CSV file not found. Tried paths: ${possiblePaths.join(', ')}`);
+    }
+    
+    console.log(`Loading CSV from: ${csvPath}`);
     const csvContent = fs.readFileSync(csvPath, 'utf-8');
     const lines = csvContent.split('\n');
     const header = lines[0].split('\t');
@@ -703,26 +722,39 @@ exports.handler = async function(event, context) {
       categoryMap[category.name] = category._id;
     });
 
-    // Create harvest locations (only if they don't exist or if we cleared data)
-    console.log('Creating harvest locations...');
-    let createdLocations;
-    if (shouldClearData) {
-      createdLocations = await HarvestLocation.insertMany(harvestLocations);
-      console.log(`Created ${createdLocations.length} harvest locations`);
-    } else {
-      // Get existing locations or create missing ones
-      createdLocations = [];
-      for (const locationData of harvestLocations) {
-        let location = await HarvestLocation.findOne({ 
-          name: { $regex: new RegExp(`^${locationData.name}$`, 'i') } 
-        });
-        if (!location) {
-          location = await HarvestLocation.create(locationData);
-          console.log(`Created harvest location: ${location.name}`);
+    // Upsert harvest locations based on name
+    console.log('Upserting harvest locations...');
+    const createdLocations = [];
+    
+    for (const locationData of harvestLocations) {
+      // Find existing location by name (case-insensitive)
+      const existingLocation = await HarvestLocation.findOne({ 
+        name: { $regex: new RegExp(`^${locationData.name}$`, 'i') } 
+      });
+      
+      if (existingLocation) {
+        // Check if address has changed
+        const addressChanged = 
+          existingLocation.address.street !== locationData.address.street ||
+          existingLocation.address.city !== locationData.address.city ||
+          existingLocation.address.state !== locationData.address.state ||
+          existingLocation.address.zip !== locationData.address.zip;
+        
+        if (addressChanged) {
+          console.log(`Address changed for ${locationData.name}, updating and re-geocoding...`);
+          existingLocation.address = locationData.address;
+          existingLocation.coordinates = locationData.coordinates; // Use provided coordinates
+          await existingLocation.save();
+          console.log(`Updated harvest location: ${existingLocation.name}`);
         } else {
-          console.log(`Found existing harvest location: ${location.name}`);
+          console.log(`Found existing harvest location (no changes): ${existingLocation.name}`);
         }
-        createdLocations.push(location);
+        createdLocations.push(existingLocation);
+      } else {
+        // Create new location
+        const newLocation = await HarvestLocation.create(locationData);
+        console.log(`Created harvest location: ${newLocation.name}`);
+        createdLocations.push(newLocation);
       }
     }
     console.log(`Using ${createdLocations.length} harvest locations`);
