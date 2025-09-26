@@ -32,7 +32,60 @@ const router = createRouter({
     {
       path: '/admin',
       name: 'admin',
-      component: () => import('../views/AdminView.vue'),
+      redirect: '/admin/categories'
+    },
+    {
+      path: '/admin/categories',
+      name: 'admin-categories',
+      component: () => import('../views/admin/CategoriesView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/produce-types',
+      name: 'admin-produce-types',
+      component: () => import('../views/admin/ProduceTypesView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/harvest-locations',
+      name: 'admin-harvest-locations',
+      component: () => import('../views/admin/HarvestLocationsView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/food-pantries',
+      name: 'admin-food-pantries',
+      component: () => import('../views/admin/FoodPantriesView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/harvest-entries',
+      name: 'admin-harvest-entries',
+      component: () => import('../views/admin/HarvestEntriesView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/orders',
+      name: 'admin-orders',
+      component: () => import('../views/admin/OrdersView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/users',
+      name: 'admin-users',
+      component: () => import('../views/admin/UsersView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/export',
+      name: 'admin-export',
+      component: () => import('../views/admin/ExportView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/commitments',
+      name: 'admin-commitments',
+      component: () => import('../views/admin/CommitmentsView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     {

@@ -65,6 +65,9 @@
                         <button @click="setActiveTab('pantries')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'pantries' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
                           Food Pantries
                         </button>
+                        <router-link to="/commitments" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          Commitments
+                        </router-link>
                         <button @click="setActiveTab('entries')" :class="['block w-full text-left px-4 py-2 text-sm', activeTab === 'entries' ? 'bg-garden-green-50 text-garden-green-700' : 'text-gray-700 hover:bg-gray-100']">
                           Harvest Entries
                         </button>
@@ -122,6 +125,7 @@
                   </optgroup>
                   <optgroup label="Data Management">
                     <option value="pantries">Food Pantries</option>
+                    <option value="commitments">Commitments</option>
                     <option value="entries">Harvest Entries</option>
                     <option value="orders">Orders</option>
                   </optgroup>
@@ -291,7 +295,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useHarvestStore } from '@/stores/harvest'
 import { useAdminStore } from '@/stores/admin'
 import { exportHarvestData } from '@/utils/excelExport'
@@ -305,6 +309,7 @@ import OrderManagement from '@/components/admin/OrderManagement.vue'
 import UserManagement from '@/components/admin/UserManagement.vue'
 
 const route = useRoute()
+const router = useRouter()
 const harvestStore = useHarvestStore()
 const adminStore = useAdminStore()
 
@@ -342,6 +347,13 @@ watch(() => route.query.tab, (newTab) => {
   }
 })
 
+// Watch for activeTab changes to handle navigation
+watch(activeTab, (newTab) => {
+  if (newTab === 'commitments') {
+    router.push('/commitments')
+  }
+})
+
 // Helper functions for grouped navigation
 const setActiveTab = (tabId: string) => {
   activeTab.value = tabId
@@ -352,7 +364,7 @@ const setActiveTab = (tabId: string) => {
 const isInGroup = (tabId: string, groupName: string): boolean => {
   const groups = {
     config: ['categories', 'types', 'locations'],
-    data: ['pantries', 'entries', 'orders']
+    data: ['pantries', 'commitments', 'entries', 'orders']
   }
   return groups[groupName]?.includes(tabId) || false
 }

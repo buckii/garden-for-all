@@ -287,33 +287,26 @@
       </div>
     </div>
 
-    <!-- Commitment Management Modal -->
-    <CommitmentManagement 
-      :show="showCommitmentModal" 
-      :pantry="selectedPantryForCommitments"
-      @close="closeCommitmentModal"
-      @updated="handleCommitmentUpdate" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
-import CommitmentManagement from './CommitmentManagement.vue'
 
 
 type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
 
+const router = useRouter()
 const adminStore = useAdminStore()
 
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
-const showCommitmentModal = ref(false)
 const submitting = ref(false)
 const pantryToEdit = ref<FoodPantry | null>(null)
 const pantryToDelete = ref<FoodPantry | null>(null)
-const selectedPantryForCommitments = ref<FoodPantry | null>(null)
 const modalMessage = ref<{ type: 'success' | 'error', text: string } | null>(null)
 
 const formData = ref({
@@ -365,19 +358,20 @@ const confirmDelete = (pantry: FoodPantry) => {
 }
 
 const manageCommitments = (pantry: FoodPantry) => {
-  selectedPantryForCommitments.value = pantry
-  showCommitmentModal.value = true
+  const currentYear = new Date().getFullYear()
+  const startDate = `${currentYear}-01-01`
+  const endDate = `${currentYear}-12-31`
+  
+  router.push({
+    path: '/admin/commitments',
+    query: {
+      pantryId: pantry._id,
+      startDate,
+      endDate
+    }
+  })
 }
 
-const closeCommitmentModal = () => {
-  showCommitmentModal.value = false
-  selectedPantryForCommitments.value = null
-}
-
-const handleCommitmentUpdate = () => {
-  // Optional: Refresh pantry data if needed
-  console.log('Commitment updated for pantry:', selectedPantryForCommitments.value?.name)
-}
 
 const handleSubmit = async () => {
   submitting.value = true

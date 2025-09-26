@@ -18,7 +18,7 @@ try {
       useTLS: true
     });
   } else {
-    console.warn('Pusher not configured - real-time updates disabled');
+    // Pusher not configured - real-time updates disabled (silent)
   }
 } catch (error) {
   console.warn('Failed to initialize Pusher:', error.message);
@@ -56,7 +56,7 @@ const CHANNELS = {
  */
 async function sendUpdate(channel, event, data = {}) {
   if (!pusher) {
-    console.log('Pusher not configured, skipping real-time update');
+    // Pusher not configured, skipping real-time update (silent)
     return false;
   }
 

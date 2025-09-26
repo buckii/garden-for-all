@@ -307,7 +307,6 @@ export const useDashboardStore = defineStore('dashboard', () => {
       await Promise.all([
         fetchSummary(),
         fetchHarvestData(),
-        fetchPantryProgress(),
         fetchProductionTrends(),
         fetchMonthlyBreakdown(),
         fetchPeriodComparison()
