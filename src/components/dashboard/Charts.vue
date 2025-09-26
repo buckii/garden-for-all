@@ -2,7 +2,8 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
     <!-- Production Trends Chart -->
     <div class="bg-white rounded-lg shadow-sm border p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Production Trends (Last 12 Weeks)</h3>
+      <h3 class="text-lg font-semibold text-gray-900 mb-1">Production Trends (Last 12 Weeks)</h3>
+      <p class="text-sm text-gray-500 mb-4">{{ productionTrendsDateRange }}</p>
       <div class="h-64">
         <div v-if="productionTrends && productionTrends.datasets.length > 0" class="h-full">
           <Bar :data="chartData" :options="chartOptions" />
@@ -21,7 +22,8 @@
 
     <!-- Produce Breakdown Chart -->
     <div class="bg-white rounded-lg shadow-sm border p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Produce This Month</h3>
+      <h3 class="text-lg font-semibold text-gray-900 mb-1">Top Produce This Month</h3>
+      <p class="text-sm text-gray-500 mb-4">{{ topProduceThisMonthDateRange }}</p>
       <div class="h-64 flex items-center justify-center">
         <div class="w-full">
           <div v-if="produceBreakdown.length > 0" class="space-y-3">
@@ -162,6 +164,68 @@ interface Props {
 
 const props = defineProps<Props>()
 
+// Computed date ranges for chart subheadings
+const productionTrendsDateRange = computed(() => {
+  const now = new Date()
+  const startDate = new Date(now)
+  startDate.setDate(now.getDate() - (12 * 7)) // 12 weeks ago
+  
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
+  
+  return `${formatDate(startDate)} - ${formatDate(now)}`
+})
+
+const topProduceThisMonthDateRange = computed(() => {
+  const now = new Date()
+  return now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+})
+
+// Date ranges for period comparison tooltips
+const periodComparisonDateRanges = computed(() => {
+  const now = new Date()
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
+  
+  // Current year dates
+  const last7DaysStart = new Date(now)
+  last7DaysStart.setDate(now.getDate() - 7)
+  
+  const last30DaysStart = new Date(now)
+  last30DaysStart.setDate(now.getDate() - 30)
+  
+  const yearStart = new Date(now.getFullYear(), 0, 1)
+  
+  // Prior year dates
+  const lastYear7DaysStart = new Date(last7DaysStart)
+  lastYear7DaysStart.setFullYear(lastYear7DaysStart.getFullYear() - 1)
+  const lastYear7DaysEnd = new Date(now)
+  lastYear7DaysEnd.setFullYear(lastYear7DaysEnd.getFullYear() - 1)
+  
+  const lastYear30DaysStart = new Date(last30DaysStart)
+  lastYear30DaysStart.setFullYear(lastYear30DaysStart.getFullYear() - 1)
+  const lastYear30DaysEnd = new Date(now)
+  lastYear30DaysEnd.setFullYear(lastYear30DaysEnd.getFullYear() - 1)
+  
+  const lastYearStart = new Date(now.getFullYear() - 1, 0, 1)
+  const lastYearSameDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
+  
+  return {
+    current: [
+      `${formatDate(last7DaysStart)} - ${formatDate(now)}`,           // 7 Days
+      `${formatDate(last30DaysStart)} - ${formatDate(now)}`,          // 30 Days
+      `${formatDate(yearStart)} - ${formatDate(now)}`                 // Year to Date
+    ],
+    priorYear: [
+      `${formatDate(lastYear7DaysStart)} - ${formatDate(lastYear7DaysEnd)}`,     // 7 Days Prior Year
+      `${formatDate(lastYear30DaysStart)} - ${formatDate(lastYear30DaysEnd)}`,   // 30 Days Prior Year
+      `${formatDate(lastYearStart)} - ${formatDate(lastYearSameDate)}`           // Year to Date Prior Year
+    ]
+  }
+})
+
 const chartData = computed(() => {
   // Use server-side processed data directly
   if (!props.productionTrends) {
@@ -197,7 +261,7 @@ const periodComparisonData = computed(() => {
         borderRadius: 4,
       },
       {
-        label: 'Previous Period',
+        label: 'Prior Year',
         data: [comp.previous7Days, comp.previous30Days, comp.previousYtd],
         backgroundColor: '#d1d5db', // gray-300
         borderWidth: 0,
@@ -234,7 +298,18 @@ const periodComparisonOptions = computed(() => ({
         label: (context: any) => {
           const label = context.dataset.label
           const value = context.parsed.y
-          return `${label}: ${value.toFixed(1)} lbs`
+          const dateRanges = periodComparisonDateRanges.value
+          
+          // Get the appropriate date range based on dataset and data index
+          const isCurrentPeriod = context.datasetIndex === 0
+          const dateRange = isCurrentPeriod 
+            ? dateRanges.current[context.dataIndex] 
+            : dateRanges.priorYear[context.dataIndex]
+            
+          return [
+            `${label}: ${value.toFixed(1)} lbs`,
+            `${dateRange}`
+          ]
         },
         afterLabel: (context: any) => {
           if (context.datasetIndex === 0) {
