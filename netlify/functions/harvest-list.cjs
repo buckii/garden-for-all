@@ -16,12 +16,30 @@ exports.handler = async function(event, context) {
 
     // Get query parameters
     const queryParams = event.queryStringParameters || {};
-    const { date, limit = 100, page = 1, search = '', sortBy = 'harvestDate', sortOrder = 'desc' } = queryParams;
+    const { date, startDate, endDate, pantryId, limit = 100, page = 1, search = '', sortBy = 'harvestDate', sortOrder = 'desc' } = queryParams;
 
     // Build query
     let query = {};
+    
+    // Handle date filtering
     if (date) {
       query.harvestDate = date;
+    } else if (startDate || endDate) {
+      query.harvestDate = {};
+      if (startDate) {
+        query.harvestDate.$gte = startDate;
+      }
+      if (endDate) {
+        // Add one day and use $lt to include the entire end date
+        const endDatePlusOne = new Date(endDate);
+        endDatePlusOne.setDate(endDatePlusOne.getDate() + 1);
+        query.harvestDate.$lt = endDatePlusOne.toISOString().split('T')[0];
+      }
+    }
+    
+    // Handle pantry filtering
+    if (pantryId) {
+      query.pantryId = pantryId;
     }
 
     // Add search functionality

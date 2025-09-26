@@ -71,67 +71,53 @@ const foodPantrySchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
-// Commitment Schema - supports both pantry-specific and county-level commitments
+// Commitment Schema - supports only pantry-specific commitments
 const commitmentSchema = new mongoose.Schema({
-  // Commitment can be to a specific pantry OR a county
-  pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: false },
-  county: { 
-    type: String, 
-    enum: ['Franklin County', 'Licking County', 'Other', null],
-    required: false
-  },
+  // Commitment must be to a specific pantry
+  pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: true },
   
-  // Commitment details
-  year: { type: Number, required: true },
+  // Weekly commitment details
+  weekStartDate: { type: Date, required: true }, // Must be a Monday
   
-  // Commitment can be for specific produce types or total weight
+  // Commitment can be for specific produce types, categories, or total weight
   commitmentType: {
     type: String,
-    enum: ['total', 'produce_type'],
+    enum: ['total', 'produce_type', 'category'],
     required: true
   },
   
   // If commitmentType is 'produce_type', this references the specific produce
   produceTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceType', required: false },
   
-  // Weight commitment in pounds
-  weightLbs: { type: Number, required: true, min: 0 },
+  // If commitmentType is 'category', this references the produce category
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceCategory', required: false },
   
-  // Optional seasonal breakdown (percentage of annual commitment)
-  seasonalBreakdown: {
-    spring: { type: Number, default: 25, min: 0, max: 100 },
-    summer: { type: Number, default: 40, min: 0, max: 100 },
-    fall: { type: Number, default: 25, min: 0, max: 100 },
-    winter: { type: Number, default: 10, min: 0, max: 100 }
-  },
+  // Weekly weight commitment in pounds
+  weeklyWeightLbs: { type: Number, required: true, min: 0 },
   
   notes: { type: String, trim: true },
   isActive: { type: Boolean, default: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }
 }, { timestamps: true });
 
-// Validation: either pantryId or county must be specified, not both
-commitmentSchema.pre('validate', function(next) {
-  if ((this.pantryId && this.county) || (!this.pantryId && !this.county)) {
-    next(new Error('Commitment must be to either a specific pantry OR a county, not both or neither'));
-  } else {
-    next();
-  }
-});
+// No longer need pantryId/county validation since pantryId is required and county is removed
 
 // Validation: if commitmentType is 'produce_type', produceTypeId must be specified
 commitmentSchema.pre('validate', function(next) {
   if (this.commitmentType === 'produce_type' && !this.produceTypeId) {
     next(new Error('Produce type must be specified for produce-specific commitments'));
+  } else if (this.commitmentType === 'category' && !this.categoryId) {
+    next(new Error('Category must be specified for category-specific commitments'));
   } else {
     next();
   }
 });
 
 // Index for efficient querying
-commitmentSchema.index({ pantryId: 1, year: 1, isActive: 1 });
-commitmentSchema.index({ county: 1, year: 1, isActive: 1 });
-commitmentSchema.index({ produceTypeId: 1, year: 1, isActive: 1 });
+commitmentSchema.index({ pantryId: 1, weekStartDate: 1, isActive: 1 });
+commitmentSchema.index({ produceTypeId: 1, weekStartDate: 1, isActive: 1 });
+commitmentSchema.index({ categoryId: 1, weekStartDate: 1, isActive: 1 });
+commitmentSchema.index({ weekStartDate: 1, isActive: 1 });
 
 // Legacy Pantry Commitment Schema (kept for backward compatibility)
 const pantryCommitmentSchema = new mongoose.Schema({

@@ -4,11 +4,23 @@ const mongoose = require('mongoose');
 let cachedConnection = null;
 
 async function connectDB() {
+  // If already connected, return the cached connection
   if (cachedConnection && mongoose.connection.readyState === 1) {
     return cachedConnection;
   }
 
-  if (mongoose.connection.readyState === 0) {
+  // If connecting, wait for the connection to complete
+  if (mongoose.connection.readyState === 2) {
+    // Wait for connection to complete
+    await new Promise((resolve, reject) => {
+      mongoose.connection.once('connected', resolve);
+      mongoose.connection.once('error', reject);
+    });
+    return cachedConnection;
+  }
+
+  // If disconnected or uninitialized, create new connection
+  if (mongoose.connection.readyState === 0 || mongoose.connection.readyState === 3) {
     try {
       cachedConnection = await mongoose.connect(process.env.MONGODB_URI, {
         maxPoolSize: 1, // Single connection for serverless
