@@ -1,9 +1,16 @@
 [build]
   functions = "netlify/functions"
   publish = "dist"
+  command = "npm run build-only"
 
 [build.environment]
   NODE_VERSION = "20"
+
+[dev]
+  command = "vite"
+  targetPort = 5173
+  port = 8888
+  autoLaunch = false
 
 [functions]
   node_bundler = "esbuild"
