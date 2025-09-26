@@ -831,8 +831,15 @@ exports.handler = async function(event, context) {
     // Create harvest entries
     console.log('Creating harvest entries...');
     let createdHarvestEntries = 0;
+    const newlyInsertedEntries = []; // Track newly inserted entries for order creation
     
-    if (shouldClearData || await HarvestEntry.countDocuments() === 0) {
+    if (shouldClearData) {
+      await HarvestEntry.deleteMany({});
+      console.log('Cleared existing harvest entries');
+    }
+    
+    // Always process harvest entries to check for new ones
+    {
       // Create mappings for lookups (case-insensitive)
       const produceTypeMap = {};
       const allProduceTypes = await ProduceType.find({}).populate('categoryId');
@@ -910,12 +917,14 @@ exports.handler = async function(event, context) {
         }
       });
       
-      // Use first pantry as default for entries without pantry specified
-      const defaultPantryId = createdPantries.length > 0 ? createdPantries[0]._id : null;
+      // Use "Other" pantry as default for entries without pantry specified
+      const otherPantry = createdPantries.find(p => p.name.includes('Other'));
+      const defaultPantryId = otherPantry ? otherPantry._id : (createdPantries.length > 0 ? createdPantries[0]._id : null);
       
       // Prepare batch insert data
       const harvestEntriesToInsert = [];
       let skippedCount = 0;
+      let duplicateCount = 0;
       
       for (const entry of harvestEntries) {
         // Use lowercase key for case-insensitive lookup
@@ -962,7 +971,21 @@ exports.handler = async function(event, context) {
           continue;
         }
         
-        harvestEntriesToInsert.push({
+        // Check if this entry already exists (same date, produce type, and pantry)
+        if (!shouldClearData) {
+          const existingEntry = await HarvestEntry.findOne({
+            harvestDate: entry.harvestDate,
+            produceTypeId: produceTypeId,
+            pantryId: pantryId
+          });
+          
+          if (existingEntry) {
+            duplicateCount++;
+            continue; // Skip this entry as it already exists
+          }
+        }
+        
+        const entryToInsert = {
           produceTypeId: produceTypeId,
           quantity: entry.quantity,
           unit: entry.unit,
@@ -973,7 +996,10 @@ exports.handler = async function(event, context) {
           harvestDate: entry.harvestDate,
           harvesterName: 'Seeded Data',
           notes: entry.notes
-        });
+        };
+        
+        harvestEntriesToInsert.push(entryToInsert);
+        newlyInsertedEntries.push(entryToInsert);
       }
       
       // Count watermelon entries to be inserted for debugging
@@ -994,19 +1020,21 @@ exports.handler = async function(event, context) {
       if (skippedCount > 0) {
         console.log(`Skipped ${skippedCount} entries due to missing produce types or pantries`);
       }
+      if (duplicateCount > 0) {
+        console.log(`Skipped ${duplicateCount} duplicate entries (same date, produce type, and pantry)`);
+      }
       
-      console.log(`Created ${createdHarvestEntries} harvest entries`);
-    } else {
-      const existingCount = await HarvestEntry.countDocuments();
-      console.log(`${existingCount} harvest entries already exist`);
-      createdHarvestEntries = existingCount;
-    }
+      console.log(`Created ${createdHarvestEntries} new harvest entries`);
+    
+    const existingCount = await HarvestEntry.countDocuments();
+    console.log(`Total harvest entries in database: ${existingCount}`);
 
     // Create orders from harvest entries (grouped by date and pantry)
     console.log('Creating orders from harvest entries...');
     let createdOrders = 0;
     
-    if (shouldClearData || await Order.countDocuments() === 0) {
+    // Always process order creation for newly inserted harvest entries
+    if (shouldClearData || newlyInsertedEntries.length > 0) {
       // Find admin user for createdBy field
       const adminEmail = process.env.ADMIN_EMAIL || 'admin@gardenforall.org';
       let adminUser = await User.findOne({ email: adminEmail });
@@ -1015,16 +1043,55 @@ exports.handler = async function(event, context) {
         console.log('No admin user found, skipping order creation');
         return;
       }
-      // Get all harvest entries with populated data
-      const allHarvestEntries = await HarvestEntry.find({})
-        .populate('produceTypeId')
-        .populate('pantryId')
-        .sort({ harvestDate: 1 });
+      // Get harvest entries for order creation
+      let harvestEntriesForOrders;
       
-      // Group harvest entries by date and pantry
-      const orderGroups = new Map();
+      if (shouldClearData) {
+        // When clearing data, use all harvest entries
+        harvestEntriesForOrders = await HarvestEntry.find({})
+          .populate('produceTypeId')
+          .populate('pantryId')
+          .sort({ harvestDate: 1 });
+      } else {
+        // When not clearing data, only create orders for newly inserted entries
+        if (newlyInsertedEntries.length === 0) {
+          console.log('No new harvest entries to process for orders');
+          const existingOrderCount = await Order.countDocuments();
+          console.log(`${existingOrderCount} orders already exist`);
+          createdOrders = existingOrderCount;
+        } else {
+          // Get the newly inserted entries with populated data
+          const newEntryIds = [];
+          for (const entry of newlyInsertedEntries) {
+            // Find the inserted entry to get its ID
+            const insertedEntry = await HarvestEntry.findOne({
+              harvestDate: entry.harvestDate,
+              produceTypeId: entry.produceTypeId,
+              pantryId: entry.pantryId,
+              weight: entry.weight
+            });
+            if (insertedEntry) {
+              newEntryIds.push(insertedEntry._id);
+            }
+          }
+          
+          harvestEntriesForOrders = await HarvestEntry.find({
+            _id: { $in: newEntryIds }
+          })
+          .populate('produceTypeId')
+          .populate('pantryId')
+          .sort({ harvestDate: 1 });
+        }
+      }
       
-      allHarvestEntries.forEach(entry => {
+      // Skip order creation if no entries to process
+      if (!harvestEntriesForOrders || harvestEntriesForOrders.length === 0) {
+        console.log('No harvest entries to process for order creation');
+      } else {
+        // Group harvest entries by date and pantry
+        const orderGroups = new Map();
+        
+        harvestEntriesForOrders.forEach(entry => {
         if (!entry.pantryId || !entry.produceTypeId) return;
         
         // Create key: "YYYY-MM-DD:pantryId"
@@ -1092,17 +1159,8 @@ exports.handler = async function(event, context) {
         // Determine order type and status based on date
         const deliveryDate = new Date(group.deliveryDate);
         const now = new Date();
-        let status = 'completed'; // Most historical orders are completed
+        let status = 'completed'; // Set all seeded orders to completed
         let orderType = 'delivery';
-        
-        // If order is within last 30 days, make some in-progress or ready
-        const daysDiff = (now - deliveryDate) / (1000 * 60 * 60 * 24);
-        if (daysDiff < 30) {
-          const rand = Math.random();
-          if (rand < 0.3) status = 'ready';
-          else if (rand < 0.5) status = 'in-progress';
-          else status = 'completed';
-        }
         
         // Some orders are pickups
         if (Math.random() < 0.2) {
@@ -1145,11 +1203,7 @@ exports.handler = async function(event, context) {
         
         console.log(`Created ${createdOrders} orders`);
       }
-    } else {
-      const existingCount = await Order.countDocuments();
-      console.log(`${existingCount} orders already exist`);
-      createdOrders = existingCount;
-    }
+      } // End of else block for checking harvestEntriesForOrders
 
     // Create commitments for Broad Street Food Pantry
     console.log('Creating commitments for Broad Street Food Pantry...');

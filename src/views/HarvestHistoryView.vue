@@ -126,7 +126,7 @@
         <!-- Right Column: Orders -->
         <div>
           <div class="mb-4 flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-gray-900">Upcoming Orders</h2>
+            <h2 class="text-xl font-semibold text-gray-900">Recent Orders</h2>
             <router-link to="/admin?tab=orders" 
               class="text-sm text-garden-green-600 hover:text-garden-green-700">
               View All Orders →
@@ -156,7 +156,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
-                <p class="mt-4 text-gray-500">No upcoming orders</p>
+                <p class="mt-4 text-gray-500">No recent orders</p>
                 <router-link to="/order"
                   class="mt-2 inline-block text-garden-green-600 hover:text-garden-green-700">
                   Create New Order
@@ -314,6 +314,7 @@ const fetchUpcomingOrders = async () => {
       sortBy: 'deliveryDate',
       sortOrder: 'asc',
       limit: '50'
+      // Show all orders from today forward, regardless of status
     })
     
     const response = await fetch(`${API_BASE}/orders?${params}`, {
