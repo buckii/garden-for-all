@@ -681,9 +681,10 @@ exports.handler = async function(event, context) {
   try {
     await connectDB();
 
-    // Parse request body to check for clearData parameter
+    // Parse request body to check for options
     const body = JSON.parse(event.body || '{}');
     const shouldClearData = body.clearData === true;
+    let allHistoricalData = body.allHistoricalData === true;
 
     // Clear existing data only if requested
     if (shouldClearData) {
@@ -829,6 +830,25 @@ exports.handler = async function(event, context) {
       }
     }
 
+    // Determine import date range
+    let importStartDate = null;
+    if (!shouldClearData && !allHistoricalData) {
+      // Find most recent harvest entry date and start from day before
+      const mostRecent = await HarvestEntry.findOne({}, {}, { sort: { harvestDate: -1 } });
+      if (mostRecent) {
+        importStartDate = new Date(mostRecent.harvestDate);
+        importStartDate.setDate(importStartDate.getDate() - 1); // Start from day before most recent
+        console.log(`Incremental import: starting from ${importStartDate.toISOString().split('T')[0]} (day before most recent: ${mostRecent.harvestDate.toISOString().split('T')[0]})`);
+      } else {
+        console.log('No existing harvest entries found, importing all historical data');
+        allHistoricalData = true; // Force full import if no existing data
+      }
+    } else if (allHistoricalData) {
+      console.log('Importing all historical data');
+    } else {
+      console.log('Clearing all data and importing everything');
+    }
+
     // Create harvest entries
     console.log('Creating harvest entries...');
     let createdHarvestEntries = 0;
@@ -837,6 +857,12 @@ exports.handler = async function(event, context) {
     if (shouldClearData) {
       await HarvestEntry.deleteMany({});
       console.log('Cleared existing harvest entries');
+    } else if (importStartDate) {
+      // For incremental imports, remove existing entries from import start date onwards
+      const deleteResult = await HarvestEntry.deleteMany({ 
+        harvestDate: { $gte: importStartDate } 
+      });
+      console.log(`Cleared ${deleteResult.deletedCount} existing entries from ${importStartDate.toISOString().split('T')[0]} onwards for incremental import`);
     }
     
     // Always process harvest entries to check for new ones
@@ -927,7 +953,34 @@ exports.handler = async function(event, context) {
       let skippedCount = 0;
       let duplicateCount = 0;
       
+      // For bulk duplicate detection when not clearing data and importing all historical data
+      let existingEntries = [];
+      if (!shouldClearData && allHistoricalData) {
+        console.log('Loading existing entries for duplicate detection...');
+        existingEntries = await HarvestEntry.find({}).select('harvestDate produceTypeId pantryId');
+        console.log(`Found ${existingEntries.length} existing entries`);
+      }
+      // Note: For incremental imports, we already cleared overlapping entries, so no duplicate detection needed
+      
+      // Create a Set for O(1) duplicate lookups
+      const existingEntriesSet = new Set();
+      existingEntries.forEach(entry => {
+        const key = `${entry.harvestDate.toISOString()}:${entry.produceTypeId}:${entry.pantryId}`;
+        existingEntriesSet.add(key);
+      });
+      
+      // Count entries that will be processed based on date filter
+      let processedEntryCount = 0;
+      let skippedDateCount = 0;
+      
       for (const entry of harvestEntries) {
+        // Skip entries before import start date (for incremental imports)
+        if (importStartDate && entry.harvestDate < importStartDate) {
+          skippedDateCount++;
+          continue;
+        }
+        processedEntryCount++;
+        
         // Use lowercase key for case-insensitive lookup
         const productKey = `${entry.type.toLowerCase()}:${entry.product.toLowerCase()}`;
         let produceTypeId = produceTypeMap[productKey];
@@ -972,15 +1025,10 @@ exports.handler = async function(event, context) {
           continue;
         }
         
-        // Check if this entry already exists (same date, produce type, and pantry)
-        if (!shouldClearData) {
-          const existingEntry = await HarvestEntry.findOne({
-            harvestDate: entry.harvestDate,
-            produceTypeId: produceTypeId,
-            pantryId: pantryId
-          });
-          
-          if (existingEntry) {
+        // Check if this entry already exists (optimized with Set lookup)
+        if (!shouldClearData && allHistoricalData && existingEntries.length > 0) {
+          const duplicateKey = `${entry.harvestDate.toISOString()}:${produceTypeId}:${pantryId}`;
+          if (existingEntriesSet.has(duplicateKey)) {
             duplicateCount++;
             continue; // Skip this entry as it already exists
           }
@@ -1026,6 +1074,10 @@ exports.handler = async function(event, context) {
       }
       
       console.log(`Created ${createdHarvestEntries} new harvest entries`);
+      
+      if (skippedDateCount > 0) {
+        console.log(`Skipped ${skippedDateCount} entries due to date filtering (before ${importStartDate.toISOString().split('T')[0]})`);
+      }
     
     const existingCount = await HarvestEntry.countDocuments();
     console.log(`Total harvest entries in database: ${existingCount}`);
@@ -1288,6 +1340,8 @@ exports.handler = async function(event, context) {
         harvestEntries: createdHarvestEntries,
         orders: createdOrders,
         commitments: createdCommitments,
+        importMode: shouldClearData ? 'full-clear' : (allHistoricalData ? 'all-historical' : 'incremental'),
+        importStartDate: importStartDate ? importStartDate.toISOString().split('T')[0] : null,
         produceTypesList: produceTypesList
       }
     });
