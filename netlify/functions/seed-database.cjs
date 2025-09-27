@@ -67,6 +67,7 @@ function parseQuantityAndUnit(quantityStr) {
   return { quantity, unit: 'pounds' };
 }
 
+
 function loadDataFromCSV() {
   try {
     // Try multiple possible paths for the CSV file
