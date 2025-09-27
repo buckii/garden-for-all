@@ -90,80 +90,163 @@
 
     <!-- Harvest Date -->
     <div class="space-y-2">
-      <label class="block text-sm font-medium text-gray-700">
-        Harvest Date *
-      </label>
-      <input v-model="harvestDate" type="date" required
-        class="block w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900" />
+      <div v-if="!isEditingDate" class="flex items-center justify-between py-0.5">
+        <span class="text-sm font-medium text-gray-700">Harvest Date *</span>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-gray-900">{{ formattedHarvestDate }}</span>
+          <button @click="isEditingDate = true" class="p-1 text-gray-400 hover:text-gray-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div v-if="isEditingDate" class="space-y-2">
+        <label class="block text-sm font-medium text-gray-700">Harvest Date *</label>
+        <div class="flex space-x-2">
+          <input v-model="harvestDate" type="date" required
+            class="flex-1 px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900" />
+          <button @click="isEditingDate = false" class="px-3 py-2 bg-garden-green-600 text-white rounded-lg text-sm hover:bg-garden-green-700">
+            Done
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Growth/Harvest Location -->
     <div class="space-y-2">
-      <label class="block text-sm font-medium text-gray-700">
-        Growth/Harvest Location *
-      </label>
-      <select v-model="selectedLocationId" required
-        class="block w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900">
-        <option value="">Select a location...</option>
-        <option v-for="location in locations" :key="location.id || location._id" :value="location.id || location._id">
-          {{ location.name }}
-        </option>
-      </select>
+      <div v-if="!isEditingLocation" class="flex items-center justify-between py-0.5">
+        <span class="text-sm font-medium text-gray-700">Growth/Harvest Location *</span>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-gray-900" :class="{ 'text-gray-400': !selectedLocationId }">
+            {{ selectedLocationName }}
+          </span>
+          <button @click="isEditingLocation = true" class="p-1 text-gray-400 hover:text-gray-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p v-if="locationRecommendationReason && !isEditingLocation" class="text-xs text-green-800 mt-1">
+        📍 {{ locationRecommendationReason }}
+      </p>
+      <div v-if="isEditingLocation" class="space-y-2">
+        <label class="block text-sm font-medium text-gray-700">Growth/Harvest Location *</label>
+        <div class="flex space-x-2">
+          <select v-model="selectedLocationId" required
+            class="flex-1 px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900">
+            <option value="">Select a location...</option>
+            <option v-for="location in locations" :key="location.id || location._id" :value="location.id || location._id">
+              {{ location.name }}
+            </option>
+          </select>
+          <button @click="isEditingLocation = false" class="px-3 py-2 bg-garden-green-600 text-white rounded-lg text-sm hover:bg-garden-green-700">
+            Done
+          </button>
+        </div>
+        <p v-if="locationRecommendationReason" class="text-xs text-green-800 mt-1">
+          📍 {{ locationRecommendationReason }}
+        </p>
+      </div>
     </div>
 
-    <!-- Pantry Selection -->
+    <!-- Entered By Name -->
     <div class="space-y-2">
-      <label class="block text-sm font-medium text-gray-700">
-        Destination Pantry *
-      </label>
-      <select v-model="selectedPantryId" required
-        class="block w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900">
-        <option value="">Select a pantry...</option>
-        <option v-for="pantry in pantries" :key="pantry.id || pantry._id" :value="pantry.id || pantry._id">
-          {{ pantry.name }}
-        </option>
-      </select>
+      <div v-if="!isEditingHarvesterName" class="flex items-center justify-between py-0.5">
+        <span class="text-sm font-medium text-gray-700">Entered By Name (Optional)</span>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-gray-900" :class="{ 'text-gray-400': !harvesterName.trim() }">
+            {{ displayHarvesterName }}
+          </span>
+          <button @click="isEditingHarvesterName = true" class="p-1 text-gray-400 hover:text-gray-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div v-if="isEditingHarvesterName" class="space-y-2">
+        <label class="block text-sm font-medium text-gray-700">Entered By Name (Optional)</label>
+        <div class="flex space-x-2">
+          <input v-model="harvesterName" type="text" placeholder="Who harvested this?"
+            class="flex-1 px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900" />
+          <button @click="isEditingHarvesterName = false" class="px-3 py-2 bg-garden-green-600 text-white rounded-lg text-sm hover:bg-garden-green-700">
+            Done
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Quantity Summary -->
-    <div v-if="(isPoundsUnit && weight > 0) || (!isPoundsUnit && quantity > 0)" class="bg-gray-50 rounded-lg p-2 text-center">
-      <p class="text-lg font-bold text-garden-green-600">
-        {{ isPoundsUnit ? weight : quantity }} {{ selectedProduce.unitType || selectedProduce.unit_type }}
-      </p>
-      <p v-if="!isPoundsUnit" class="text-sm text-gray-500">
-        Est. {{ actualWeight.toFixed(2) }} lbs •
-        Est. value: ${{ estimatedValue.toFixed(2) }}
-      </p>
-      <p v-else class="text-sm text-gray-500">
-        Est. value: ${{ estimatedValue.toFixed(2) }}
-      </p>
-    </div>
-
-    <!-- Harvester Name (Optional) -->
-    <div class="space-y-1">
-      <label class="block text-sm font-medium text-gray-700">
-        Entered By Name (Optional)
-      </label>
-      <input v-model="harvesterName" type="text" placeholder="Who harvested this?"
-        class="block w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900" />
-    </div>
-
-    <!-- Notes (Optional) -->
+    <!-- More Details (Optional) -->
     <div class="space-y-1">
       <button v-if="!showNotesField" @click="showNotesField = true"
         class="text-garden-green-600 hover:text-garden-green-700 text-sm font-medium underline">
-        Add notes
+        Add more details
       </button>
-      <div v-if="showNotesField">
-        <input v-model="notes" type="text" placeholder="Add any additional notes..."
-          class="block w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900" />
+      <div v-if="showNotesField" class="space-y-3">
+        <!-- Destination Pantry -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">
+            Destination Pantry (Optional)
+          </label>
+          <select v-model="selectedPantryId"
+            class="block w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900">
+            <option value="">Select a pantry...</option>
+            <option v-for="pantry in pantries" :key="pantry.id || pantry._id" :value="pantry.id || pantry._id">
+              {{ pantry.name }}
+            </option>
+          </select>
+          <p v-if="pantryRecommendationReason" class="text-xs text-blue-800 mt-1">
+            🎯 {{ pantryRecommendationReason }}
+          </p>
+        </div>
+
+        <!-- Notes -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">
+            Notes (Optional)
+          </label>
+          <input v-model="notes" type="text" placeholder="Add any additional notes..."
+            class="block w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Quantity Summary -->
+    <div class="bg-gray-50 rounded-lg p-4 text-center">
+      <p class="text-xl font-bold text-garden-green-600 mb-2">
+        <span v-if="(isPoundsUnit && weight && weight > 0) || (!isPoundsUnit && quantity && quantity > 0)">
+          {{ isPoundsUnit ? weight : quantity }} {{ selectedProduce.unitType || selectedProduce.unit_type }}
+        </span>
+        <span v-else class="text-gray-400">
+          Enter {{ isPoundsUnit ? 'weight' : 'quantity' }} above
+        </span>
+      </p>
+      <div class="space-y-1">
+        <p v-if="!isPoundsUnit" class="text-base text-gray-600">
+          <span v-if="quantity && quantity > 0">
+            Est. {{ actualWeight.toFixed(2) }} lbs
+          </span>
+          <span v-else class="text-gray-400">
+            Est. weight: 0.0 lbs
+          </span>
+        </p>
+        <p class="text-base text-gray-600">
+          <span v-if="((isPoundsUnit && weight && weight > 0) || (!isPoundsUnit && quantity && quantity > 0))">
+            Est. value: ${{ estimatedValue.toFixed(2) }}
+          </span>
+          <span v-else class="text-gray-400">
+            Est. value: $0.00
+          </span>
+        </p>
       </div>
     </div>
 
     <!-- Action Buttons -->
     <div class="pt-2">
       <button @click="handleSubmit"
-        :disabled="(!isPoundsUnit && (!quantity || quantity <= 0)) || (isPoundsUnit && (!weight || weight <= 0)) || !selectedLocationId || !selectedPantryId || !harvestDate || submitting"
+        :disabled="(!isPoundsUnit && (!quantity || quantity <= 0)) || (isPoundsUnit && (!weight || weight <= 0)) || !selectedLocationId || !harvestDate || submitting"
         class="w-full py-3 px-4 bg-garden-green-600 text-white rounded-lg text-sm font-medium hover:bg-garden-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center">
         <svg v-if="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
           fill="none" viewBox="0 0 24 24">
@@ -179,7 +262,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 
 
 type ProduceType = Database['public']['Tables']['produce_types']['Row'] & {
@@ -248,23 +331,149 @@ localStorage.removeItem('lastHarvestDate')
 const showNotesField = ref(false)
 const activeField = ref<'quantity' | 'weight'>('quantity')
 
-// Initialize location from localStorage or produce type's most recent location
+// Edit states for date, location, and harvester name
+const isEditingDate = ref(false)
+const isEditingLocation = ref(false)
+const isEditingHarvesterName = ref(false)
+
+// API Base URL
+const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
+
+// Recommendation reasons
+const locationRecommendationReason = ref<string>('')
+const pantryRecommendationReason = ref<string>('')
+
+// Track if we're programmatically setting values
+const isSettingLocationProgrammatically = ref(false)
+const isSettingPantryProgrammatically = ref(false)
+
+// Initialize location from produce type's most recent location, then fall back to localStorage
 const initializeLocation = () => {
-  const lastLocationId = localStorage.getItem('lastLocationId')
-  if (lastLocationId) {
-    selectedLocationId.value = lastLocationId
-  } else if (props.selectedProduce?.mostRecentLocation) {
+  isSettingLocationProgrammatically.value = true
+  
+  // Prioritize the produce type's most recent location for better UX
+  if (props.selectedProduce?.mostRecentLocation) {
     const mostRecentId = props.selectedProduce.mostRecentLocation._id || props.selectedProduce.mostRecentLocation.id
     if (mostRecentId) {
       selectedLocationId.value = mostRecentId
+      locationRecommendationReason.value = `Most recent location used for ${props.selectedProduce.name}`
+      isSettingLocationProgrammatically.value = false
+      return
     }
+  }
+  
+  // Fall back to general localStorage preference if no produce-specific location
+  const lastLocationId = localStorage.getItem('lastLocationId')
+  if (lastLocationId) {
+    selectedLocationId.value = lastLocationId
+    locationRecommendationReason.value = 'Your previously used location'
+  } else {
+    locationRecommendationReason.value = ''
+  }
+  
+  isSettingLocationProgrammatically.value = false
+}
+
+// Initialize pantry from recommendation based on unmet commitments, then fall back to localStorage
+const initializePantry = async () => {
+  try {
+    isSettingPantryProgrammatically.value = true
+    
+    if (props.selectedProduce?.id || props.selectedProduce?._id) {
+      const produceTypeId = props.selectedProduce.id || props.selectedProduce._id
+      
+      // Call the pantry recommendation API directly
+      const url = new URL(`${API_BASE}/pantry-recommendations`, window.location.origin)
+      url.searchParams.set('produceTypeId', produceTypeId)
+      url.searchParams.set('harvestDate', harvestDate.value)
+      
+      const response = await fetch(url.toString())
+      const result = await response.json()
+      
+      if (result.success && result.data?.recommendedPantry?.pantryId) {
+        selectedPantryId.value = result.data.recommendedPantry.pantryId
+        
+        // Set recommendation reason based on commitment type
+        const recommendation = result.data.recommendedPantry
+        if (recommendation.commitmentType === 'produce_type') {
+          pantryRecommendationReason.value = `Has unmet ${props.selectedProduce.name} commitment (${recommendation.unmetAmount.toFixed(1)} lbs needed)`
+        } else if (recommendation.commitmentType === 'category') {
+          pantryRecommendationReason.value = `Has unmet category commitment (${recommendation.unmetAmount.toFixed(1)} lbs needed)`
+        } else if (recommendation.commitmentType === 'total') {
+          pantryRecommendationReason.value = `Has unmet total commitment (${recommendation.unmetAmount.toFixed(1)} lbs needed)`
+        }
+        return
+      }
+    }
+    
+    // Fall back to general localStorage preference if no recommendation
+    const lastPantryId = localStorage.getItem('lastPantryId')
+    if (lastPantryId) {
+      // Validate that the pantry ID exists in the available pantries
+      const isValidPantry = props.pantries?.some(pantry => 
+        (pantry.id || pantry._id) === lastPantryId
+      )
+      
+      if (isValidPantry) {
+        selectedPantryId.value = lastPantryId
+        pantryRecommendationReason.value = 'Your previously used pantry'
+      } else {
+        localStorage.removeItem('lastPantryId')
+        pantryRecommendationReason.value = ''
+      }
+    } else {
+      pantryRecommendationReason.value = ''
+    }
+  } catch (error) {
+    console.error('Error initializing pantry:', error)
+    // Fall back to localStorage on any error
+    const lastPantryId = localStorage.getItem('lastPantryId')
+    if (lastPantryId) {
+      // Validate that the pantry ID exists in the available pantries
+      const isValidPantry = props.pantries?.some(pantry => 
+        (pantry.id || pantry._id) === lastPantryId
+      )
+      
+      if (isValidPantry) {
+        selectedPantryId.value = lastPantryId
+        pantryRecommendationReason.value = 'Your previously used pantry'
+      } else {
+        localStorage.removeItem('lastPantryId')
+      }
+    }
+  } finally {
+    isSettingPantryProgrammatically.value = false
   }
 }
 
-// Initialize location when component mounts and when produce changes
+// Initialize location and pantry when component mounts and when produce changes
 watch(() => props.selectedProduce, () => {
   if (props.selectedProduce) {
+    // Wait for locations to be available before initializing location
+    nextTick(() => {
+      if (props.locations && props.locations.length > 0) {
+        initializeLocation()
+      }
+    })
+    
+    // Initialize pantry recommendation (can happen independently of locations)
+    initializePantry()
+  }
+}, { immediate: true })
+
+// Also initialize when locations become available
+watch(() => props.locations, () => {
+  // If we have a selected produce and locations are now available, initialize
+  if (props.selectedProduce && props.locations?.length > 0) {
     initializeLocation()
+  }
+}, { immediate: true })
+
+// Initialize pantry when pantries become available
+watch(() => props.pantries, () => {
+  // If we have a selected produce and pantries are now available, initialize pantry
+  if (props.selectedProduce && props.pantries?.length > 0) {
+    initializePantry()
   }
 }, { immediate: true })
 
@@ -288,6 +497,30 @@ const estimatedValue = computed(() => {
   if (!props.selectedProduce || !actualWeight.value) return 0
   const price = props.selectedProduce.pricePerLb || props.selectedProduce.price_per_lb || 0
   return actualWeight.value * price
+})
+
+// Display values for date and location
+const formattedHarvestDate = computed(() => {
+  if (!harvestDate.value) return ''
+  const date = new Date(harvestDate.value)
+  return date.toLocaleDateString('en-US', { 
+    weekday: 'short',
+    month: 'short', 
+    day: 'numeric',
+    year: 'numeric'
+  })
+})
+
+const selectedLocationName = computed(() => {
+  if (!selectedLocationId.value) return 'Select a location...'
+  const location = props.locations?.find(loc => 
+    (loc.id || loc._id) === selectedLocationId.value
+  )
+  return location?.name || 'Unknown location'
+})
+
+const displayHarvesterName = computed(() => {
+  return harvesterName.value.trim() || 'Not specified'
 })
 
 const getUnitAbbr = (unitType: string) => {
@@ -371,17 +604,21 @@ const handleSubmit = () => {
     ? weight.value && weight.value > 0 
     : quantity.value && quantity.value > 0
   
-  if (!props.selectedProduce || !isValidEntry || !selectedLocationId.value || !selectedPantryId.value || !harvestDate.value) return
+  if (!props.selectedProduce || !isValidEntry || !selectedLocationId.value || !harvestDate.value) return
 
   const submitData: any = {
     produce_type_id: props.selectedProduce.id || props.selectedProduce._id,
     location_id: selectedLocationId.value,
-    pantry_id: selectedPantryId.value,
     quantity: isPoundsUnit.value ? weight.value : quantity.value,
     unit: unit,
     harvester_name: harvesterName.value.trim(),
     notes: notes.value.trim(),
     harvestDate: harvestDate.value
+  }
+
+  // Add pantry_id only if selected
+  if (selectedPantryId.value) {
+    submitData.pantry_id = selectedPantryId.value
   }
 
   // For pounds, weight equals quantity; for others, use estimated weight
@@ -421,12 +658,22 @@ watch(selectedLocationId, (newId) => {
   if (newId) {
     localStorage.setItem('lastLocationId', newId)
   }
+  
+  // Clear recommendation reason if user manually changed selection
+  if (!isSettingLocationProgrammatically.value) {
+    locationRecommendationReason.value = ''
+  }
 })
 
 // Save pantry ID to localStorage when it changes
 watch(selectedPantryId, (newId) => {
   if (newId) {
     localStorage.setItem('lastPantryId', newId)
+  }
+  
+  // Clear recommendation reason if user manually changed selection
+  if (!isSettingPantryProgrammatically.value) {
+    pantryRecommendationReason.value = ''
   }
 })
 
