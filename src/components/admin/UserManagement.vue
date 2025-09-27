@@ -394,7 +394,7 @@ const fetchUsers = async () => {
     if (filters.search) params.append('search', filters.search)
     if (filters.role) params.append('role', filters.role)
 
-    const response = await fetch(`/.netlify/functions/admin-users?${params}`, {
+    const response = await fetch(`/api/admin-users?${params}`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         'Content-Type': 'application/json'
@@ -422,8 +422,8 @@ const submitUser = async () => {
   
   try {
     const url = editingUser.value 
-      ? `/.netlify/functions/admin-users?id=${editingUser.value._id}`
-      : '/.netlify/functions/admin-users'
+      ? `/api/admin-users?id=${editingUser.value._id}`
+      : '/api/admin-users'
     
     const method = editingUser.value ? 'PUT' : 'POST'
     
@@ -475,7 +475,7 @@ const deleteUser = async () => {
   deleting.value = true
   
   try {
-    const response = await fetch(`/.netlify/functions/admin-users?id=${userToDelete.value._id}`, {
+    const response = await fetch(`/api/admin-users?id=${userToDelete.value._id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,

@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 // Dashboard API functions
-const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('auth_token')

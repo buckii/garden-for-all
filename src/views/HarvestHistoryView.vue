@@ -293,7 +293,7 @@ const inventoryLoading = ref(false)
 const inventoryError = ref<string | null>(null)
 
 // API base URL
-const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('auth_token')

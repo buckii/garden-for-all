@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 // Harvest API functions
-const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 const api = {
   async getProduceTypes() {

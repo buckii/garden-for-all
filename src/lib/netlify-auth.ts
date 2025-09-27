@@ -39,7 +39,7 @@ class NetlifyAuth {
   private token: string | null = null;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || '/.netlify/functions';
+    this.baseUrl = import.meta.env.VITE_API_URL || '/api';
     this.token = localStorage.getItem('auth_token');
   }
 

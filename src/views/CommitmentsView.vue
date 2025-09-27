@@ -551,9 +551,9 @@ const isFormValid = computed(() => {
 const fetchInitialData = async () => {
   try {
     const [pantriesRes, categoriesRes, produceTypesRes] = await Promise.all([
-      fetch('/.netlify/functions/admin-food-pantries'),
-      fetch('/.netlify/functions/admin-categories'),
-      fetch('/.netlify/functions/admin-produce-types')
+      fetch('/api/admin-food-pantries'),
+      fetch('/api/admin-categories'),
+      fetch('/api/admin-produce-types')
     ]);
 
     if (pantriesRes.ok) pantries.value = (await pantriesRes.json()).data;
@@ -584,7 +584,7 @@ const fetchCommitments = async () => {
       params.append('endDate', filterEndDate.value);
     }
     
-    const response = await fetch(`/.netlify/functions/commitments?${params}`, {
+    const response = await fetch(`/api/commitments?${params}`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
       }
@@ -634,7 +634,7 @@ const createCommitment = async () => {
   successMessage.value = '';
 
   try {
-    const response = await fetch('/.netlify/functions/commitments', {
+    const response = await fetch('/api/commitments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -688,7 +688,7 @@ const updateCommitment = async () => {
   successMessage.value = '';
 
   try {
-    const response = await fetch(`/.netlify/functions/commitments?id=${editForm.value._id}`, {
+    const response = await fetch(`/api/commitments?id=${editForm.value._id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -720,7 +720,7 @@ const deleteCommitment = async (id: string) => {
   if (!confirm('Are you sure you want to delete this commitment?')) return;
 
   try {
-    const response = await fetch(`/.netlify/functions/commitments?id=${id}`, {
+    const response = await fetch(`/api/commitments?id=${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('auth_token')}`

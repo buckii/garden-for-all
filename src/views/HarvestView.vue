@@ -94,7 +94,7 @@ const harvestLocations = ref([])
 const adminLoading = computed(() => adminStore.loading)
 
 // API base URL
-const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 // Fetch harvest locations
 const fetchHarvestLocations = async () => {

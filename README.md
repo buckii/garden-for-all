@@ -167,7 +167,7 @@ npm run build
 npm run preview
 
 # Re-seed database (clears existing data)
-curl -X POST https://localhost:8888/.netlify/functions/seed-database \
+curl -X POST https://localhost:8888/api/seed-database \
   -H "Content-Type: application/json" \
   -d '{"clearData": true}'
 ```

@@ -281,7 +281,7 @@ const produceTypes = ref<any[]>([])
 const editingCommitment = ref<any>(null)
 
 // API base URL
-const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 const getAuthHeader = (): Record<string, string> => {
   const token = localStorage.getItem('auth_token')

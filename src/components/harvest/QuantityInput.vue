@@ -337,7 +337,7 @@ const isEditingLocation = ref(false)
 const isEditingHarvesterName = ref(false)
 
 // API Base URL
-const API_BASE = import.meta.env.VITE_API_URL || '/.netlify/functions'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 // Recommendation reasons
 const locationRecommendationReason = ref<string>('')

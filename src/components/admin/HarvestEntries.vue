@@ -420,7 +420,7 @@ const fetchEntries = async () => {
       sortOrder: sortOrder.value
     })
 
-    const response = await fetch(`/.netlify/functions/harvest-list?${params}`)
+    const response = await fetch(`/api/harvest-list?${params}`)
     const result = await response.json()
 
     if (!response.ok) {
@@ -510,7 +510,7 @@ const saveEntry = async () => {
       unit: selectedProduceTypeUnit.value
     }
     
-    const response = await fetch(`/.netlify/functions/harvest-update?id=${editingEntry.value._id}`, {
+    const response = await fetch(`/api/harvest-update?id=${editingEntry.value._id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -542,7 +542,7 @@ const deleteEntry = async (entry: any) => {
   }
 
   try {
-    const response = await fetch(`/.netlify/functions/harvest-delete?id=${entry._id}`, {
+    const response = await fetch(`/api/harvest-delete?id=${entry._id}`, {
       method: 'DELETE'
     })
 

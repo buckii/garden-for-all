@@ -47,7 +47,7 @@ Create `.env` in project root:
 
 ```bash
 # Frontend - API endpoint
-VITE_API_URL=/.netlify/functions
+VITE_API_URL=/api
 
 # Pusher (if using real-time features)
 VITE_PUSHER_APP_KEY=your_pusher_key
@@ -93,10 +93,10 @@ After deployment, create the admin user:
 
 ```bash
 # Using curl (replace YOUR_SITE_URL)
-curl -X POST https://YOUR_SITE_URL/.netlify/functions/init-admin
+curl -X POST https://YOUR_SITE_URL/api/init-admin
 
 # Or visit in browser:
-https://YOUR_SITE_URL/.netlify/functions/init-admin
+https://YOUR_SITE_URL/api/init-admin
 ```
 
 ### 6. Local Development
@@ -110,23 +110,23 @@ netlify dev
 
 # This will start:
 # - Frontend at http://localhost:8888
-# - Functions at http://localhost:8888/.netlify/functions/
+# - Functions at http://localhost:8888/api/
 ```
 
 ## API Endpoints
 
-All functions are available at `/.netlify/functions/`:
+All functions are available at `/api/`:
 
 ### Authentication
-- `POST /.netlify/functions/auth-signin` - Sign in
-- `POST /.netlify/functions/auth-signup` - Sign up  
-- `POST /.netlify/functions/auth-signout` - Sign out
-- `GET /.netlify/functions/auth-session` - Get current session
-- `GET /.netlify/functions/auth-me` - Get current user
-- `POST /.netlify/functions/auth-reset-password` - Reset password
+- `POST /api/auth-signin` - Sign in
+- `POST /api/auth-signup` - Sign up  
+- `POST /api/auth-signout` - Sign out
+- `GET /api/auth-session` - Get current session
+- `GET /api/auth-me` - Get current user
+- `POST /api/auth-reset-password` - Reset password
 
 ### Admin
-- `POST /.netlify/functions/init-admin` - Initialize admin user
+- `POST /api/init-admin` - Initialize admin user
 
 ## Frontend Integration
 
@@ -204,7 +204,7 @@ src/
 ### Authentication Issues
 ```bash
 # Check if functions are deployed
-curl https://YOUR_SITE_URL/.netlify/functions/auth-session
+curl https://YOUR_SITE_URL/api/auth-session
 
 # Check MongoDB connection
 # Look at Netlify function logs in dashboard

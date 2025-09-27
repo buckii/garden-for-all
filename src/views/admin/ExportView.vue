@@ -151,7 +151,7 @@ const exportData = async () => {
     if (exportOptions.value.startDate) params.append('startDate', exportOptions.value.startDate)
     if (exportOptions.value.endDate) params.append('endDate', exportOptions.value.endDate)
     
-    const response = await fetch(`/.netlify/functions/harvest-list?${params}`, {
+    const response = await fetch(`/api/harvest-list?${params}`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         'Content-Type': 'application/json'

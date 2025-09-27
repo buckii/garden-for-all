@@ -302,7 +302,7 @@ const fetchCommitmentData = async () => {
     }
 
     // Get Broad Street Food Pantry ID first
-    const pantriesResponse = await fetch('/.netlify/functions/food-pantries', {
+    const pantriesResponse = await fetch('/api/food-pantries', {
       headers: { 'Authorization': `Bearer ${authToken}` }
     })
     const pantriesResult = await pantriesResponse.json()
@@ -335,10 +335,10 @@ const fetchCommitmentData = async () => {
 
     // Fetch commitments for both weeks
     const [thisWeekResponse, lastWeekResponse] = await Promise.all([
-      fetch(`/.netlify/functions/commitments?pantryId=${broadStreetPantry._id}&startDate=${thisMondayStr}&endDate=${thisMondayStr}`, {
+      fetch(`/api/commitments?pantryId=${broadStreetPantry._id}&startDate=${thisMondayStr}&endDate=${thisMondayStr}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       }),
-      fetch(`/.netlify/functions/commitments?pantryId=${broadStreetPantry._id}&startDate=${lastMondayStr}&endDate=${lastMondayStr}`, {
+      fetch(`/api/commitments?pantryId=${broadStreetPantry._id}&startDate=${lastMondayStr}&endDate=${lastMondayStr}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       })
     ])
@@ -351,10 +351,10 @@ const fetchCommitmentData = async () => {
 
     // Fetch harvest entries for both weeks to calculate deliveries
     const [thisWeekHarvest, lastWeekHarvest] = await Promise.all([
-      fetch(`/.netlify/functions/harvest-list?pantryId=${broadStreetPantry._id}&startDate=${thisMondayStr}&endDate=${new Date(thisMonday.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}`, {
+      fetch(`/api/harvest-list?pantryId=${broadStreetPantry._id}&startDate=${thisMondayStr}&endDate=${new Date(thisMonday.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       }),
-      fetch(`/.netlify/functions/harvest-list?pantryId=${broadStreetPantry._id}&startDate=${lastMondayStr}&endDate=${new Date(lastMonday.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}`, {
+      fetch(`/api/harvest-list?pantryId=${broadStreetPantry._id}&startDate=${lastMondayStr}&endDate=${new Date(lastMonday.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       })
     ])

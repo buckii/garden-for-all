@@ -311,14 +311,14 @@ const fetchAnnualData = async () => {
     const todayStr = now.toISOString().split('T')[0]
 
     // Fetch all commitments for the current year
-    const commitmentsResponse = await fetch(`/.netlify/functions/commitments?startDate=${yearStart}&endDate=${yearEnd}`, {
+    const commitmentsResponse = await fetch(`/api/commitments?startDate=${yearStart}&endDate=${yearEnd}`, {
       headers: { 'Authorization': `Bearer ${authToken}` }
     })
     const commitmentsResult = await commitmentsResponse.json()
     const commitments = commitmentsResult.data || []
 
     // Fetch all harvest entries for year to date
-    const harvestResponse = await fetch(`/.netlify/functions/harvest-list?startDate=${yearStart}&endDate=${todayStr}&limit=10000`, {
+    const harvestResponse = await fetch(`/api/harvest-list?startDate=${yearStart}&endDate=${todayStr}&limit=10000`, {
       headers: { 'Authorization': `Bearer ${authToken}` }
     })
     const harvestResult = await harvestResponse.json()
