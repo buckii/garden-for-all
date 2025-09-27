@@ -16,7 +16,7 @@
             {{ summary.today.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
-            ${{ summary.today.value.toFixed(2) }} value
+            {{ formatCurrency(summary.today.value) }} value
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@
             {{ summary.week.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
-            ${{ summary.week.value.toFixed(2) }} value
+            {{ formatCurrency(summary.week.value) }} value
           </div>
         </div>
       </div>
@@ -60,7 +60,7 @@
             {{ summary.month.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
-            ${{ summary.month.value.toFixed(2) }} value
+            {{ formatCurrency(summary.month.value) }} value
           </div>
         </div>
       </div>
@@ -82,7 +82,7 @@
             {{ summary.year.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
-            ${{ summary.year.value.toFixed(2) }} value
+            {{ formatCurrency(summary.year.value) }} value
           </div>
         </div>
       </div>
@@ -105,6 +105,16 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+// Currency formatting helper
+const formatCurrency = (value: number) => {
+  return value.toLocaleString('en-US', { 
+    style: 'currency', 
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+}
 
 // Date range calculations
 const todayDate = computed(() => {

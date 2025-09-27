@@ -74,6 +74,105 @@ const dashboardAPI = {
     }
   },
   
+  async getCommitments() {
+    try {
+      // Get current and last Monday dates
+      const getCurrentMonday = () => {
+        const today = new Date()
+        const dayOfWeek = today.getDay()
+        const monday = new Date(today)
+        const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+        monday.setDate(today.getDate() - daysFromMonday)
+        return monday
+      }
+      
+      const getLastMonday = () => {
+        const currentMonday = getCurrentMonday()
+        const lastMonday = new Date(currentMonday)
+        lastMonday.setDate(currentMonday.getDate() - 7)
+        return lastMonday
+      }
+
+      const thisMonday = getCurrentMonday()
+      const lastMonday = getLastMonday()
+      
+      // Calculate Sunday end dates (Monday + 6 days)
+      const thisSunday = new Date(thisMonday)
+      thisSunday.setDate(thisMonday.getDate() + 6)
+      
+      const lastSunday = new Date(lastMonday)
+      lastSunday.setDate(lastMonday.getDate() + 6)
+      
+      const thisMondayStr = thisMonday.toISOString().split('T')[0]
+      const thisSundayStr = thisSunday.toISOString().split('T')[0]
+      const lastMondayStr = lastMonday.toISOString().split('T')[0]
+      const lastSundayStr = lastSunday.toISOString().split('T')[0]
+
+      // Fetch food pantries
+      const pantriesResponse = await fetch(`${API_BASE}/food-pantries`, {
+        headers: getAuthHeader()
+      })
+      const pantriesResult = await pantriesResponse.json()
+      const pantries = pantriesResult.data || []
+      
+      const broadStreetPantry = pantries.find((p: any) => 
+        p.name.toLowerCase().includes('broad street')
+      )
+      
+      if (!broadStreetPantry) {
+        return { data: null, error: 'Broad Street Food Pantry not found' }
+      }
+
+      // Fetch commitments for both weeks (Monday to Sunday)
+      const thisWeekUrl = `${API_BASE}/commitments?pantryId=${broadStreetPantry._id}&startDate=${thisMondayStr}&endDate=${thisSundayStr}`
+      const lastWeekUrl = `${API_BASE}/commitments?pantryId=${broadStreetPantry._id}&startDate=${lastMondayStr}&endDate=${lastSundayStr}`
+      
+      const [thisWeekResponse, lastWeekResponse] = await Promise.all([
+        fetch(thisWeekUrl, {
+          headers: getAuthHeader()
+        }),
+        fetch(lastWeekUrl, {
+          headers: getAuthHeader()
+        })
+      ])
+
+      const thisWeekResult = await thisWeekResponse.json()
+      const lastWeekResult = await lastWeekResponse.json()
+      
+      // Fetch harvest entries for both weeks
+      const [thisWeekHarvest, lastWeekHarvest] = await Promise.all([
+        fetch(`${API_BASE}/harvest-list?pantryId=${broadStreetPantry._id}&startDate=${thisMondayStr}&endDate=${thisSundayStr}`, {
+          headers: getAuthHeader()
+        }),
+        fetch(`${API_BASE}/harvest-list?pantryId=${broadStreetPantry._id}&startDate=${lastMondayStr}&endDate=${lastSundayStr}`, {
+          headers: getAuthHeader()
+        })
+      ])
+
+      const thisWeekHarvestResult = await thisWeekHarvest.json()
+      const lastWeekHarvestResult = await lastWeekHarvest.json()
+
+      return { 
+        data: {
+          pantry: broadStreetPantry,
+          thisWeek: {
+            commitments: thisWeekResult.data || [],
+            harvest: thisWeekHarvestResult.data?.entries || thisWeekHarvestResult.data || [],
+            weekStart: thisMondayStr
+          },
+          lastWeek: {
+            commitments: lastWeekResult.data || [],
+            harvest: lastWeekHarvestResult.data?.entries || lastWeekHarvestResult.data || [],
+            weekStart: lastMondayStr
+          }
+        }, 
+        error: null 
+      }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+
   async getPantryProgress() {
     try {
       // Fetch food pantries
@@ -186,6 +285,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const productionTrendsData = ref<any>(null)
   const monthlyBreakdownData = ref<any>(null)
   const periodComparisonData = ref<any>(null)
+  const commitmentData = ref<any>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -299,6 +399,16 @@ export const useDashboardStore = defineStore('dashboard', () => {
     }
   }
 
+  const fetchCommitments = async () => {
+    try {
+      const { data, error: fetchError } = await dashboardAPI.getCommitments()
+      if (fetchError) throw new Error(fetchError)
+      commitmentData.value = data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    }
+  }
+
   const fetchAll = async () => {
     loading.value = true
     error.value = null
@@ -309,7 +419,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
         fetchHarvestData(),
         fetchProductionTrends(),
         fetchMonthlyBreakdown(),
-        fetchPeriodComparison()
+        fetchPeriodComparison(),
+        fetchCommitments()
       ])
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
@@ -327,6 +438,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     summary: summaryFormatted,
     harvestData,
     pantryProgress,
+    commitmentData,
     loading,
     error,
     
@@ -352,6 +464,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     fetchProductionTrends,
     fetchMonthlyBreakdown,
     fetchPeriodComparison,
+    fetchCommitments,
     fetchAll,
     clearError,
   }

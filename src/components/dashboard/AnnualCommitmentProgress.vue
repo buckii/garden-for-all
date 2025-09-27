@@ -28,12 +28,12 @@
           <div class="text-xs text-gray-400 mt-1">{{ dayOfYear }} of {{ totalDaysInYear }} days</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-garden-green-600">{{ totalActualWeight.toFixed(0) }} lbs</div>
+          <div class="text-2xl font-bold text-garden-green-600">{{ formatWeight(totalActualWeight) }} lbs</div>
           <div class="text-sm text-gray-500">Actual YTD</div>
           <div class="text-xs text-gray-400 mt-1">{{ (totalActualWeight / totalAnnualTarget * 100).toFixed(1) }}% of annual target</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold" :class="totalProgressClass">{{ totalExpectedWeight.toFixed(0) }} lbs</div>
+          <div class="text-2xl font-bold" :class="totalProgressClass">{{ formatWeight(totalExpectedWeight) }} lbs</div>
           <div class="text-sm text-gray-500">Expected YTD</div>
           <div class="text-xs text-gray-400 mt-1">{{ (totalExpectedWeight / totalAnnualTarget * 100).toFixed(1) }}% of annual target</div>
         </div>
@@ -86,7 +86,7 @@
               
               <!-- Target weight on the right -->
               <div class="w-20 text-sm text-gray-600 text-right">
-                {{ item.annualTarget.toFixed(0) }}lb
+                {{ formatWeight(item.annualTarget) }}lb
               </div>
             </div>
           </div>
@@ -137,7 +137,7 @@
               
               <!-- Target weight on the right -->
               <div class="w-20 text-sm text-gray-900 font-bold text-right">
-                {{ totalAnnualTarget.toFixed(0) }}lb
+                {{ formatWeight(totalAnnualTarget) }}lb
               </div>
             </div>
           </div>
@@ -192,15 +192,15 @@
           <div class="space-y-2 text-sm">
             <div class="flex justify-between">
               <span class="text-gray-600">Annual Target:</span>
-              <span class="font-medium">{{ item.annualTarget.toFixed(0) }} lbs</span>
+              <span class="font-medium">{{ formatWeight(item.annualTarget) }} lbs</span>
             </div>
             <div class="flex justify-between">
               <span class="text-gray-600">Expected YTD:</span>
-              <span class="font-medium">{{ item.expectedWeight.toFixed(1) }} lbs</span>
+              <span class="font-medium">{{ formatWeight(item.expectedWeight, 1) }} lbs</span>
             </div>
             <div class="flex justify-between">
               <span class="text-gray-600">Actual YTD:</span>
-              <span class="font-medium text-garden-green-600">{{ item.actualWeight.toFixed(1) }} lbs</span>
+              <span class="font-medium text-garden-green-600">{{ formatWeight(item.actualWeight, 1) }} lbs</span>
             </div>
             <div class="flex justify-between">
               <span class="text-gray-600">Progress vs Expected:</span>
@@ -240,6 +240,14 @@ const props = defineProps<Props>()
 
 const annualData = ref<AnnualCommitmentItem[]>([])
 const internalLoading = ref(false)
+
+// Number formatting helper for weights
+const formatWeight = (weight: number, decimals: number = 0) => {
+  return weight.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  })
+}
 
 // Calculate current day of year and total days
 const now = new Date()

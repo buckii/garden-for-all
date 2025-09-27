@@ -211,7 +211,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useDashboardStore } from '@/stores/dashboard'
 
 interface WeekData {
   weekStart: string
@@ -230,31 +231,12 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const dashboardStore = useDashboardStore()
 
 const commitmentData = ref<CommitmentItem[]>([])
 const totalDeliveryData = ref<any>({})
 const internalLoading = ref(false)
 
-// Get Monday of current week
-const getCurrentMonday = () => {
-  const today = new Date()
-  const dayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, 2 = Tuesday, etc.
-  const monday = new Date(today)
-  
-  // Calculate days to subtract to get to Monday of current week
-  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-  monday.setDate(today.getDate() - daysFromMonday)
-  
-  return monday
-}
-
-// Get Monday of last week
-const getLastMonday = () => {
-  const currentMonday = getCurrentMonday()
-  const lastMonday = new Date(currentMonday)
-  lastMonday.setDate(currentMonday.getDate() - 7)
-  return lastMonday
-}
 
 // Format week range (Monday to Sunday)
 const formatWeekRange = (weekStartStr: string) => {
@@ -291,211 +273,136 @@ const getProgressBarColor = (delivered: number, target: number) => {
   return 'bg-red-500'                              // Red for under 50% completion
 }
 
-// Fetch commitment data
-const fetchCommitmentData = async () => {
-  internalLoading.value = true
+// Process commitment data from dashboard store
+const processCommitmentData = () => {
+  if (!dashboardStore.commitmentData) {
+    commitmentData.value = []
+    return
+  }
+
+  const data = dashboardStore.commitmentData
+  const thisWeekCommitments = data.thisWeek.commitments
+  const lastWeekCommitments = data.lastWeek.commitments
+  const thisWeekEntries = data.thisWeek.harvest
+  const lastWeekEntries = data.lastWeek.harvest
+
+  // Group commitments by produce type
+  const produceTypeGroups: { [key: string]: any[] } = {}
   
-  try {
-    const authToken = localStorage.getItem('auth_token')
-    if (!authToken) {
-      throw new Error('No auth token found')
-    }
-
-    // Get Broad Street Food Pantry ID first
-    const pantriesResponse = await fetch('/api/food-pantries', {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    })
-    const pantriesResult = await pantriesResponse.json()
-    const broadStreetPantry = pantriesResult.data?.find((p: any) => 
-      p.name.toLowerCase().includes('broad street')
-    )
-    
-    if (!broadStreetPantry) {
-      console.warn('Broad Street Food Pantry not found')
-      commitmentData.value = []
-      return
-    }
-
-    // Get current and last Monday dates
-    const thisMonday = getCurrentMonday()
-    const lastMonday = getLastMonday()
-    
-    const thisMondayStr = thisMonday.toISOString().split('T')[0]
-    const lastMondayStr = lastMonday.toISOString().split('T')[0]
-    
-    console.log('📅 Date ranges:', {
-      thisMonday: thisMondayStr,
-      lastMonday: lastMondayStr,
-      today: new Date().toISOString().split('T')[0],
-      thisMondayObj: thisMonday,
-      lastMondayObj: lastMonday,
-      thisMondayFormatted: formatWeekRange(thisMondayStr),
-      lastMondayFormatted: formatWeekRange(lastMondayStr)
-    })
-
-    // Fetch commitments for both weeks
-    const [thisWeekResponse, lastWeekResponse] = await Promise.all([
-      fetch(`/api/commitments?pantryId=${broadStreetPantry._id}&startDate=${thisMondayStr}&endDate=${thisMondayStr}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      }),
-      fetch(`/api/commitments?pantryId=${broadStreetPantry._id}&startDate=${lastMondayStr}&endDate=${lastMondayStr}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
+  // Process this week's commitments
+  thisWeekCommitments.forEach((commitment: any) => {
+    if (commitment.commitmentType === 'produce_type' && commitment.produceTypeId?.name) {
+      const produceTypeName = commitment.produceTypeId.name
+      if (!produceTypeGroups[produceTypeName]) {
+        produceTypeGroups[produceTypeName] = []
+      }
+      produceTypeGroups[produceTypeName].push({
+        ...commitment,
+        week: 'this'
       })
-    ])
-
-    const thisWeekResult = await thisWeekResponse.json()
-    const lastWeekResult = await lastWeekResponse.json()
-    
-    const thisWeekCommitments = thisWeekResult.data || []
-    const lastWeekCommitments = lastWeekResult.data || []
-
-    // Fetch harvest entries for both weeks to calculate deliveries
-    const [thisWeekHarvest, lastWeekHarvest] = await Promise.all([
-      fetch(`/api/harvest-list?pantryId=${broadStreetPantry._id}&startDate=${thisMondayStr}&endDate=${new Date(thisMonday.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      }),
-      fetch(`/api/harvest-list?pantryId=${broadStreetPantry._id}&startDate=${lastMondayStr}&endDate=${new Date(lastMonday.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      })
-    ])
-
-    const thisWeekHarvestResult = await thisWeekHarvest.json()
-    const lastWeekHarvestResult = await lastWeekHarvest.json()
-    
-    const thisWeekEntries = thisWeekHarvestResult.data?.entries || thisWeekHarvestResult.data || []
-    const lastWeekEntries = lastWeekHarvestResult.data?.entries || lastWeekHarvestResult.data || []
-    
-    console.log('📊 Harvest data:', {
-      thisWeekEntries: thisWeekEntries.length,
-      lastWeekEntries: lastWeekEntries.length,
-      thisWeekSample: thisWeekEntries.slice(0, 2),
-      lastWeekSample: lastWeekEntries.slice(0, 2)
-    })
-
-    // Group commitments by produce type
-    const produceTypeGroups: { [key: string]: any[] } = {}
-    
-    // Process this week's commitments
-    thisWeekCommitments.forEach((commitment: any) => {
-      if (commitment.commitmentType === 'produce_type' && commitment.produceTypeId?.name) {
-        const produceTypeName = commitment.produceTypeId.name
-        if (!produceTypeGroups[produceTypeName]) {
-          produceTypeGroups[produceTypeName] = []
-        }
-        produceTypeGroups[produceTypeName].push({
-          ...commitment,
-          week: 'this'
-        })
-      }
-    })
-
-    // Process last week's commitments
-    lastWeekCommitments.forEach((commitment: any) => {
-      if (commitment.commitmentType === 'produce_type' && commitment.produceTypeId?.name) {
-        const produceTypeName = commitment.produceTypeId.name
-        if (!produceTypeGroups[produceTypeName]) {
-          produceTypeGroups[produceTypeName] = []
-        }
-        produceTypeGroups[produceTypeName].push({
-          ...commitment,
-          week: 'last'
-        })
-      }
-    })
-
-    // Calculate deliveries by produce type for each week
-    const calculateDeliveries = (entries: any[], produceTypeName: string) => {
-      return entries
-        .filter((entry: any) => entry.produceType?.name === produceTypeName)
-        .reduce((total: number, entry: any) => {
-          const weight = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
-          return total + weight
-        }, 0)
     }
+  })
 
-    // Build final data structure
-    const result: CommitmentItem[] = Object.entries(produceTypeGroups).map(([produceTypeName, commitments]) => {
-      const thisWeekCommitment = commitments.find(c => c.week === 'this')
-      const lastWeekCommitment = commitments.find(c => c.week === 'last')
-      
-      const weeklyWeight = thisWeekCommitment?.weeklyWeightLbs || lastWeekCommitment?.weeklyWeightLbs || 0
-      
-      return {
-        produceType: produceTypeName,
-        weeklyWeight,
-        thisWeek: {
-          weekStart: thisMondayStr,
-          delivered: calculateDeliveries(thisWeekEntries, produceTypeName)
-        },
-        lastWeek: {
-          weekStart: lastMondayStr,
-          delivered: calculateDeliveries(lastWeekEntries, produceTypeName)
-        }
+  // Process last week's commitments
+  lastWeekCommitments.forEach((commitment: any) => {
+    if (commitment.commitmentType === 'produce_type' && commitment.produceTypeId?.name) {
+      const produceTypeName = commitment.produceTypeId.name
+      if (!produceTypeGroups[produceTypeName]) {
+        produceTypeGroups[produceTypeName] = []
       }
-    })
+      produceTypeGroups[produceTypeName].push({
+        ...commitment,
+        week: 'last'
+      })
+    }
+  })
 
-    commitmentData.value = result.filter(item => item.weeklyWeight > 0)
-    
-    // Calculate totals for ALL deliveries (including non-committed items)
-    const allThisWeekDeliveries = thisWeekEntries.reduce((total: number, entry: any) => {
-      const weight = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
-      return total + weight
-    }, 0)
-    
-    const allLastWeekDeliveries = lastWeekEntries.reduce((total: number, entry: any) => {
-      const weight = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
-      return total + weight
-    }, 0)
-    
-    // Calculate non-committed deliveries
-    const committedThisWeek = commitmentData.value.reduce((total, item) => total + item.thisWeek.delivered, 0)
-    const committedLastWeek = commitmentData.value.reduce((total, item) => total + item.lastWeek.delivered, 0)
-    
-    const nonCommittedThisWeek = allThisWeekDeliveries - committedThisWeek
-    const nonCommittedLastWeek = allLastWeekDeliveries - committedLastWeek
-    
-    // Get non-committed produce types for notes
-    const committedProduceTypes = new Set(commitmentData.value.map(item => item.produceType))
-    
-    const nonCommittedThisWeekTypes = thisWeekEntries
-      .filter((entry: any) => !committedProduceTypes.has(entry.produceType?.name))
-      .reduce((acc: any, entry: any) => {
-        const name = entry.produceType?.name || 'Unknown'
+  // Calculate deliveries by produce type for each week
+  const calculateDeliveries = (entries: any[], produceTypeName: string) => {
+    return entries
+      .filter((entry: any) => entry.produceType?.name === produceTypeName)
+      .reduce((total: number, entry: any) => {
         const weight = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
-        acc[name] = (acc[name] || 0) + weight
-        return acc
-      }, {})
+        return total + weight
+      }, 0)
+  }
+
+  // Build final data structure
+  const result: CommitmentItem[] = Object.entries(produceTypeGroups).map(([produceTypeName, commitments]) => {
+    const thisWeekCommitment = commitments.find(c => c.week === 'this')
+    const lastWeekCommitment = commitments.find(c => c.week === 'last')
     
-    const nonCommittedLastWeekTypes = lastWeekEntries
-      .filter((entry: any) => !committedProduceTypes.has(entry.produceType?.name))
-      .reduce((acc: any, entry: any) => {
-        const name = entry.produceType?.name || 'Unknown'
-        const weight = entry.weight || (entry.produceType?.conversionFactor || 1)
-        acc[name] = (acc[name] || 0) + weight
-        return acc
-      }, {})
+    const weeklyWeight = thisWeekCommitment?.weeklyWeightLbs || lastWeekCommitment?.weeklyWeightLbs || 0
     
-    // Store total delivery data
-    totalDeliveryData.value = {
+    return {
+      produceType: produceTypeName,
+      weeklyWeight,
       thisWeek: {
-        total: allThisWeekDeliveries,
-        committed: committedThisWeek,
-        nonCommitted: nonCommittedThisWeek,
-        nonCommittedTypes: nonCommittedThisWeekTypes
+        weekStart: data.thisWeek.weekStart,
+        delivered: calculateDeliveries(thisWeekEntries, produceTypeName)
       },
       lastWeek: {
-        total: allLastWeekDeliveries,
-        committed: committedLastWeek,
-        nonCommitted: nonCommittedLastWeek,
-        nonCommittedTypes: nonCommittedLastWeekTypes
+        weekStart: data.lastWeek.weekStart,
+        delivered: calculateDeliveries(lastWeekEntries, produceTypeName)
       }
     }
-    
-  } catch (error) {
-    console.error('Error fetching commitment data:', error)
-    commitmentData.value = []
-  } finally {
-    internalLoading.value = false
+  })
+
+  commitmentData.value = result.filter(item => item.weeklyWeight > 0)
+  
+  // Calculate totals for ALL deliveries (including non-committed items)
+  const allThisWeekDeliveries = thisWeekEntries.reduce((total: number, entry: any) => {
+    const weight = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
+    return total + weight
+  }, 0)
+  
+  const allLastWeekDeliveries = lastWeekEntries.reduce((total: number, entry: any) => {
+    const weight = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
+    return total + weight
+  }, 0)
+  
+  // Calculate non-committed deliveries
+  const committedThisWeek = commitmentData.value.reduce((total, item) => total + item.thisWeek.delivered, 0)
+  const committedLastWeek = commitmentData.value.reduce((total, item) => total + item.lastWeek.delivered, 0)
+  
+  const nonCommittedThisWeek = allThisWeekDeliveries - committedThisWeek
+  const nonCommittedLastWeek = allLastWeekDeliveries - committedLastWeek
+  
+  // Get non-committed produce types for notes
+  const committedProduceTypes = new Set(commitmentData.value.map(item => item.produceType))
+  
+  const nonCommittedThisWeekTypes = thisWeekEntries
+    .filter((entry: any) => !committedProduceTypes.has(entry.produceType?.name))
+    .reduce((acc: any, entry: any) => {
+      const name = entry.produceType?.name || 'Unknown'
+      const weight = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
+      acc[name] = (acc[name] || 0) + weight
+      return acc
+    }, {})
+  
+  const nonCommittedLastWeekTypes = lastWeekEntries
+    .filter((entry: any) => !committedProduceTypes.has(entry.produceType?.name))
+    .reduce((acc: any, entry: any) => {
+      const name = entry.produceType?.name || 'Unknown'
+      const weight = entry.weight || (entry.produceType?.conversionFactor || 1)
+      acc[name] = (acc[name] || 0) + weight
+      return acc
+    }, {})
+  
+  // Store total delivery data
+  totalDeliveryData.value = {
+    thisWeek: {
+      total: allThisWeekDeliveries,
+      committed: committedThisWeek,
+      nonCommitted: nonCommittedThisWeek,
+      nonCommittedTypes: nonCommittedThisWeekTypes
+    },
+    lastWeek: {
+      total: allLastWeekDeliveries,
+      committed: committedLastWeek,
+      nonCommitted: nonCommittedLastWeek,
+      nonCommittedTypes: nonCommittedLastWeekTypes
+    }
   }
 }
 
@@ -520,8 +427,17 @@ const lastWeekPercentage = computed(() => {
   return totalWeeklyTarget.value > 0 ? (totalLastWeek.value / totalWeeklyTarget.value * 100).toFixed(0) : '0'
 })
 
-// Fetch data on mount
+// Watch for commitment data changes
+watch(() => dashboardStore.commitmentData, (newData) => {
+  if (newData) {
+    processCommitmentData()
+  }
+}, { immediate: true })
+
+// Process data on mount if already available
 onMounted(() => {
-  fetchCommitmentData()
+  if (dashboardStore.commitmentData) {
+    processCommitmentData()
+  }
 })
 </script>

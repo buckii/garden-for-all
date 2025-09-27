@@ -469,8 +469,7 @@ onMounted(async () => {
     harvestStore.fetchProduceTypes(),
     adminStore.fetchCategories(),
     adminStore.fetchFoodPantries(),
-    harvestStore.fetchTodaysHarvest(),
-    harvestStore.fetchRecentEntries(),
+    harvestStore.fetchRecentEntries(), // This will also populate harvestEntries due to fallback logic
     fetchUpcomingOrders(),
     fetchUnallocatedInventory()
   ])
