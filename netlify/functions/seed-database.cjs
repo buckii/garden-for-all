@@ -1028,6 +1028,7 @@ exports.handler = async function(event, context) {
     
     const existingCount = await HarvestEntry.countDocuments();
     console.log(`Total harvest entries in database: ${existingCount}`);
+    } // End of harvest entry processing block
 
     // Create orders from harvest entries (grouped by date and pantry)
     console.log('Creating orders from harvest entries...');
@@ -1204,6 +1205,7 @@ exports.handler = async function(event, context) {
         console.log(`Created ${createdOrders} orders`);
       }
       } // End of else block for checking harvestEntriesForOrders
+    }
 
     // Create commitments for Broad Street Food Pantry
     console.log('Creating commitments for Broad Street Food Pantry...');
