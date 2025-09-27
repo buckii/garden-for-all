@@ -13,7 +13,7 @@
           <div class="text-sm font-medium text-gray-500">Today</div>
           <div class="text-xs text-gray-400 mb-1">{{ todayDate }}</div>
           <div class="text-2xl font-bold text-gray-900">
-            {{ summary.today.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
+            {{ formatWeight(summary.today.quantity) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
             {{ formatCurrency(summary.today.value) }} value
@@ -35,7 +35,7 @@
           <div class="text-sm font-medium text-gray-500">This Week</div>
           <div class="text-xs text-gray-400 mb-1">{{ weekRange }}</div>
           <div class="text-2xl font-bold text-gray-900">
-            {{ summary.week.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
+            {{ formatWeight(summary.week.quantity) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
             {{ formatCurrency(summary.week.value) }} value
@@ -57,7 +57,7 @@
           <div class="text-sm font-medium text-gray-500">This Month</div>
           <div class="text-xs text-gray-400 mb-1">{{ monthRange }}</div>
           <div class="text-2xl font-bold text-gray-900">
-            {{ summary.month.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
+            {{ formatWeight(summary.month.quantity) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
             {{ formatCurrency(summary.month.value) }} value
@@ -79,7 +79,7 @@
           <div class="text-sm font-medium text-gray-500">Year to Date</div>
           <div class="text-xs text-gray-400 mb-1">{{ yearRange }}</div>
           <div class="text-2xl font-bold text-gray-900">
-            {{ summary.year.quantity.toFixed(1) }} <span class="text-lg text-gray-500">lbs</span>
+            {{ formatWeight(summary.year.quantity) }} <span class="text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
             {{ formatCurrency(summary.year.value) }} value
@@ -113,6 +113,14 @@ const formatCurrency = (value: number) => {
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
+  })
+}
+
+// Weight formatting helper
+const formatWeight = (weight: number, decimals: number = 1) => {
+  return weight.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
   })
 }
 
