@@ -182,7 +182,15 @@
 import { computed, ref, watch } from 'vue'
 
 
-type ProduceType = Database['public']['Tables']['produce_types']['Row']
+type ProduceType = Database['public']['Tables']['produce_types']['Row'] & {
+  mostRecentLocation?: {
+    _id?: string
+    id?: string
+    name: string
+    address?: any
+    coordinates?: any
+  }
+}
 type FoodPantry = Database['public']['Tables']['food_pantries']['Row']
 type HarvestLocation = {
   _id?: string
@@ -229,7 +237,7 @@ const emit = defineEmits<Emits>()
 const quantity = ref<number>(0)
 const displayValue = ref('0')
 const weight = ref<number | undefined>(undefined)
-const selectedLocationId = ref<string>(localStorage.getItem('lastLocationId') || '')
+const selectedLocationId = ref<string>('')
 const selectedPantryId = ref<string>(localStorage.getItem('lastPantryId') || '')
 const harvesterName = ref(localStorage.getItem('harvesterName') || '')
 const harvestDate = ref(new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }))
@@ -239,6 +247,26 @@ const notes = ref('')
 localStorage.removeItem('lastHarvestDate')
 const showNotesField = ref(false)
 const activeField = ref<'quantity' | 'weight'>('quantity')
+
+// Initialize location from localStorage or produce type's most recent location
+const initializeLocation = () => {
+  const lastLocationId = localStorage.getItem('lastLocationId')
+  if (lastLocationId) {
+    selectedLocationId.value = lastLocationId
+  } else if (props.selectedProduce?.mostRecentLocation) {
+    const mostRecentId = props.selectedProduce.mostRecentLocation._id || props.selectedProduce.mostRecentLocation.id
+    if (mostRecentId) {
+      selectedLocationId.value = mostRecentId
+    }
+  }
+}
+
+// Initialize location when component mounts and when produce changes
+watch(() => props.selectedProduce, () => {
+  if (props.selectedProduce) {
+    initializeLocation()
+  }
+}, { immediate: true })
 
 
 const isPoundsUnit = computed(() => {

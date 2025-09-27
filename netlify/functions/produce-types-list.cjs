@@ -1,5 +1,5 @@
 const { connectDB } = require('./utils/db.js');
-const { ProduceType, ProduceCategory } = require('./utils/models.js');
+const { ProduceType, ProduceCategory, HarvestEntry } = require('./utils/models.js');
 const { createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
 
 exports.handler = async function(event, context) {
@@ -19,6 +19,28 @@ exports.handler = async function(event, context) {
       .populate('categoryId')
       .sort({ name: 1 });
 
+    // Get most recent harvest location for each produce type
+    const produceTypeLocations = new Map();
+    
+    for (const type of produceTypes) {
+      // Find the most recent harvest entry for this produce type
+      const recentHarvest = await HarvestEntry.findOne({
+        produceTypeId: type._id
+      })
+      .populate('locationId')
+      .sort({ harvestDate: -1, createdAt: -1 })
+      .limit(1);
+      
+      if (recentHarvest && recentHarvest.locationId) {
+        produceTypeLocations.set(type._id.toString(), {
+          _id: recentHarvest.locationId._id,
+          name: recentHarvest.locationId.name,
+          address: recentHarvest.locationId.address,
+          coordinates: recentHarvest.locationId.coordinates
+        });
+      }
+    }
+
     // Transform data to match frontend expectations
     const transformedTypes = produceTypes.map(type => ({
       _id: type._id,
@@ -36,6 +58,7 @@ exports.handler = async function(event, context) {
       serving_weight_oz: type.servingWeightOz || 0, // Add snake_case for compatibility
       servingsPerLb: type.servingsPerLb || 0,
       servings_per_lb: type.servingsPerLb || 0, // Add snake_case for compatibility
+      mostRecentLocation: produceTypeLocations.get(type._id.toString()) || null,
       createdAt: type.createdAt,
       updatedAt: type.updatedAt,
       category: {
