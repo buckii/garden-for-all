@@ -680,6 +680,20 @@ exports.handler = async function(event, context) {
 
   try {
     await connectDB();
+    
+    // Extract hostname from MongoDB URI for debugging
+    const mongoUri = process.env.MONGODB_URI || '';
+    let dbHostname = 'unknown';
+    try {
+      const url = new URL(mongoUri);
+      dbHostname = url.hostname;
+    } catch (e) {
+      // Fallback for non-standard URI formats
+      const match = mongoUri.match(/\/\/([^\/]+)/);
+      if (match) dbHostname = match[1];
+    }
+    
+    console.log(`🔗 Connected to database: ${dbHostname}`);
 
     // Parse request body to check for options
     const body = JSON.parse(event.body || '{}');
@@ -1342,7 +1356,7 @@ exports.handler = async function(event, context) {
         commitments: createdCommitments,
         importMode: shouldClearData ? 'full-clear' : (allHistoricalData ? 'all-historical' : 'incremental'),
         importStartDate: importStartDate ? importStartDate.toISOString().split('T')[0] : null,
-        produceTypesList: produceTypesList
+        dbHostname: dbHostname
       }
     });
 

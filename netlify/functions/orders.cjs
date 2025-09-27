@@ -12,18 +12,27 @@ exports.handler = async function(event, context) {
   try {
     await connectDB();
 
-    // Validate authentication for all methods
+    if (event.httpMethod === 'GET') {
+      // GET requests don't require authentication for public read access
+      return await getOrders(event, null);
+    }
+
+    // Validate authentication for POST, PUT, DELETE methods
     const token = extractToken(event.headers.authorization);
     if (!token) {
       return createErrorResponse(401, 'Authorization token required');
     }
 
-    const user = await validateToken(token);
+    let user;
+    try {
+      user = await validateToken(token);
+    } catch (authError) {
+      console.error('Authentication error:', authError.message);
+      return createErrorResponse(401, 'Invalid or expired token');
+    }
 
     if (event.httpMethod === 'POST') {
       return await createOrder(event, user);
-    } else if (event.httpMethod === 'GET') {
-      return await getOrders(event, user);
     } else if (event.httpMethod === 'PUT') {
       return await updateOrder(event, user);
     } else if (event.httpMethod === 'DELETE') {

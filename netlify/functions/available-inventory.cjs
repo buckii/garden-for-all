@@ -163,6 +163,8 @@ exports.handler = async function(event, context) {
 
   } catch (error) {
     console.error('Available inventory error:', error);
-    return createErrorResponse(500, 'Internal server error');
+    console.error('Error stack:', error.stack);
+    console.error('Error message:', error.message);
+    return createErrorResponse(500, `Internal server error: ${error.message}`);
   }
 };

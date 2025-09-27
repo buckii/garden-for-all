@@ -243,12 +243,25 @@
       @close="closeEditModal"
       @saved="handleOrderSaved"
     />
+
+    <!-- Delete Confirmation Modal -->
+    <ConfirmModal
+      :is-open="showDeleteModal"
+      :title="'Delete Order'"
+      :message="`Are you sure you want to delete the order for ${orderToDelete?.pantryId?.name}? This action cannot be undone.`"
+      type="danger"
+      confirm-text="Delete Order"
+      cancel-text="Cancel"
+      @confirm="confirmDeleteOrder"
+      @cancel="cancelDeleteOrder"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import OrderEditModal from './OrderEditModal.vue'
+import ConfirmModal from '../ui/ConfirmModal.vue'
 
 // State
 const orders = ref<any[]>([])
@@ -259,6 +272,8 @@ const error = ref<string | null>(null)
 const selectedOrder = ref<any>(null)
 const showEditModal = ref(false)
 const selectedOrderForEdit = ref<any>(null)
+const showDeleteModal = ref(false)
+const orderToDelete = ref<any>(null)
 
 const filters = ref({
   status: '',
@@ -390,13 +405,16 @@ const viewOrder = (order: any) => {
   selectedOrder.value = selectedOrder.value?._id === order._id ? null : order
 }
 
-const deleteOrder = async (order: any) => {
-  if (!confirm(`Are you sure you want to delete the order for ${order.pantryId?.name}?`)) {
-    return
-  }
+const deleteOrder = (order: any) => {
+  orderToDelete.value = order
+  showDeleteModal.value = true
+}
+
+const confirmDeleteOrder = async () => {
+  if (!orderToDelete.value) return
   
   try {
-    const response = await fetch(`${API_BASE}/orders?id=${order._id}`, {
+    const response = await fetch(`${API_BASE}/orders?id=${orderToDelete.value._id}`, {
       method: 'DELETE',
       headers: getAuthHeader()
     })
@@ -410,9 +428,18 @@ const deleteOrder = async (order: any) => {
     // Refresh orders
     await fetchOrders(pagination.value.current)
     
+    // Close modal
+    cancelDeleteOrder()
+    
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to delete order'
+    cancelDeleteOrder()
   }
+}
+
+const cancelDeleteOrder = () => {
+  showDeleteModal.value = false
+  orderToDelete.value = null
 }
 
 const changePage = (page: number) => {

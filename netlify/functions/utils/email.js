@@ -10,8 +10,8 @@ export const sendPasswordResetEmail = async (email, resetUrl) => {
     // Check if Mailgun is configured
     const apiKey = process.env.MAILGUN_API_KEY;
     const domain = process.env.MAILGUN_DOMAIN;
-    const fromEmail = process.env.FROM_EMAIL || 'noreply@gardenforall.org';
-    const fromName = process.env.FROM_NAME || 'Garden For All';
+    const fromEmail = process.env.MAILGUN_FROM_EMAIL || process.env.FROM_EMAIL || 'noreply@gardenforall.org';
+    const fromName = process.env.MAILGUN_FROM_NAME || process.env.FROM_NAME || 'Garden For All';
     
     if (!apiKey || !domain) {
       console.warn('Mailgun not configured. Please set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables.');
@@ -104,8 +104,8 @@ export const sendWelcomeEmail = async (email, userName) => {
   try {
     const apiKey = process.env.MAILGUN_API_KEY;
     const domain = process.env.MAILGUN_DOMAIN;
-    const fromEmail = process.env.FROM_EMAIL || 'noreply@gardenforall.org';
-    const fromName = process.env.FROM_NAME || 'Garden For All';
+    const fromEmail = process.env.MAILGUN_FROM_EMAIL || process.env.FROM_EMAIL || 'noreply@gardenforall.org';
+    const fromName = process.env.MAILGUN_FROM_NAME || process.env.FROM_NAME || 'Garden For All';
     
     if (!apiKey || !domain) {
       console.log(`Welcome email for ${email} (${userName})`);

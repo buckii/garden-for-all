@@ -43,15 +43,21 @@
       <div class="bg-white border rounded-lg p-4">
         <h4 class="font-medium text-gray-900 mb-4">Annual Progress by Produce Type</h4>
         <div class="space-y-3">
-          <div v-for="item in annualData" :key="item.produceType" class="flex items-center">
-            <!-- Produce type label -->
-            <div class="w-32 text-sm text-gray-700 font-medium text-right pr-3">
-              {{ item.produceType }}
-            </div>
-            
-            <!-- Progress bar container -->
-            <div class="flex-1 flex items-center">
-              <div class="flex-1 bg-gray-200 rounded-full h-6 relative mr-3">
+          <div v-for="item in annualData" :key="item.produceType" class="md:flex md:items-center">
+            <!-- Mobile: Vertical Stack -->
+            <div class="md:hidden space-y-2">
+              <!-- Label and target weight -->
+              <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-700 font-medium">
+                  {{ item.produceType }}
+                </div>
+                <div class="text-sm text-gray-600">
+                  {{ formatWeight(item.annualTarget) }}lb
+                </div>
+              </div>
+              
+              <!-- Progress bar -->
+              <div class="bg-gray-200 rounded-full h-6 relative">
                 <!-- Expected progress bar (background) -->
                 <div 
                   class="h-6 rounded-full bg-gray-300 absolute inset-0"
@@ -66,7 +72,7 @@
                   ]"
                   :style="{ width: `${Math.min((item.actualWeight / item.annualTarget) * 100, 100)}%` }"
                 >
-                  <!-- Progress text inside bar if there's space -->
+                  <!-- Progress text inside bar -->
                   <span 
                     v-if="(item.actualWeight / item.annualTarget) * 100 > 25"
                     class="absolute inset-0 flex items-center justify-center text-xs font-medium text-white"
@@ -75,7 +81,7 @@
                   </span>
                 </div>
                 
-                <!-- Progress text outside bar if not enough space -->
+                <!-- Progress text outside bar -->
                 <span 
                   v-if="(item.actualWeight / item.annualTarget) * 100 <= 25"
                   class="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 text-xs font-medium text-gray-600"
@@ -83,10 +89,54 @@
                   {{ ((item.actualWeight / item.expectedWeight) * 100).toFixed(0) }}%
                 </span>
               </div>
+            </div>
+
+            <!-- Desktop: Horizontal Layout -->
+            <div class="hidden md:flex md:items-center md:w-full">
+              <!-- Produce type label -->
+              <div class="w-32 text-sm text-gray-700 font-medium text-right pr-3">
+                {{ item.produceType }}
+              </div>
               
-              <!-- Target weight on the right -->
-              <div class="w-20 text-sm text-gray-600 text-right">
-                {{ formatWeight(item.annualTarget) }}lb
+              <!-- Progress bar container -->
+              <div class="flex-1 flex items-center">
+                <div class="flex-1 bg-gray-200 rounded-full h-6 relative mr-3">
+                  <!-- Expected progress bar (background) -->
+                  <div 
+                    class="h-6 rounded-full bg-gray-300 absolute inset-0"
+                    :style="{ width: `${Math.min((item.expectedWeight / item.annualTarget) * 100, 100)}%` }"
+                  ></div>
+                  
+                  <!-- Actual progress bar (foreground) -->
+                  <div 
+                    :class="[
+                      'h-6 rounded-full transition-all duration-500 ease-out relative z-10',
+                      getProgressBarColor(item.actualWeight, item.expectedWeight)
+                    ]"
+                    :style="{ width: `${Math.min((item.actualWeight / item.annualTarget) * 100, 100)}%` }"
+                  >
+                    <!-- Progress text inside bar if there's space -->
+                    <span 
+                      v-if="(item.actualWeight / item.annualTarget) * 100 > 25"
+                      class="absolute inset-0 flex items-center justify-center text-xs font-medium text-white"
+                    >
+                      {{ ((item.actualWeight / item.expectedWeight) * 100).toFixed(0) }}%
+                    </span>
+                  </div>
+                  
+                  <!-- Progress text outside bar if not enough space -->
+                  <span 
+                    v-if="(item.actualWeight / item.annualTarget) * 100 <= 25"
+                    class="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 text-xs font-medium text-gray-600"
+                  >
+                    {{ ((item.actualWeight / item.expectedWeight) * 100).toFixed(0) }}%
+                  </span>
+                </div>
+                
+                <!-- Target weight on the right -->
+                <div class="w-20 text-sm text-gray-600 text-right">
+                  {{ formatWeight(item.annualTarget) }}lb
+                </div>
               </div>
             </div>
           </div>
