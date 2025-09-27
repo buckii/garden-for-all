@@ -209,10 +209,6 @@ const produceUsageAnalysis = computed(() => {
   
   const usedProduceIds = new Set()
   
-  // Debug logging
-  console.log('🔍 Analyzing harvest entries:', props.harvestEntries.length, 'entries')
-  console.log('📅 Cutoff date (12 months ago):', twelveMonthsAgo.toISOString())
-  
   // Analyze harvest entries to find which produce types were used
   props.harvestEntries.forEach((entry, index) => {
     // Try all possible date field names
@@ -231,23 +227,10 @@ const produceUsageAnalysis = computed(() => {
                      entry.productTypeId || 
                      entry.product_type_id
     
-    // Debug first few entries
-    if (index < 3) {
-      console.log(`Entry ${index}:`, {
-        date: entryDate.toISOString(),
-        produceId,
-        isRecent: entryDate >= twelveMonthsAgo,
-        entry: Object.keys(entry)
-      })
-    }
-    
     if (entryDate >= twelveMonthsAgo && produceId) {
       usedProduceIds.add(String(produceId))
     }
   })
-  
-  console.log('✅ Found used produce IDs:', Array.from(usedProduceIds))
-  console.log('📊 Total used produce types:', usedProduceIds.size)
   
   return {
     usedProduceIds,
