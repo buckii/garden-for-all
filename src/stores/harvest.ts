@@ -53,6 +53,20 @@ const api = {
     // TODO: Implement harvest delete function
     console.warn('API not yet implemented: deleteHarvestEntry')
     return { error: null }
+  },
+
+  async getPantryRecommendation(produceTypeId: string, harvestDate?: string) {
+    try {
+      const url = new URL(`${API_BASE}/pantry-recommendations`, window.location.origin)
+      url.searchParams.set('produceTypeId', produceTypeId)
+      if (harvestDate) url.searchParams.set('harvestDate', harvestDate)
+      
+      const response = await fetch(url.toString())
+      const result = await response.json()
+      return { data: result.data || null, error: result.success ? null : result.error }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
   }
 }
 
@@ -202,6 +216,18 @@ export const useHarvestStore = defineStore('harvest', () => {
     error.value = null
   }
 
+  const getPantryRecommendation = async (produceTypeId: string, harvestDate?: string) => {
+    try {
+      const { data, error: fetchError } = await api.getPantryRecommendation(produceTypeId, harvestDate)
+      
+      if (fetchError) throw fetchError
+      return data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+      return null
+    }
+  }
+
   return {
     // State
     harvestEntries,
@@ -223,5 +249,6 @@ export const useHarvestStore = defineStore('harvest', () => {
     updateHarvestEntry,
     deleteHarvestEntry,
     clearError,
+    getPantryRecommendation,
   }
 })
