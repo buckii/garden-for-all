@@ -1,8 +1,9 @@
 const Joi = require('joi');
 const { connectDB } = require('./utils/db.js');
-const { HarvestEntry, ProduceType, FoodPantry, HarvestLocation } = require('./utils/models.js');
+const { HarvestEntry, ProduceType, FoodPantry, HarvestLocation, Order } = require('./utils/models.js');
 const { createResponse, createErrorResponse, handleCORS } = require('./utils/auth.js');
 const { harvestUpdates } = require('./utils/pusher.js');
+const { orderUpdates } = require('./utils/pusher.js');
 const { getEasternDateString } = require('./utils/date.js');
 
 const createHarvestSchema = Joi.object({
@@ -60,9 +61,7 @@ exports.handler = async function(event, context) {
     if (!locationId) {
       return createErrorResponse(400, 'Location ID is required');
     }
-    if (!pantryId) {
-      return createErrorResponse(400, 'Pantry ID is required');
-    }
+    // Note: pantryId is now optional - if not provided, harvest stays in inventory
 
     // Verify produce type exists
     const produceType = await ProduceType.findById(produceTypeId);
@@ -76,10 +75,13 @@ exports.handler = async function(event, context) {
       return createErrorResponse(400, 'Invalid harvest location');
     }
 
-    // Verify pantry exists
-    const pantry = await FoodPantry.findById(pantryId);
-    if (!pantry) {
-      return createErrorResponse(400, 'Invalid pantry');
+    // Verify pantry exists (if provided)
+    let pantry = null;
+    if (pantryId) {
+      pantry = await FoodPantry.findById(pantryId);
+      if (!pantry) {
+        return createErrorResponse(400, 'Invalid pantry');
+      }
     }
 
     // Calculate or use provided weight
@@ -113,7 +115,7 @@ exports.handler = async function(event, context) {
     await entry.save();
 
     // Populate the saved entry for response
-    await entry.populate([
+    const populateOptions = [
       {
         path: 'produceTypeId',
         populate: {
@@ -124,12 +126,17 @@ exports.handler = async function(event, context) {
       {
         path: 'locationId',
         model: 'HarvestLocation'
-      },
-      {
+      }
+    ];
+
+    if (pantryId) {
+      populateOptions.push({
         path: 'pantryId',
         model: 'FoodPantry'
-      }
-    ]);
+      });
+    }
+
+    await entry.populate(populateOptions);
 
     // Transform response (include both snake_case and camelCase for compatibility)
     const transformedEntry = {
@@ -138,8 +145,8 @@ exports.handler = async function(event, context) {
       produceTypeId: entry.produceTypeId._id,
       location_id: entry.locationId._id,
       locationId: entry.locationId._id,
-      pantry_id: entry.pantryId._id,
-      pantryId: entry.pantryId._id,
+      pantry_id: entry.pantryId?._id || null,
+      pantryId: entry.pantryId?._id || null,
       quantity: entry.quantity,
       unit: entry.unit,
       weight: entry.weight,
@@ -173,18 +180,105 @@ exports.handler = async function(event, context) {
         name: entry.locationId.name,
         address: entry.locationId.address
       },
-      pantry: {
+      pantry: entry.pantryId ? {
         _id: entry.pantryId._id,
         name: entry.pantryId.name
-      }
+      } : null
     };
 
     // Send real-time update
     await harvestUpdates.created(transformedEntry);
 
+    // If pantry is selected, try to add to an existing draft/in-progress order
+    let addedToOrder = false;
+    let orderInfo = null;
+
+    if (pantryId) {
+      try {
+        // Find an existing draft or in-progress order for this pantry
+        let existingOrder = await Order.findOne({
+          pantryId: pantryId,
+          status: { $in: ['draft', 'in-progress'] }
+        }).sort({ updatedAt: -1 }); // Get the most recently updated order
+
+        // If no existing order found, create a new one in 'in-progress' status
+        if (!existingOrder) {
+          const deliveryDate = new Date();
+
+          existingOrder = new Order({
+            pantryId: pantryId,
+            deliveryDate: deliveryDate,
+            status: 'in-progress',
+            orderType: 'delivery',
+            products: [],
+            totalWeight: 0,
+            totalValue: 0,
+            notes: 'Auto-created from harvest entry'
+          });
+        }
+
+        // Check if this produce type is already in the order
+        const existingProductIndex = existingOrder.products.findIndex(
+          p => p.produceTypeId.toString() === produceTypeId
+        );
+
+        if (existingProductIndex >= 0) {
+          // Add to existing product line
+          existingOrder.products[existingProductIndex].weight += weight;
+          existingOrder.products[existingProductIndex].quantity += quantity;
+          existingOrder.products[existingProductIndex].value =
+            existingOrder.products[existingProductIndex].weight * existingOrder.products[existingProductIndex].pricePerLb;
+        } else {
+          // Add as new product line
+          existingOrder.products.push({
+            produceTypeId: produceTypeId,
+            weight: weight,
+            quantity: quantity,
+            pricePerLb: produceType.pricePerLb || 0,
+            value: weight * (produceType.pricePerLb || 0)
+          });
+        }
+
+        // Recalculate order totals
+        existingOrder.totalWeight = existingOrder.products.reduce((sum, p) => sum + (p.weight || 0), 0);
+        existingOrder.totalValue = existingOrder.products.reduce((sum, p) => sum + (p.value || 0), 0);
+        existingOrder.updatedAt = new Date();
+
+        const wasNew = existingOrder.isNew;
+        await existingOrder.save();
+
+        // Populate order for response
+        await existingOrder.populate([
+          { path: 'pantryId' },
+          { path: 'products.produceTypeId' }
+        ]);
+
+        // Send order update notification (created or updated)
+        if (wasNew) {
+          await orderUpdates.created(existingOrder);
+        } else {
+          await orderUpdates.updated(existingOrder);
+        }
+
+        addedToOrder = true;
+        orderInfo = {
+          orderId: existingOrder._id,
+          orderStatus: existingOrder.status,
+          totalWeight: existingOrder.totalWeight,
+          totalValue: existingOrder.totalValue,
+          isNewOrder: wasNew
+        };
+      } catch (orderError) {
+        // Log error but don't fail the harvest creation
+        console.error('Error adding harvest to order:', orderError.message);
+      }
+    }
+
     return createResponse(201, {
       success: true,
-      data: transformedEntry
+      data: transformedEntry,
+      addedToOrder: addedToOrder,
+      orderInfo: orderInfo
     });
 
   } catch (error) {

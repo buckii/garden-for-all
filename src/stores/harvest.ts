@@ -19,8 +19,12 @@ const api = {
   async getHarvestEntries(date?: string) {
     try {
       const url = new URL(`${API_BASE}/harvest-list`, window.location.origin)
-      if (date) url.searchParams.set('date', date)
-      
+      if (date) {
+        // Use startDate and endDate with the same date to get entries for that specific day
+        url.searchParams.set('startDate', date)
+        url.searchParams.set('endDate', date)
+      }
+
       const response = await fetch(url.toString())
       const result = await response.json()
       return { data: result.data || [], error: null }
@@ -118,11 +122,14 @@ export const useHarvestStore = defineStore('harvest', () => {
   const fetchTodaysHarvest = async () => {
     loading.value = true
     try {
-      // Fetch recent entries instead of filtering by date on server to avoid timezone issues
-      const { data, error: fetchError } = await api.getHarvestEntries()
-      
+      // Get today's date in Eastern timezone to match the backend
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
+
+      // Fetch only today's entries from the server
+      const { data, error: fetchError } = await api.getHarvestEntries(today)
+
       if (fetchError) throw fetchError
-      
+
       // Handle both old format (array) and new format (object with entries)
       const entries = data?.entries || data || []
       harvestEntries.value = entries

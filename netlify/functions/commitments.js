@@ -75,15 +75,32 @@ async function handleGet(event, headers) {
   }
   
   if (startDate || endDate) {
-    query.weekStartDate = {};
-    if (startDate) {
-      query.weekStartDate.$gte = new Date(startDate);
-    }
-    if (endDate) {
-      // Add one day and use $lt to include the entire end date
-      const endDatePlusOne = new Date(endDate);
-      endDatePlusOne.setDate(endDatePlusOne.getDate() + 1);
-      query.weekStartDate.$lt = endDatePlusOne;
+    // When filtering by date range, we need to find commitments where the requested
+    // date range overlaps with the commitment's date range (weekStartDate to endDate)
+    if (startDate && endDate && startDate === endDate) {
+      // Single date query: find commitments that include this date
+      // Commitment must start on or before the date AND end on or after the date
+      const requestedDate = new Date(startDate);
+      const nextDay = new Date(startDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      query.weekStartDate = { $lt: nextDay };
+      query.endDate = { $gte: requestedDate };
+    } else {
+      // Range query: find commitments that overlap with the requested range
+      query.weekStartDate = {};
+      query.endDate = {};
+
+      if (startDate) {
+        // Commitment must end on or after the start of the requested range
+        query.endDate.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        // Commitment must start before the end of the requested range
+        const endDatePlusOne = new Date(endDate);
+        endDatePlusOne.setDate(endDatePlusOne.getDate() + 1);
+        query.weekStartDate.$lt = endDatePlusOne;
+      }
     }
   }
   
@@ -107,10 +124,21 @@ async function handleGet(event, headers) {
 
 async function handlePost(event, headers, user) {
   const data = JSON.parse(event.body);
-  
+
   // Validate required fields
-  if (!data.startDate || !data.endDate || !data.commitmentType || !data.weeklyWeightLbs || !data.pantryId) {
-    return createErrorResponse(400, 'Start date, end date, commitment type, weekly weight, and pantry ID are required');
+  if (!data.startDate || !data.endDate || !data.commitmentType || !data.dailyWeightLbs || !data.pantryId) {
+    return createErrorResponse(400, 'Start date, end date, commitment type, daily weight, and pantry ID are required');
+  }
+
+  // Validate days of week
+  if (!data.daysOfWeek || !Array.isArray(data.daysOfWeek) || data.daysOfWeek.length === 0) {
+    return createErrorResponse(400, 'At least one day of the week must be selected');
+  }
+
+  // Validate frequency
+  const frequencyWeeks = data.frequencyWeeks || 1;
+  if (frequencyWeeks < 1) {
+    return createErrorResponse(400, 'Frequency must be at least 1 week');
   }
 
   // Validate commitment type specific fields
@@ -122,40 +150,42 @@ async function handlePost(event, headers, user) {
     return createErrorResponse(400, 'Category ID required for category commitments');
   }
 
-  // Auto-adjust start and end dates to Mondays if needed
   // Parse dates in local timezone to avoid timezone shifts
   const startDateParts = data.startDate.split('-').map(Number);
   const endDateParts = data.endDate.split('-').map(Number);
   let startDate = new Date(startDateParts[0], startDateParts[1] - 1, startDateParts[2]);
   let endDate = new Date(endDateParts[0], endDateParts[1] - 1, endDateParts[2]);
-  
-  // Adjust start date to Monday if needed
-  if (startDate.getDay() !== 1) {
-    const daysToSubtract = startDate.getDay() === 0 ? 6 : startDate.getDay() - 1;
-    startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() - daysToSubtract);
-  }
-  
-  // Adjust end date to Monday if needed
-  if (endDate.getDay() !== 1) {
-    const daysToSubtract = endDate.getDay() === 0 ? 6 : endDate.getDay() - 1;
-    endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate() - daysToSubtract);
-  }
-  
+
   if (startDate > endDate) {
     return createErrorResponse(400, 'Start date must be before or equal to end date');
   }
 
-  // Generate weekly commitments
+  // Calculate weekly weight for backward compatibility
+  const weeklyWeightLbs = data.dailyWeightLbs * data.daysOfWeek.length;
+
+  // Generate commitment records by frequency
   const commitments = [];
   const currentDate = new Date(startDate);
-  
+
   while (currentDate <= endDate) {
-    // Create commitment object for this week
+    // Calculate the end of this frequency period
+    const periodEnd = new Date(currentDate);
+    periodEnd.setDate(periodEnd.getDate() + (frequencyWeeks * 7) - 1);
+
+    // Don't go past the overall end date
+    const actualPeriodEnd = periodEnd > endDate ? endDate : periodEnd;
+
+    // Create commitment object for this period
     const commitmentData = {
       pantryId: data.pantryId,
       weekStartDate: new Date(currentDate),
+      endDate: actualPeriodEnd,
+      daysOfWeek: data.daysOfWeek,
+      frequencyWeeks: frequencyWeeks,
       commitmentType: data.commitmentType,
-      weeklyWeightLbs: data.weeklyWeightLbs,
+      dailyWeightLbs: data.dailyWeightLbs,
+      weeklyWeightLbs: weeklyWeightLbs,
+      isFirm: data.isFirm || false,
       notes: data.notes || '',
       createdBy: user._id,
       isActive: true
@@ -180,9 +210,9 @@ async function handlePost(event, headers, user) {
     const commitment = new Commitment(commitmentData);
     await commitment.save();
     commitments.push(commitment);
-    
-    // Move to next Monday (7 days later)
-    currentDate.setDate(currentDate.getDate() + 7);
+
+    // Move to next period (frequency weeks later)
+    currentDate.setDate(currentDate.getDate() + (frequencyWeeks * 7));
   }
 
   // Populate references for the first commitment as a sample
@@ -198,11 +228,15 @@ async function handlePost(event, headers, user) {
 
   return createResponse(201, {
     success: true,
-    message: `Created ${commitments.length} weekly commitments`,
+    message: `Created ${commitments.length} commitment period(s)`,
     data: commitments.map(c => ({
       _id: c._id,
       weekStartDate: c.weekStartDate,
+      endDate: c.endDate,
+      daysOfWeek: c.daysOfWeek,
+      frequencyWeeks: c.frequencyWeeks,
       commitmentType: c.commitmentType,
+      dailyWeightLbs: c.dailyWeightLbs,
       weeklyWeightLbs: c.weeklyWeightLbs
     }))
   });
@@ -216,30 +250,32 @@ async function handlePut(event, headers, user) {
 
   const data = JSON.parse(event.body);
   const commitment = await Commitment.findById(id);
-  
+
   if (!commitment) {
     return createErrorResponse(404, 'Commitment not found');
   }
 
-  // Auto-adjust week start date to Monday if provided
+  // Update commitment fields
   if (data.weekStartDate) {
-    // Parse date in local timezone to avoid timezone shifts
     const dateParts = data.weekStartDate.split('-').map(Number);
-    let weekDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-    
-    // Adjust to Monday if needed
-    if (weekDate.getDay() !== 1) {
-      const daysToSubtract = weekDate.getDay() === 0 ? 6 : weekDate.getDay() - 1;
-      weekDate = new Date(weekDate.getFullYear(), weekDate.getMonth(), weekDate.getDate() - daysToSubtract);
-      // Update the data with the corrected date
-      data.weekStartDate = weekDate.toISOString().split('T')[0];
+    commitment.weekStartDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+  }
+  if (data.endDate) {
+    const dateParts = data.endDate.split('-').map(Number);
+    commitment.endDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+  }
+  if (data.daysOfWeek !== undefined) commitment.daysOfWeek = data.daysOfWeek;
+  if (data.frequencyWeeks !== undefined) commitment.frequencyWeeks = data.frequencyWeeks;
+  if (data.commitmentType) commitment.commitmentType = data.commitmentType;
+  if (data.dailyWeightLbs !== undefined) {
+    commitment.dailyWeightLbs = data.dailyWeightLbs;
+    // Recalculate weekly weight for backward compatibility
+    if (commitment.daysOfWeek && commitment.daysOfWeek.length > 0) {
+      commitment.weeklyWeightLbs = data.dailyWeightLbs * commitment.daysOfWeek.length;
     }
   }
-
-  // Update commitment fields
-  if (data.weekStartDate) commitment.weekStartDate = new Date(data.weekStartDate);
-  if (data.commitmentType) commitment.commitmentType = data.commitmentType;
   if (data.weeklyWeightLbs !== undefined) commitment.weeklyWeightLbs = data.weeklyWeightLbs;
+  if (data.isFirm !== undefined) commitment.isFirm = data.isFirm;
   if (data.notes !== undefined) commitment.notes = data.notes;
   if (data.produceTypeId !== undefined) commitment.produceTypeId = data.produceTypeId;
   if (data.categoryId !== undefined) commitment.categoryId = data.categoryId;

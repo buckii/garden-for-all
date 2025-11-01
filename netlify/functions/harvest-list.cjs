@@ -59,7 +59,7 @@ exports.handler = async function(event, context) {
     const sortOptions = {};
     sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
-    // Fetch harvest entries with populated produce type, category, and pantry
+    // Fetch harvest entries with populated produce type, category, pantry, and order
     const [entries, total] = await Promise.all([
       HarvestEntry.find(query)
         .populate({
@@ -70,6 +70,7 @@ exports.handler = async function(event, context) {
           }
         })
         .populate('pantryId')
+        .populate('orderId', 'deliveryDate status')
         .sort(sortOptions)
         .skip(skip)
         .limit(limitNum),
@@ -87,6 +88,7 @@ exports.handler = async function(event, context) {
           produceTypeId: null,
           pantry_id: entry.pantryId?._id || null,
           pantryId: entry.pantryId?._id || null,
+          orderId: entry.orderId?._id || null,
           quantity: entry.quantity,
           unit: entry.unit,
           weight: entry.weight,
@@ -103,6 +105,11 @@ exports.handler = async function(event, context) {
           pantry: entry.pantryId ? {
             _id: entry.pantryId._id,
             name: entry.pantryId.name
+          } : null,
+          order: entry.orderId ? {
+            _id: entry.orderId._id,
+            deliveryDate: entry.orderId.deliveryDate,
+            status: entry.orderId.status
           } : null
         };
       }
@@ -113,6 +120,7 @@ exports.handler = async function(event, context) {
         produceTypeId: entry.produceTypeId._id,
         pantry_id: entry.pantryId?._id || null,
         pantryId: entry.pantryId?._id || null,
+        orderId: entry.orderId?._id || null,
         quantity: entry.quantity,
         unit: entry.unit,
         weight: entry.weight,
@@ -150,6 +158,11 @@ exports.handler = async function(event, context) {
         pantry: entry.pantryId ? {
           _id: entry.pantryId._id,
           name: entry.pantryId.name
+        } : null,
+        order: entry.orderId ? {
+          _id: entry.orderId._id,
+          deliveryDate: entry.orderId.deliveryDate,
+          status: entry.orderId.status
         } : null
       };
     });

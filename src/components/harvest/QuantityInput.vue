@@ -88,94 +88,21 @@
       </div>
     </div>
 
-    <!-- Harvest Date -->
+    <!-- Destination Pantry -->
     <div class="space-y-2">
-      <div v-if="!isEditingDate" class="flex items-center justify-between py-0.5">
-        <span class="text-sm font-medium text-gray-700">Harvest Date *</span>
-        <div class="flex items-center space-x-2">
-          <span class="text-sm text-gray-900">{{ formattedHarvestDate }}</span>
-          <button @click="isEditingDate = true" class="p-1 text-gray-400 hover:text-gray-600">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div v-if="isEditingDate" class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700">Harvest Date *</label>
-        <div class="flex space-x-2">
-          <input v-model="harvestDate" type="date" required
-            class="flex-1 px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900" />
-          <button @click="isEditingDate = false" class="px-3 py-2 bg-garden-green-600 text-white rounded-lg text-sm hover:bg-garden-green-700">
-            Done
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Growth/Harvest Location -->
-    <div class="space-y-2">
-      <div v-if="!isEditingLocation" class="flex items-center justify-between py-0.5">
-        <span class="text-sm font-medium text-gray-700">Growth/Harvest Location *</span>
-        <div class="flex items-center space-x-2">
-          <span class="text-sm text-gray-900" :class="{ 'text-gray-400': !selectedLocationId }">
-            {{ selectedLocationName }}
-          </span>
-          <button @click="isEditingLocation = true" class="p-1 text-gray-400 hover:text-gray-600">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <p v-if="locationRecommendationReason && !isEditingLocation" class="text-xs text-green-800 mt-1">
-        📍 {{ locationRecommendationReason }}
+      <label class="block text-sm font-medium text-gray-700">
+        Destination Pantry (Optional)
+      </label>
+      <select v-model="selectedPantryId"
+        class="block w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900">
+        <option value="">Save in Inventory (not for a specific pantry yet)</option>
+        <option v-for="pantry in pantries" :key="pantry.id || pantry._id" :value="pantry.id || pantry._id">
+          {{ pantry.name }}
+        </option>
+      </select>
+      <p v-if="pantryRecommendationReason" class="text-xs text-blue-800 mt-1">
+        🎯 {{ pantryRecommendationReason }}
       </p>
-      <div v-if="isEditingLocation" class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700">Growth/Harvest Location *</label>
-        <div class="flex space-x-2">
-          <select v-model="selectedLocationId" required
-            class="flex-1 px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900">
-            <option value="">Select a location...</option>
-            <option v-for="location in locations" :key="location.id || location._id" :value="location.id || location._id">
-              {{ location.name }}
-            </option>
-          </select>
-          <button @click="isEditingLocation = false" class="px-3 py-2 bg-garden-green-600 text-white rounded-lg text-sm hover:bg-garden-green-700">
-            Done
-          </button>
-        </div>
-        <p v-if="locationRecommendationReason" class="text-xs text-green-800 mt-1">
-          📍 {{ locationRecommendationReason }}
-        </p>
-      </div>
-    </div>
-
-    <!-- Entered By Name -->
-    <div class="space-y-2">
-      <div v-if="!isEditingHarvesterName" class="flex items-center justify-between py-0.5">
-        <span class="text-sm font-medium text-gray-700">Entered By Name (Optional)</span>
-        <div class="flex items-center space-x-2">
-          <span class="text-sm text-gray-900" :class="{ 'text-gray-400': !harvesterName.trim() }">
-            {{ displayHarvesterName }}
-          </span>
-          <button @click="isEditingHarvesterName = true" class="p-1 text-gray-400 hover:text-gray-600">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div v-if="isEditingHarvesterName" class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700">Entered By Name (Optional)</label>
-        <div class="flex space-x-2">
-          <input v-model="harvesterName" type="text" placeholder="Who harvested this?"
-            class="flex-1 px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900" />
-          <button @click="isEditingHarvesterName = false" class="px-3 py-2 bg-garden-green-600 text-white rounded-lg text-sm hover:bg-garden-green-700">
-            Done
-          </button>
-        </div>
-      </div>
     </div>
 
     <!-- More Details (Optional) -->
@@ -185,21 +112,94 @@
         Add more details
       </button>
       <div v-if="showNotesField" class="space-y-3">
-        <!-- Destination Pantry -->
+        <!-- Growth/Harvest Location -->
         <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">
-            Destination Pantry (Optional)
-          </label>
-          <select v-model="selectedPantryId"
-            class="block w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900">
-            <option value="">Select a pantry...</option>
-            <option v-for="pantry in pantries" :key="pantry.id || pantry._id" :value="pantry.id || pantry._id">
-              {{ pantry.name }}
-            </option>
-          </select>
-          <p v-if="pantryRecommendationReason" class="text-xs text-blue-800 mt-1">
-            🎯 {{ pantryRecommendationReason }}
+          <div v-if="!isEditingLocation" class="flex items-center justify-between py-0.5">
+            <span class="text-sm font-medium text-gray-700">Growth/Harvest Location *</span>
+            <div class="flex items-center space-x-2">
+              <span class="text-sm text-gray-900" :class="{ 'text-gray-400': !selectedLocationId }">
+                {{ selectedLocationName }}
+              </span>
+              <button @click="isEditingLocation = true" class="p-1 text-gray-400 hover:text-gray-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <p v-if="locationRecommendationReason && !isEditingLocation" class="text-xs text-green-800 mt-1">
+            📍 {{ locationRecommendationReason }}
           </p>
+          <div v-if="isEditingLocation" class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Growth/Harvest Location *</label>
+            <div class="flex space-x-2">
+              <select v-model="selectedLocationId" required
+                class="flex-1 px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900">
+                <option value="">Select a location...</option>
+                <option v-for="location in locations" :key="location.id || location._id" :value="location.id || location._id">
+                  {{ location.name }}
+                </option>
+              </select>
+              <button @click="isEditingLocation = false" class="px-3 py-2 bg-garden-green-600 text-white rounded-lg text-sm hover:bg-garden-green-700">
+                Done
+              </button>
+            </div>
+            <p v-if="locationRecommendationReason" class="text-xs text-green-800 mt-1">
+              📍 {{ locationRecommendationReason }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Harvest Date -->
+        <div class="space-y-2">
+          <div v-if="!isEditingDate" class="flex items-center justify-between py-0.5">
+            <span class="text-sm font-medium text-gray-700">Harvest Date *</span>
+            <div class="flex items-center space-x-2">
+              <span class="text-sm text-gray-900">{{ formattedHarvestDate }}</span>
+              <button @click="isEditingDate = true" class="p-1 text-gray-400 hover:text-gray-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div v-if="isEditingDate" class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Harvest Date *</label>
+            <div class="flex space-x-2">
+              <input v-model="harvestDate" type="date" required
+                class="flex-1 px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900" />
+              <button @click="isEditingDate = false" class="px-3 py-2 bg-garden-green-600 text-white rounded-lg text-sm hover:bg-garden-green-700">
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entered By Name -->
+        <div class="space-y-2">
+          <div v-if="!isEditingHarvesterName" class="flex items-center justify-between py-0.5">
+            <span class="text-sm font-medium text-gray-700">Entered By Name (Optional)</span>
+            <div class="flex items-center space-x-2">
+              <span class="text-sm text-gray-900" :class="{ 'text-gray-400': !harvesterName.trim() }">
+                {{ displayHarvesterName }}
+              </span>
+              <button @click="isEditingHarvesterName = true" class="p-1 text-gray-400 hover:text-gray-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div v-if="isEditingHarvesterName" class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Entered By Name (Optional)</label>
+            <div class="flex space-x-2">
+              <input v-model="harvesterName" type="text" placeholder="Who harvested this?"
+                class="flex-1 px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900" />
+              <button @click="isEditingHarvesterName = false" class="px-3 py-2 bg-garden-green-600 text-white rounded-lg text-sm hover:bg-garden-green-700">
+                Done
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Notes -->
@@ -347,22 +347,73 @@ const pantryRecommendationReason = ref<string>('')
 const isSettingLocationProgrammatically = ref(false)
 const isSettingPantryProgrammatically = ref(false)
 
-// Initialize location from produce type's most recent location, then fall back to localStorage
-const initializeLocation = () => {
+// Calculate distance between two coordinates using Haversine formula
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 3959 // Radius of Earth in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  return R * c
+}
+
+// Initialize location based on HTML5 geolocation (closest location)
+const initializeLocation = async () => {
   isSettingLocationProgrammatically.value = true
-  
-  // Prioritize the produce type's most recent location for better UX
-  if (props.selectedProduce?.mostRecentLocation) {
-    const mostRecentId = props.selectedProduce.mostRecentLocation._id || props.selectedProduce.mostRecentLocation.id
-    if (mostRecentId) {
-      selectedLocationId.value = mostRecentId
-      locationRecommendationReason.value = `Most recent location used for ${props.selectedProduce.name}`
-      isSettingLocationProgrammatically.value = false
-      return
+
+  // Try to get user's current location using HTML5 Geolocation
+  if (navigator.geolocation) {
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 5000,
+          maximumAge: 300000 // Cache for 5 minutes
+        })
+      })
+
+      const userLat = position.coords.latitude
+      const userLon = position.coords.longitude
+
+      // Find closest location with coordinates
+      let closestLocation: HarvestLocation | null = null
+      let closestDistance = Infinity
+
+      for (const location of props.locations) {
+        if (location.coordinates?.latitude && location.coordinates?.longitude) {
+          const distance = calculateDistance(
+            userLat,
+            userLon,
+            location.coordinates.latitude,
+            location.coordinates.longitude
+          )
+
+          if (distance < closestDistance) {
+            closestDistance = distance
+            closestLocation = location
+          }
+        }
+      }
+
+      if (closestLocation) {
+        const locationId = closestLocation._id || closestLocation.id
+        if (locationId) {
+          selectedLocationId.value = locationId
+          locationRecommendationReason.value = `Closest to your location (${closestDistance.toFixed(1)} miles away)`
+          isSettingLocationProgrammatically.value = false
+          return
+        }
+      }
+    } catch (error) {
+      // Geolocation failed, fall through to fallback logic
+      console.log('Geolocation not available or denied, using fallback')
     }
   }
-  
-  // Fall back to general localStorage preference if no produce-specific location
+
+  // Fallback: Use general localStorage preference if geolocation unavailable
   const lastLocationId = localStorage.getItem('lastLocationId')
   if (lastLocationId) {
     selectedLocationId.value = lastLocationId
@@ -370,7 +421,7 @@ const initializeLocation = () => {
   } else {
     locationRecommendationReason.value = ''
   }
-  
+
   isSettingLocationProgrammatically.value = false
 }
 
@@ -447,25 +498,24 @@ const initializePantry = async () => {
 }
 
 // Initialize location and pantry when component mounts and when produce changes
-watch(() => props.selectedProduce, () => {
+watch(() => props.selectedProduce, async () => {
   if (props.selectedProduce) {
     // Wait for locations to be available before initializing location
-    nextTick(() => {
-      if (props.locations && props.locations.length > 0) {
-        initializeLocation()
-      }
-    })
-    
+    await nextTick()
+    if (props.locations && props.locations.length > 0) {
+      await initializeLocation()
+    }
+
     // Initialize pantry recommendation (can happen independently of locations)
-    initializePantry()
+    await initializePantry()
   }
 }, { immediate: true })
 
 // Also initialize when locations become available
-watch(() => props.locations, () => {
+watch(() => props.locations, async () => {
   // If we have a selected produce and locations are now available, initialize
   if (props.selectedProduce && props.locations?.length > 0) {
-    initializeLocation()
+    await initializeLocation()
   }
 }, { immediate: true })
 

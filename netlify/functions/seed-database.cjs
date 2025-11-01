@@ -966,7 +966,7 @@ exports.handler = async function(event, context) {
       const harvestEntriesToInsert = [];
       let skippedCount = 0;
       let duplicateCount = 0;
-      
+
       // For bulk duplicate detection when not clearing data and importing all historical data
       let existingEntries = [];
       if (!shouldClearData && allHistoricalData) {
@@ -975,18 +975,28 @@ exports.handler = async function(event, context) {
         console.log(`Found ${existingEntries.length} existing entries`);
       }
       // Note: For incremental imports, we already cleared overlapping entries, so no duplicate detection needed
-      
+
       // Create a Set for O(1) duplicate lookups
       const existingEntriesSet = new Set();
       existingEntries.forEach(entry => {
         const key = `${entry.harvestDate.toISOString()}:${entry.produceTypeId}:${entry.pantryId}`;
         existingEntriesSet.add(key);
       });
-      
+
       // Count entries that will be processed based on date filter
       let processedEntryCount = 0;
       let skippedDateCount = 0;
-      
+
+      // Find the most recent date in CSV data for logging
+      let maxCsvDate = new Date('1900-01-01');
+      harvestEntries.forEach(entry => {
+        if (entry.harvestDate > maxCsvDate) {
+          maxCsvDate = entry.harvestDate;
+        }
+      });
+
+      console.log(`Most recent CSV date: ${maxCsvDate.toISOString().split('T')[0]}, importing dates as-is`);
+
       for (const entry of harvestEntries) {
         // Skip entries before import start date (for incremental imports)
         if (importStartDate && entry.harvestDate < importStartDate) {
@@ -994,15 +1004,15 @@ exports.handler = async function(event, context) {
           continue;
         }
         processedEntryCount++;
-        
+
         // Use lowercase key for case-insensitive lookup
         const productKey = `${entry.type.toLowerCase()}:${entry.product.toLowerCase()}`;
         let produceTypeId = produceTypeMap[productKey];
-        
-        
+
+
         // If not found with category:product key, try to find by product name only
         if (!produceTypeId) {
-          const fallbackProduceType = allProduceTypes.find(pt => 
+          const fallbackProduceType = allProduceTypes.find(pt =>
             pt.name.toLowerCase() === entry.product.toLowerCase()
           );
           if (fallbackProduceType) {
@@ -1010,13 +1020,13 @@ exports.handler = async function(event, context) {
             console.log(`🔄 Using fallback for ${entry.product}: found in ${fallbackProduceType.categoryId.name} category instead of ${entry.type}`);
           }
         }
-        
+
         if (!produceTypeId) {
           console.log(`❌ Skipping entry for ${entry.product} (${entry.type}) - no produce type found`);
           skippedCount++;
           continue;
         }
-        
+
         // Find pantry ID
         let pantryId = defaultPantryId;
         if (entry.pantry) {
@@ -1030,7 +1040,7 @@ exports.handler = async function(event, context) {
             }
           }
         }
-        
+
         if (!pantryId) {
           if (entry.product.toLowerCase() === 'watermelon') {
             console.log(`❌ Skipping watermelon entry due to missing pantry: ${entry.pantry}`);
@@ -1038,7 +1048,7 @@ exports.handler = async function(event, context) {
           skippedCount++;
           continue;
         }
-        
+
         // Check if this entry already exists (optimized with Set lookup)
         if (!shouldClearData && allHistoricalData && existingEntries.length > 0) {
           const duplicateKey = `${entry.harvestDate.toISOString()}:${produceTypeId}:${pantryId}`;
@@ -1047,7 +1057,7 @@ exports.handler = async function(event, context) {
             continue; // Skip this entry as it already exists
           }
         }
-        
+
         const entryToInsert = {
           produceTypeId: produceTypeId,
           quantity: entry.quantity,
@@ -1056,11 +1066,11 @@ exports.handler = async function(event, context) {
           weightEstimated: false,
           pantryId: pantryId,
           locationId: createdLocations[0]._id, // Use the first harvest location (Farm)
-          harvestDate: entry.harvestDate,
+          harvestDate: entry.harvestDate, // Use original date from CSV
           harvesterName: 'Seeded Data',
           notes: entry.notes
         };
-        
+
         harvestEntriesToInsert.push(entryToInsert);
         newlyInsertedEntries.push(entryToInsert);
       }
@@ -1098,191 +1108,141 @@ exports.handler = async function(event, context) {
     } // End of harvest entry processing block
 
     // Create orders from harvest entries (grouped by date and pantry)
-    console.log('Creating orders from harvest entries...');
+    console.log('Creating orders by assigning harvest entries...');
     let createdOrders = 0;
-    
+
     // Always process order creation for newly inserted harvest entries
     if (shouldClearData || newlyInsertedEntries.length > 0) {
       // Find admin user for createdBy field
       const adminEmail = process.env.ADMIN_EMAIL || 'admin@gardenforall.org';
       let adminUser = await User.findOne({ email: adminEmail });
-      
+
       if (!adminUser) {
         console.log('No admin user found, skipping order creation');
-        return;
-      }
-      // Get harvest entries for order creation
-      let harvestEntriesForOrders;
-      
-      if (shouldClearData) {
-        // When clearing data, use all harvest entries
-        harvestEntriesForOrders = await HarvestEntry.find({})
+      } else {
+        // Get all harvest entries (both with and without orders)
+        let allHarvestEntries = await HarvestEntry.find({})
           .populate('produceTypeId')
           .populate('pantryId')
           .sort({ harvestDate: 1 });
-      } else {
-        // When not clearing data, only create orders for newly inserted entries
-        if (newlyInsertedEntries.length === 0) {
-          console.log('No new harvest entries to process for orders');
-          const existingOrderCount = await Order.countDocuments();
-          console.log(`${existingOrderCount} orders already exist`);
-          createdOrders = existingOrderCount;
-        } else {
-          // Get the newly inserted entries with populated data
-          const newEntryIds = [];
-          for (const entry of newlyInsertedEntries) {
-            // Find the inserted entry to get its ID
-            const insertedEntry = await HarvestEntry.findOne({
-              harvestDate: entry.harvestDate,
-              produceTypeId: entry.produceTypeId,
-              pantryId: entry.pantryId,
-              weight: entry.weight
-            });
-            if (insertedEntry) {
-              newEntryIds.push(insertedEntry._id);
-            }
-          }
-          
-          harvestEntriesForOrders = await HarvestEntry.find({
-            _id: { $in: newEntryIds }
-          })
-          .populate('produceTypeId')
-          .populate('pantryId')
-          .sort({ harvestDate: 1 });
-        }
-      }
-      
-      // Skip order creation if no entries to process
-      if (!harvestEntriesForOrders || harvestEntriesForOrders.length === 0) {
-        console.log('No harvest entries to process for order creation');
-      } else {
+
+        console.log(`Found ${allHarvestEntries.length} total harvest entries`);
+
         // Group harvest entries by date and pantry
         const orderGroups = new Map();
-        
-        harvestEntriesForOrders.forEach(entry => {
-        if (!entry.pantryId || !entry.produceTypeId) return;
-        
-        // Create key: "YYYY-MM-DD:pantryId"
-        const dateKey = entry.harvestDate.toISOString().split('T')[0];
-        const groupKey = `${dateKey}:${entry.pantryId._id}`;
-        
-        if (!orderGroups.has(groupKey)) {
-          orderGroups.set(groupKey, {
-            pantryId: entry.pantryId._id,
-            pantryName: entry.pantryId.name,
-            deliveryDate: entry.harvestDate,
-            entries: []
-          });
-        }
-        
-        orderGroups.get(groupKey).entries.push(entry);
-      });
-      
-      console.log(`Found ${orderGroups.size} unique date/pantry combinations for orders`);
-      
-      const ordersToInsert = [];
-      
-      for (const [groupKey, group] of orderGroups) {
-        // Skip groups with less than 2 items (not worth making an order)
-        if (group.entries.length < 2) continue;
-        
-        // Calculate total weight and value for the order
-        let totalWeight = 0;
-        let totalValue = 0;
-        const products = [];
-        
-        // Group products by type within the same order
-        const productMap = new Map();
-        
-        group.entries.forEach(entry => {
-          const productKey = entry.produceTypeId._id.toString();
-          const weight = entry.weight || 0;
-          const pricePerLb = entry.produceTypeId.pricePerLb || 0;
-          const value = weight * pricePerLb;
-          
-          if (!productMap.has(productKey)) {
-            productMap.set(productKey, {
-              produceTypeId: entry.produceTypeId._id,
-              weight: 0,
-              quantity: 0,
-              pricePerLb: pricePerLb,
-              value: 0
+
+        allHarvestEntries.forEach(entry => {
+          if (!entry.pantryId || !entry.produceTypeId) return;
+
+          // Create key: "YYYY-MM-DD:pantryId"
+          const dateKey = entry.harvestDate.toISOString().split('T')[0];
+          const groupKey = `${dateKey}:${entry.pantryId._id}`;
+
+          if (!orderGroups.has(groupKey)) {
+            orderGroups.set(groupKey, {
+              pantryId: entry.pantryId._id,
+              pantryName: entry.pantryId.name,
+              deliveryDate: entry.harvestDate,
+              entryIds: []
             });
           }
-          
-          const product = productMap.get(productKey);
-          product.weight += weight;
-          product.quantity += entry.quantity || 0;
-          product.value += value;
-          
-          totalWeight += weight;
-          totalValue += value;
+
+          orderGroups.get(groupKey).entryIds.push(entry._id);
         });
-        
-        // Convert map to array
-        productMap.forEach(product => {
-          products.push(product);
-        });
-        
-        // Determine order type and status based on date
-        const deliveryDate = new Date(group.deliveryDate);
-        const now = new Date();
-        let status = 'completed'; // Set all seeded orders to completed
-        let orderType = 'delivery';
-        
-        // Some orders are pickups
-        if (Math.random() < 0.2) {
-          orderType = 'pickup';
+
+        console.log(`Found ${orderGroups.size} unique date/pantry combinations`);
+
+        // Create orders for all harvest entry groups
+        let processedGroups = 0;
+
+        for (const [groupKey, group] of orderGroups) {
+          // Process all groups regardless of size
+          processedGroups++;
+
+          // Determine order type and status
+          const deliveryDate = new Date(group.deliveryDate);
+          const now = new Date();
+          let status = 'completed'; // Set all seeded orders to completed
+          let orderType = 'delivery';
+
+          // Some orders are pickups
+          if (Math.random() < 0.2) {
+            orderType = 'pickup';
+          }
+
+          // Generate realistic packer names
+          const packerNames = [
+            'Garden Volunteer', 'Farm Team', 'Harvest Crew', 'Community Helper',
+            'Student Volunteer', 'Master Gardener', 'Farm Assistant', 'Garden Club'
+          ];
+          const packerName = packerNames[Math.floor(Math.random() * packerNames.length)];
+
+          // Create the order WITHOUT products array
+          const order = new Order({
+            pantryId: group.pantryId,
+            deliveryDate: deliveryDate,
+            pickupTime: orderType === 'pickup' ? '10:00' : null,
+            packerName: packerName,
+            orderType: orderType,
+            status: status,
+            notes: `Generated from harvest entries on ${deliveryDate.toLocaleDateString()}`,
+            totalWeight: 0,
+            totalValue: 0,
+            createdBy: adminUser._id,
+            updatedBy: adminUser._id
+          });
+
+          await order.save();
+          createdOrders++;
+
+          // Assign harvest entries to this order
+          await HarvestEntry.updateMany(
+            { _id: { $in: group.entryIds } },
+            { $set: { orderId: order._id } }
+          );
+
+          // Calculate totals from assigned harvest entries
+          const assignedEntries = await HarvestEntry.find({ orderId: order._id })
+            .populate('produceTypeId');
+
+          let totalWeight = 0;
+          let totalValue = 0;
+
+          assignedEntries.forEach(entry => {
+            const weight = entry.weight || 0;
+            const pricePerLb = entry.produceTypeId?.pricePerLb || 0;
+            totalWeight += weight;
+            totalValue += (weight * pricePerLb);
+          });
+
+          // Update order totals
+          order.totalWeight = Math.round(totalWeight * 100) / 100;
+          order.totalValue = Math.round(totalValue * 100) / 100;
+          await order.save();
         }
-        
-        // Generate realistic packer names
-        const packerNames = [
-          'Garden Volunteer', 'Farm Team', 'Harvest Crew', 'Community Helper',
-          'Student Volunteer', 'Master Gardener', 'Farm Assistant', 'Garden Club'
-        ];
-        const packerName = packerNames[Math.floor(Math.random() * packerNames.length)];
-        
-        ordersToInsert.push({
-          pantryId: group.pantryId,
-          deliveryDate: deliveryDate,
-          pickupTime: orderType === 'pickup' ? '10:00' : null,
-          packerName: packerName,
-          orderType: orderType,
-          status: status,
-          notes: `Generated from harvest entries on ${deliveryDate.toLocaleDateString()}`,
-          products: products,
-          totalWeight: Math.round(totalWeight * 100) / 100, // Round to 2 decimals
-          totalValue: Math.round(totalValue * 100) / 100,
-          createdBy: adminUser._id, // Admin user created
-          updatedBy: adminUser._id
+
+        console.log(`Created ${createdOrders} orders from ${processedGroups} groups`);
+
+        // Count remaining unassigned entries (available inventory)
+        const unassignedCount = await HarvestEntry.countDocuments({
+          $or: [
+            { orderId: null },
+            { orderId: { $exists: false } }
+          ]
         });
+        console.log(`${unassignedCount} harvest entries remain unassigned (available inventory)`);
       }
-      
-      console.log(`Creating ${ordersToInsert.length} orders from grouped harvest entries`);
-      
-      if (ordersToInsert.length > 0) {
-        // Insert orders in chunks
-        const chunkSize = 100;
-        for (let i = 0; i < ordersToInsert.length; i += chunkSize) {
-          const chunk = ordersToInsert.slice(i, i + chunkSize);
-          await Order.insertMany(chunk);
-          createdOrders += chunk.length;
-        }
-        
-        console.log(`Created ${createdOrders} orders`);
-      }
-      } // End of else block for checking harvestEntriesForOrders
     }
 
-    // Create commitments for Broad Street Food Pantry
-    console.log('Creating commitments for Broad Street Food Pantry...');
+    // Create commitments (plans) for Broad Street Food Pantry
+    console.log('Creating delivery plans for Broad Street Food Pantry...');
     let createdCommitments = 0;
-    
+
     // Find Broad Street Food Pantry
-    const broadStreetPantry = await FoodPantry.findOne({ 
-      name: { $regex: /Broad Street/i } 
+    const broadStreetPantry = await FoodPantry.findOne({
+      name: { $regex: /Broad Street/i }
     });
-    
+
     if (broadStreetPantry) {
       // Create produce type mapping for quick lookup
       const allProduceTypes = await ProduceType.find({}).populate('categoryId');
@@ -1290,27 +1250,36 @@ exports.handler = async function(event, context) {
       allProduceTypes.forEach(pt => {
         produceTypeMap[pt.name.toLowerCase()] = pt._id;
       });
-      
+
       // Only create commitments if we cleared data or no commitments exist
       if (shouldClearData || await Commitment.countDocuments({ pantryId: broadStreetPantry._id }) === 0) {
         const commitmentsToInsert = [];
-        
+
         for (const commitment of broadStreetCommitments) {
           const produceTypeId = produceTypeMap[commitment.produce.toLowerCase()];
           if (produceTypeId) {
             // Parse week date and ensure it's a Monday
             const [year, month, day] = commitment.week.split('-').map(Number);
             const weekStartDate = new Date(year, month - 1, day);
-            
+
             // Verify it's a Monday (1 = Monday)
             if (weekStartDate.getDay() === 1) {
+              // Calculate end date (end of same week - Sunday)
+              const endDate = new Date(weekStartDate);
+              endDate.setDate(endDate.getDate() + 6);
+
               commitmentsToInsert.push({
                 pantryId: broadStreetPantry._id,
                 weekStartDate: weekStartDate,
+                endDate: endDate,
+                daysOfWeek: [1], // Monday delivery
+                frequencyWeeks: 1, // Every week
                 commitmentType: 'produce_type',
                 produceTypeId: produceTypeId,
-                weeklyWeightLbs: commitment.weight,
-                notes: `Seeded commitment - ${commitment.produce}`,
+                dailyWeightLbs: commitment.weight, // Same weight for the one delivery day
+                weeklyWeightLbs: commitment.weight, // Backward compatibility
+                isFirm: true,
+                notes: `Seeded delivery plan - ${commitment.produce}`,
                 isActive: true,
                 createdBy: null // System created
               });
@@ -1321,15 +1290,15 @@ exports.handler = async function(event, context) {
             console.warn(`Could not find produce type for: ${commitment.produce}`);
           }
         }
-        
+
         if (commitmentsToInsert.length > 0) {
           await Commitment.insertMany(commitmentsToInsert);
           createdCommitments = commitmentsToInsert.length;
-          console.log(`Created ${createdCommitments} commitments for Broad Street Food Pantry`);
+          console.log(`Created ${createdCommitments} delivery plans for Broad Street Food Pantry`);
         }
       } else {
         const existingCount = await Commitment.countDocuments({ pantryId: broadStreetPantry._id });
-        console.log(`${existingCount} commitments already exist for Broad Street Food Pantry`);
+        console.log(`${existingCount} delivery plans already exist for Broad Street Food Pantry`);
         createdCommitments = existingCount;
       }
     } else {

@@ -15,123 +15,119 @@ exports.handler = async function(event, context) {
     await connectDB();
 
     const queryParams = event.queryStringParameters || {};
-    const { days = 14 } = queryParams; // Default to last 14 days
+    const { days = 2000 } = queryParams; // Default to last 2000 days to include all data
 
     // Calculate date range
     const today = new Date();
     const startDate = new Date();
     startDate.setDate(today.getDate() - parseInt(days));
 
-    // Get all harvest entries in the date range
+    // Get all harvest entries in the date range that are NOT assigned to an order
+    // Available inventory = harvest entries where orderId is null/undefined
     const harvestEntries = await HarvestEntry.find({
-      harvestDate: { $gte: startDate, $lte: today }
+      harvestDate: { $gte: startDate, $lte: today },
+      $or: [
+        { orderId: null },
+        { orderId: { $exists: false } }
+      ]
     })
     .populate('produceTypeId', 'name pricePerLb conversionFactor')
     .populate('pantryId', 'name')
     .sort({ harvestDate: -1 });
 
-    // Get all orders that reduce inventory (ready and completed orders)
-    const orders = await Order.find({
-      deliveryDate: { $gte: startDate, $lte: today },
-      status: { $in: ['ready', 'completed'] }
-    })
-    .populate('pantryId', 'name')
-    .lean();
-
-
-    // Create allocation map: key = "YYYY-MM-DD:produceTypeId:pantryId", value = allocated weight
-    const allocatedWeights = new Map();
-
-    orders.forEach(order => {
-      if (order.products) {
-        const deliveryDate = new Date(order.deliveryDate).toISOString().split('T')[0];
-        order.products.forEach(product => {
-          const key = `${deliveryDate}:${product.produceTypeId}:${order.pantryId._id || order.pantryId}`;
-          const existing = allocatedWeights.get(key) || 0;
-          allocatedWeights.set(key, existing + (product.weight || 0));
-        });
-      }
-    });
-
-    // Group harvest entries and calculate available inventory
+    // Group harvest entries by produce type and pantry (across all harvest dates)
     const harvestGroups = new Map();
 
     harvestEntries.forEach(entry => {
       if (!entry.produceTypeId || !entry.pantryId) return;
 
-      const harvestDate = new Date(entry.harvestDate).toISOString().split('T')[0];
       const produceTypeId = entry.produceTypeId._id.toString();
       const pantryId = entry.pantryId._id.toString();
-      
-      const key = `${harvestDate}:${produceTypeId}:${pantryId}`;
-      
+
+      // Key without date - we aggregate all harvests for this pantry/produce combo
+      const key = `${produceTypeId}:${pantryId}`;
+
       if (!harvestGroups.has(key)) {
         harvestGroups.set(key, {
-          harvestDate: entry.harvestDate,
           produceType: entry.produceTypeId.name,
           pantryId: pantryId,
           pantryName: entry.pantryId.name,
           totalHarvested: 0,
-          pricePerLb: entry.produceTypeId.pricePerLb || 0
+          pricePerLb: entry.produceTypeId.pricePerLb || 0,
+          harvests: []  // Track individual harvests for detailed display
         });
       }
-      
+
       const group = harvestGroups.get(key);
       const weight = entry.weight || (entry.quantity * (entry.produceTypeId.conversionFactor || 1));
       group.totalHarvested += weight;
+
+      // Add individual harvest details
+      group.harvests.push({
+        date: entry.harvestDate,
+        weight: weight,
+        entryId: entry._id
+      });
     });
 
-    // Calculate available inventory by subtracting allocated amounts
+    // Build available inventory (no need to subtract allocated weight anymore)
     const availableInventory = [];
 
     harvestGroups.forEach((group, key) => {
-      const allocatedWeight = allocatedWeights.get(key) || 0;
-      const availableWeight = group.totalHarvested - allocatedWeight;
-      
+      const availableWeight = group.totalHarvested;
+
       // Only include items with meaningful available weight (> 0.1 lbs)
       if (availableWeight > 0.1) {
-        const daysOld = Math.floor((today.getTime() - new Date(group.harvestDate).getTime()) / (1000 * 60 * 60 * 24));
-        
+        // Find the oldest harvest date for this group
+        const oldestHarvest = group.harvests.reduce((oldest, h) => {
+          return new Date(h.date) < new Date(oldest.date) ? h : oldest;
+        }, group.harvests[0]);
+
+        const daysOld = Math.floor((today.getTime() - new Date(oldestHarvest.date).getTime()) / (1000 * 60 * 60 * 24));
+
         availableInventory.push({
-          harvestDate: group.harvestDate,
           produceType: group.produceType,
           pantryName: group.pantryName,
           totalHarvested: group.totalHarvested,
-          allocatedWeight: allocatedWeight,
           availableWeight: availableWeight,
           totalValue: availableWeight * group.pricePerLb,
           daysOld: daysOld,
-          pricePerLb: group.pricePerLb
+          pricePerLb: group.pricePerLb,
+          harvests: group.harvests
         });
       }
     });
 
-    // Group by produce type and harvest date for display
+    // Group by produce type for display (combining all pantries)
     const groupedInventory = new Map();
-    
+
     availableInventory.forEach(item => {
-      const groupKey = `${item.harvestDate}:${item.produceType}`;
-      
+      const groupKey = item.produceType;
+
       if (!groupedInventory.has(groupKey)) {
         groupedInventory.set(groupKey, {
-          harvestDate: item.harvestDate,
           produceType: item.produceType,
           totalWeight: 0,
           totalValue: 0,
           pantries: [],
-          daysOld: item.daysOld
+          daysOld: item.daysOld,
+          harvestDate: item.harvests[0]?.date || new Date()  // Use most recent harvest for sorting
         });
       }
-      
+
       const group = groupedInventory.get(groupKey);
       group.totalWeight += item.availableWeight;
       group.totalValue += item.totalValue;
-      
+
+      // Update daysOld to be the oldest across all items for this produce type
+      if (item.daysOld > group.daysOld) {
+        group.daysOld = item.daysOld;
+      }
+
       group.pantries.push({
         name: item.pantryName,
         weight: item.availableWeight,
-        harvested: item.totalHarvested,
-        allocated: item.allocatedWeight
+        harvested: item.totalHarvested
       });
     });
 
