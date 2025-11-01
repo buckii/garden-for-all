@@ -20,6 +20,10 @@
             class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
             Today
           </router-link>
+          <router-link to="/commitment-calendar"
+            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Calendar
+          </router-link>
           <router-link to="/harvest"
             class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
             + Harvest
@@ -77,6 +81,10 @@
           <router-link to="/harvest-history" @click="mobileMenuOpen = false"
             class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors">
             Today
+          </router-link>
+          <router-link to="/commitment-calendar" @click="mobileMenuOpen = false"
+            class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors">
+            Calendar
           </router-link>
           <router-link to="/harvest" @click="mobileMenuOpen = false"
             class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors">
