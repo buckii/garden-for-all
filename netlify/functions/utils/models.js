@@ -75,26 +75,50 @@ const foodPantrySchema = new mongoose.Schema({
 const commitmentSchema = new mongoose.Schema({
   // Commitment must be to a specific pantry
   pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: true },
-  
-  // Weekly commitment details
-  weekStartDate: { type: Date, required: true }, // Must be a Monday
-  
+
+  // Daily commitment details
+  weekStartDate: { type: Date, required: true }, // Week start date (can be any day of week now)
+
+  // Days of the week for delivery (array of day numbers: 0=Sunday, 1=Monday, etc.)
+  daysOfWeek: {
+    type: [Number],
+    required: true,
+    validate: {
+      validator: function(days) {
+        return days.length > 0 && days.every(d => d >= 0 && d <= 6);
+      },
+      message: 'Must specify at least one day between 0 (Sunday) and 6 (Saturday)'
+    }
+  },
+
+  // Frequency in weeks (1 = every week, 2 = every 2 weeks, etc.)
+  frequencyWeeks: { type: Number, required: true, default: 1, min: 1 },
+
+  // End date for the commitment series
+  endDate: { type: Date, required: true },
+
   // Commitment can be for specific produce types, categories, or total weight
   commitmentType: {
     type: String,
     enum: ['total', 'produce_type', 'category'],
     required: true
   },
-  
+
   // If commitmentType is 'produce_type', this references the specific produce
   produceTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceType', required: false },
-  
+
   // If commitmentType is 'category', this references the produce category
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceCategory', required: false },
-  
-  // Weekly weight commitment in pounds
-  weeklyWeightLbs: { type: Number, required: true, min: 0 },
-  
+
+  // Daily weight commitment in pounds (per delivery day)
+  dailyWeightLbs: { type: Number, required: true, min: 0 },
+
+  // Legacy field for backward compatibility - calculated from dailyWeightLbs * daysOfWeek.length
+  weeklyWeightLbs: { type: Number, min: 0 },
+
+  // Whether this is a firm/committed plan or a tentative plan
+  isFirm: { type: Boolean, default: false },
+
   notes: { type: String, trim: true },
   isActive: { type: Boolean, default: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }
@@ -144,11 +168,12 @@ const harvestEntrySchema = new mongoose.Schema({
   unit: { type: String, required: true, trim: true },
   weight: { type: Number, required: true, min: 0 }, // Weight in pounds
   weightEstimated: { type: Boolean, default: false }, // True if weight was calculated, false if manually entered
-  pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: true }, // Which pantry will receive this harvest
+  pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: false }, // Which pantry will receive this harvest (optional - can be general inventory)
   locationId: { type: mongoose.Schema.Types.ObjectId, ref: 'HarvestLocation', required: true }, // Where this was harvested
   harvestDate: { type: Date, required: true },
   harvesterName: { type: String, trim: true },
-  notes: { type: String, trim: true }
+  notes: { type: String, trim: true },
+  orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: false } // Optional - if set, this harvest entry belongs to an order
 }, { timestamps: true });
 
 // Pantry Distribution Schema
@@ -160,24 +185,20 @@ const pantryDistributionSchema = new mongoose.Schema({
 }, { timestamps: { updatedAt: false } });
 
 // Order Schema
+// Note: Orders no longer have a products array. Instead, harvest entries have an optional orderId field.
+// To get order contents, query: HarvestEntry.find({ orderId: order._id })
 const orderSchema = new mongoose.Schema({
   pantryId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodPantry', required: true },
   deliveryDate: { type: Date, required: true },
   pickupTime: { type: String, trim: true }, // Time in HH:MM format
-  packerName: { type: String, required: true, trim: true },
+  packerName: { type: String, required: false, trim: true },
   orderType: { type: String, required: true, enum: ['delivery', 'pickup'], default: 'delivery' },
   status: { type: String, required: true, enum: ['draft', 'in-progress', 'ready', 'completed', 'cancelled'], default: 'draft' },
   notes: { type: String, trim: true },
-  products: [{
-    produceTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProduceType', required: true },
-    weight: { type: Number, required: true, min: 0 },
-    quantity: { type: Number, default: 0, min: 0 },
-    pricePerLb: { type: Number, default: 0, min: 0 },
-    value: { type: Number, default: 0, min: 0 }
-  }],
+  // Cached totals - recalculated when harvest entries are added/removed
   totalWeight: { type: Number, default: 0, min: 0 },
   totalValue: { type: Number, default: 0, min: 0 },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
@@ -188,6 +209,8 @@ harvestLocationSchema.index({ name: 1 });
 harvestLocationSchema.index({ isActive: 1 });
 harvestEntrySchema.index({ produceTypeId: 1, harvestDate: -1 });
 harvestEntrySchema.index({ locationId: 1, harvestDate: -1 });
+harvestEntrySchema.index({ orderId: 1 });
+harvestEntrySchema.index({ pantryId: 1, orderId: 1 });
 pantryDistributionSchema.index({ pantryId: 1, distributionDate: -1 });
 orderSchema.index({ pantryId: 1, deliveryDate: -1 });
 orderSchema.index({ status: 1, createdAt: -1 });

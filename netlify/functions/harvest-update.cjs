@@ -5,7 +5,7 @@ const { createResponse, createErrorResponse, handleCORS } = require('./utils/aut
 
 const updateHarvestSchema = Joi.object({
   produceTypeId: Joi.string().optional(),
-  pantryId: Joi.string().optional(),
+  pantryId: Joi.string().allow('', null).optional(),
   quantity: Joi.number().min(0).optional(),
   unit: Joi.string().optional(),
   weight: Joi.number().min(0).optional(),
@@ -54,6 +54,11 @@ exports.handler = async function(event, context) {
       }
     }
 
+    // Convert empty string to null for pantryId
+    if (value.pantryId === '') {
+      value.pantryId = null;
+    }
+
     // Validate pantry exists if provided
     if (value.pantryId) {
       const pantry = await FoodPantry.findById(value.pantryId);
@@ -94,8 +99,8 @@ exports.handler = async function(event, context) {
       _id: updatedEntry._id,
       produce_type_id: updatedEntry.produceTypeId._id,
       produceTypeId: updatedEntry.produceTypeId._id,
-      pantry_id: updatedEntry.pantryId._id,
-      pantryId: updatedEntry.pantryId._id,
+      pantry_id: updatedEntry.pantryId?._id || null,
+      pantryId: updatedEntry.pantryId?._id || null,
       quantity: updatedEntry.quantity,
       unit: updatedEntry.unit,
       weight: updatedEntry.weight,
@@ -123,10 +128,10 @@ exports.handler = async function(event, context) {
           description: updatedEntry.produceTypeId.categoryId.description
         }
       },
-      pantry: {
+      pantry: updatedEntry.pantryId ? {
         _id: updatedEntry.pantryId._id,
         name: updatedEntry.pantryId.name
-      }
+      } : null
     };
 
     return createResponse(200, {
