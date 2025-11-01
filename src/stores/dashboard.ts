@@ -114,19 +114,11 @@ const dashboardAPI = {
       })
       const pantriesResult = await pantriesResponse.json()
       const pantries = pantriesResult.data || []
-      
-      const broadStreetPantry = pantries.find((p: any) => 
-        p.name.toLowerCase().includes('broad street')
-      )
-      
-      if (!broadStreetPantry) {
-        return { data: null, error: 'Broad Street Food Pantry not found' }
-      }
 
-      // Fetch commitments for both weeks (Monday to Sunday)
-      const thisWeekUrl = `${API_BASE}/commitments?pantryId=${broadStreetPantry._id}&startDate=${thisMondayStr}&endDate=${thisSundayStr}`
-      const lastWeekUrl = `${API_BASE}/commitments?pantryId=${broadStreetPantry._id}&startDate=${lastMondayStr}&endDate=${lastSundayStr}`
-      
+      // Fetch commitments for ALL pantries for both weeks
+      const thisWeekUrl = `${API_BASE}/commitments?startDate=${thisMondayStr}&endDate=${thisSundayStr}`
+      const lastWeekUrl = `${API_BASE}/commitments?startDate=${lastMondayStr}&endDate=${lastSundayStr}`
+
       const [thisWeekResponse, lastWeekResponse] = await Promise.all([
         fetch(thisWeekUrl, {
           headers: getAuthHeader()
@@ -138,13 +130,13 @@ const dashboardAPI = {
 
       const thisWeekResult = await thisWeekResponse.json()
       const lastWeekResult = await lastWeekResponse.json()
-      
-      // Fetch harvest entries for both weeks
+
+      // Fetch harvest entries for ALL pantries for both weeks
       const [thisWeekHarvest, lastWeekHarvest] = await Promise.all([
-        fetch(`${API_BASE}/harvest-list?pantryId=${broadStreetPantry._id}&startDate=${thisMondayStr}&endDate=${thisSundayStr}`, {
+        fetch(`${API_BASE}/harvest-list?startDate=${thisMondayStr}&endDate=${thisSundayStr}`, {
           headers: getAuthHeader()
         }),
-        fetch(`${API_BASE}/harvest-list?pantryId=${broadStreetPantry._id}&startDate=${lastMondayStr}&endDate=${lastSundayStr}`, {
+        fetch(`${API_BASE}/harvest-list?startDate=${lastMondayStr}&endDate=${lastSundayStr}`, {
           headers: getAuthHeader()
         })
       ])
@@ -152,9 +144,9 @@ const dashboardAPI = {
       const thisWeekHarvestResult = await thisWeekHarvest.json()
       const lastWeekHarvestResult = await lastWeekHarvest.json()
 
-      return { 
+      return {
         data: {
-          pantry: broadStreetPantry,
+          pantries: pantries,
           thisWeek: {
             commitments: thisWeekResult.data || [],
             harvest: thisWeekHarvestResult.data?.entries || thisWeekHarvestResult.data || [],
@@ -165,9 +157,21 @@ const dashboardAPI = {
             harvest: lastWeekHarvestResult.data?.entries || lastWeekHarvestResult.data || [],
             weekStart: lastMondayStr
           }
-        }, 
-        error: null 
+        },
+        error: null
       }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
+  },
+
+  async getCountyStats() {
+    try {
+      const response = await fetch(`${API_BASE}/county-stats`, {
+        headers: getAuthHeader()
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: null }
     } catch (error: any) {
       return { data: null, error: error.message }
     }
@@ -286,6 +290,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const monthlyBreakdownData = ref<any>(null)
   const periodComparisonData = ref<any>(null)
   const commitmentData = ref<any>(null)
+  const countyStatsData = ref<any>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -337,6 +342,10 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
   const periodComparison = computed(() => {
     return periodComparisonData.value
+  })
+
+  const countyStats = computed(() => {
+    return countyStatsData.value
   })
 
   const fetchSummary = async () => {
@@ -409,10 +418,20 @@ export const useDashboardStore = defineStore('dashboard', () => {
     }
   }
 
+  const fetchCountyStats = async () => {
+    try {
+      const { data, error: fetchError } = await dashboardAPI.getCountyStats()
+      if (fetchError) throw new Error(fetchError)
+      countyStatsData.value = data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error'
+    }
+  }
+
   const fetchAll = async () => {
     loading.value = true
     error.value = null
-    
+
     try {
       await Promise.all([
         fetchSummary(),
@@ -420,7 +439,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
         fetchProductionTrends(),
         fetchMonthlyBreakdown(),
         fetchPeriodComparison(),
-        fetchCommitments()
+        fetchCommitments(),
+        fetchCountyStats()
       ])
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
@@ -441,22 +461,23 @@ export const useDashboardStore = defineStore('dashboard', () => {
     commitmentData,
     loading,
     error,
-    
+
     // Chart data
     recentEntries,
     produceBreakdown,
     productionTrends,
     periodComparison,
-    
+    countyStats,
+
     // Raw summary data
     rawSummary: summary,
-    
+
     // Computed
     totalHarvestedToday,
     totalValueToday,
     totalHarvestedThisWeek,
     totalHarvestedThisMonth,
-    
+
     // Actions
     fetchSummary,
     fetchHarvestData,
@@ -465,6 +486,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     fetchMonthlyBreakdown,
     fetchPeriodComparison,
     fetchCommitments,
+    fetchCountyStats,
     fetchAll,
     clearError,
   }

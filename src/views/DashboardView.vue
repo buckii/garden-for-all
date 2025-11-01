@@ -91,6 +91,11 @@
         <div class="space-y-4">
           <AnnualCommitmentProgress :loading="loading" />
         </div>
+
+        <!-- County Statistics -->
+        <div class="space-y-4">
+          <CountyStats :county-stats="countyStats" :loading="loading" />
+        </div>
       </div>
     </div>
 
@@ -111,6 +116,7 @@
 import AnnualCommitmentProgress from '@/components/dashboard/AnnualCommitmentProgress.vue'
 import Charts from '@/components/dashboard/Charts.vue'
 import CommitmentTracker from '@/components/dashboard/CommitmentTracker.vue'
+import CountyStats from '@/components/dashboard/CountyStats.vue'
 import ProductionSummary from '@/components/dashboard/ProductionSummary.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { useAuth } from '@/composables/useAuth'
@@ -134,6 +140,7 @@ const recentEntries = computed(() => dashboardStore.recentEntries)
 const produceBreakdown = computed(() => dashboardStore.produceBreakdown)
 const productionTrends = computed(() => dashboardStore.productionTrends)
 const periodComparison = computed(() => dashboardStore.periodComparison)
+const countyStats = computed(() => dashboardStore.countyStats)
 const loading = computed(() => dashboardStore.loading)
 const error = computed(() => dashboardStore.error)
 
