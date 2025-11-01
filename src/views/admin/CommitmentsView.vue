@@ -13,8 +13,8 @@
 
       <!-- Page Header -->
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Commitments</h1>
-        <p class="text-gray-600 text-sm mt-1">Manage weekly produce commitments for food pantries</p>
+        <h1 class="text-2xl font-bold text-gray-900">Plans</h1>
+        <p class="text-gray-600 text-sm mt-1">Manage daily produce delivery plans for food pantries</p>
       </div>
 
       <!-- Filters and Actions -->
@@ -41,17 +41,17 @@
             </button>
           </div>
 
-          <button @click="showCreateForm = !showCreateForm" 
+          <button @click="showCreateForm = !showCreateForm"
             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-            {{ showCreateForm ? 'Cancel' : 'New Commitment' }}
+            {{ showCreateForm ? 'Cancel' : 'New Plan' }}
           </button>
         </div>
       </div>
 
-      <!-- Create Commitment Form -->
+      <!-- Create Plan Form -->
       <div v-if="showCreateForm" class="bg-white border rounded-lg p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Commitment</h3>
-        
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Plan</h3>
+
         <form @submit.prevent="createCommitment" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Pantry Selection -->
@@ -66,10 +66,10 @@
               </select>
             </div>
 
-            <!-- Weekly Weight -->
+            <!-- Daily Weight -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Weekly Weight (lbs)</label>
-              <input v-model.number="commitmentForm.weeklyWeightLbs" type="number" step="0.01" min="0" required
+              <label class="block text-sm font-medium text-gray-700 mb-2">Daily Weight (lbs per day)</label>
+              <input v-model.number="commitmentForm.dailyWeightLbs" type="number" step="0.01" min="0" required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-garden-green-500 focus:border-garden-green-500">
             </div>
           </div>
@@ -77,31 +77,51 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Start Date -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Start Date (Monday)</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Week Start Date</label>
               <input v-model="commitmentForm.startDate" type="date" required
-                @blur="validateMonday('startDate')"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-garden-green-500 focus:border-garden-green-500">
-              <p v-if="startDateError" class="text-red-600 text-sm mt-1">{{ startDateError }}</p>
             </div>
 
             <!-- End Date -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">End Date (Monday)</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
               <input v-model="commitmentForm.endDate" type="date" required
-                @blur="validateMonday('endDate')"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-garden-green-500 focus:border-garden-green-500">
-              <p v-if="endDateError" class="text-red-600 text-sm mt-1">{{ endDateError }}</p>
             </div>
           </div>
 
-          <!-- Commitment Type -->
+          <!-- Days of Week -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Commitment Type</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Days</label>
+            <div class="flex flex-wrap gap-3">
+              <label v-for="(day, index) in dayOptions" :key="index" class="flex items-center">
+                <input type="checkbox" :value="index" v-model="commitmentForm.daysOfWeek"
+                  class="rounded border-gray-300 text-garden-green-600 focus:ring-garden-green-500 mr-2">
+                <span class="text-sm">{{ day }}</span>
+              </label>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Select at least one day</p>
+          </div>
+
+          <!-- Frequency -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-600">Every</span>
+              <input v-model.number="commitmentForm.frequencyWeeks" type="number" min="1" required
+                class="w-20 border border-gray-300 rounded-md px-3 py-2 focus:ring-garden-green-500 focus:border-garden-green-500">
+              <span class="text-sm text-gray-600">week(s)</span>
+            </div>
+          </div>
+
+          <!-- Plan Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Plan Type</label>
             <div class="space-y-2">
               <label class="flex items-center">
                 <input v-model="commitmentForm.commitmentType" type="radio" value="total"
                   class="text-garden-green-600 focus:ring-garden-green-500">
-                <span class="ml-2">Total Weight (any produce)</span>
+                <span class="ml-2">Any Produce</span>
               </label>
               <label class="flex items-center">
                 <input v-model="commitmentForm.commitmentType" type="radio" value="category"
@@ -114,6 +134,15 @@
                 <span class="ml-2">Specific Product</span>
               </label>
             </div>
+          </div>
+
+          <!-- Firm Commitment Checkbox -->
+          <div class="flex items-center">
+            <input type="checkbox" v-model="commitmentForm.isFirm" id="isFirm"
+              class="rounded border-gray-300 text-garden-green-600 focus:ring-garden-green-500">
+            <label for="isFirm" class="ml-2 text-sm font-medium text-gray-700">
+              This is a firm/committed plan
+            </label>
           </div>
 
           <!-- Category Selection -->
@@ -154,7 +183,7 @@
             </button>
             <button type="submit" :disabled="!isFormValid || formSubmitting"
               class="px-4 py-2 bg-garden-green-600 text-white rounded-md hover:bg-garden-green-700 disabled:opacity-50">
-              {{ formSubmitting ? 'Creating...' : 'Create Commitment' }}
+              {{ formSubmitting ? 'Creating...' : 'Create Plan' }}
             </button>
           </div>
         </form>
@@ -165,30 +194,55 @@
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-garden-green-600"></div>
       </div>
 
-      <!-- Commitments List -->
+      <!-- Plans List -->
       <div v-else-if="commitments.length > 0" class="bg-white border rounded-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <h3 class="text-lg font-medium text-gray-900">
-            Weekly Commitments ({{ commitments.length }})
+            Delivery Plans ({{ commitments.length }})
           </h3>
+          <div v-if="selectedCommitments.length > 0" class="flex items-center space-x-3">
+            <span class="text-sm text-gray-600">{{ selectedCommitments.length }} selected</span>
+            <button @click="bulkDelete"
+              class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">
+              Delete Selected
+            </button>
+          </div>
         </div>
-        
+
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Week</th>
+                <th class="px-4 py-2 text-left">
+                  <input type="checkbox" :checked="allSelected" @change="toggleSelectAll"
+                    class="rounded border-gray-300 text-garden-green-600 focus:ring-garden-green-500">
+                </th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Pantry</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Days</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Frequency</th>
                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product/Category</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Weight (lbs)</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Daily (lbs)</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Firm</th>
                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="commitment in commitments" :key="commitment._id" class="hover:bg-gray-50">
+                <td class="px-4 py-2">
+                  <input type="checkbox" :value="commitment._id" v-model="selectedCommitments"
+                    class="rounded border-gray-300 text-garden-green-600 focus:ring-garden-green-500">
+                </td>
                 <td class="px-4 py-2 text-sm">{{ formatDate(commitment.weekStartDate) }}</td>
                 <td class="px-4 py-2 text-sm">{{ commitment.pantryId?.name || 'Unknown' }}</td>
+                <td class="px-4 py-2 text-sm">
+                  <span v-if="commitment.daysOfWeek">{{ formatDaysOfWeek(commitment.daysOfWeek) }}</span>
+                  <span v-else class="text-gray-400">-</span>
+                </td>
+                <td class="px-4 py-2 text-sm">
+                  Every {{ commitment.frequencyWeeks || 1 }} week{{ (commitment.frequencyWeeks || 1) > 1 ? 's' : '' }}
+                </td>
                 <td class="px-4 py-2 text-sm">
                   <span class="capitalize">{{ commitment.commitmentType.replace('_', ' ') }}</span>
                 </td>
@@ -201,16 +255,37 @@
                     {{ commitment.produceTypeId?.name || 'Unknown Product' }}
                   </span>
                 </td>
-                <td class="px-4 py-2 text-sm font-medium">{{ commitment.weeklyWeightLbs }}</td>
+                <td class="px-4 py-2 text-sm font-medium">{{ commitment.dailyWeightLbs || commitment.weeklyWeightLbs || 0 }}</td>
                 <td class="px-4 py-2 text-sm">
-                  <button @click="editCommitment(commitment)"
-                    class="text-blue-600 hover:text-blue-900 mr-3">
-                    Edit
-                  </button>
-                  <button @click="deleteCommitment(commitment._id)"
-                    class="text-red-600 hover:text-red-900">
-                    Delete
-                  </button>
+                  <span v-if="commitment.isFirm" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Yes
+                  </span>
+                  <span v-else class="text-gray-400">No</span>
+                </td>
+                <td class="px-4 py-2 text-sm">
+                  <div class="flex items-center space-x-2">
+                    <button @click="editCommitment(commitment)"
+                      class="text-blue-600 hover:text-blue-900 p-1"
+                      title="Edit">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button @click="duplicateCommitment(commitment)"
+                      class="text-green-600 hover:text-green-900 p-1"
+                      title="Duplicate">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                    <button @click="deleteCommitment(commitment._id)"
+                      class="text-red-600 hover:text-red-900 p-1"
+                      title="Delete">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -221,16 +296,16 @@
       <!-- No Results -->
       <div v-else-if="!loading" class="bg-white border rounded-lg p-6 text-center">
         <p class="text-gray-500">
-          {{ selectedPantryId ? 'No commitments found for the selected pantry and date range.' : 'No commitments found for the selected date range.' }}
+          {{ selectedPantryId ? 'No plans found for the selected pantry and date range.' : 'No plans found for the selected date range.' }}
         </p>
       </div>
     </div>
 
     <!-- Edit Modal -->
     <div v-if="showEditModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-4 mx-auto p-6 border max-w-2xl shadow-lg rounded-md bg-white">
+      <div class="relative top-4 mx-auto p-6 border max-w-2xl shadow-lg rounded-md bg-white my-8">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold text-gray-900">Edit Commitment</h3>
+          <h3 class="text-xl font-semibold text-gray-900">Edit Plan</h3>
           <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-600">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -246,10 +321,94 @@
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-garden-green-500 focus:border-garden-green-500">
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Weekly Weight (lbs)</label>
-              <input v-model.number="editForm.weeklyWeightLbs" type="number" step="0.01" min="0" required
+              <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+              <input v-model="editForm.endDate" type="date" required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-garden-green-500 focus:border-garden-green-500">
             </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Daily Weight (lbs per day)</label>
+            <input v-model.number="editForm.dailyWeightLbs" type="number" step="0.01" min="0" required
+              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-garden-green-500 focus:border-garden-green-500">
+          </div>
+
+          <!-- Days of Week -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Days</label>
+            <div class="flex flex-wrap gap-3">
+              <label v-for="(day, index) in dayOptions" :key="index" class="flex items-center">
+                <input type="checkbox" :value="index" v-model="editForm.daysOfWeek"
+                  class="rounded border-gray-300 text-garden-green-600 focus:ring-garden-green-500 mr-2">
+                <span class="text-sm">{{ day }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Frequency -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-600">Every</span>
+              <input v-model.number="editForm.frequencyWeeks" type="number" min="1" required
+                class="w-20 border border-gray-300 rounded-md px-3 py-2 focus:ring-garden-green-500 focus:border-garden-green-500">
+              <span class="text-sm text-gray-600">week(s)</span>
+            </div>
+          </div>
+
+          <!-- Plan Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Plan Type</label>
+            <div class="space-y-2">
+              <label class="flex items-center">
+                <input v-model="editForm.commitmentType" type="radio" value="total"
+                  class="text-garden-green-600 focus:ring-garden-green-500">
+                <span class="ml-2">Any Produce</span>
+              </label>
+              <label class="flex items-center">
+                <input v-model="editForm.commitmentType" type="radio" value="category"
+                  class="text-garden-green-600 focus:ring-garden-green-500">
+                <span class="ml-2">Specific Category</span>
+              </label>
+              <label class="flex items-center">
+                <input v-model="editForm.commitmentType" type="radio" value="produce_type"
+                  class="text-garden-green-600 focus:ring-garden-green-500">
+                <span class="ml-2">Specific Product</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Category Selection -->
+          <div v-if="editForm.commitmentType === 'category'">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select Category</label>
+            <select v-model="editForm.categoryId" required
+              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-garden-green-500 focus:border-garden-green-500">
+              <option value="">Select a category</option>
+              <option v-for="category in categories" :key="category._id" :value="category._id">
+                {{ category.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Product Selection -->
+          <div v-if="editForm.commitmentType === 'produce_type'">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select Product</label>
+            <select v-model="editForm.produceTypeId" required
+              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-garden-green-500 focus:border-garden-green-500">
+              <option value="">Select a product</option>
+              <option v-for="product in produceTypes" :key="product._id" :value="product._id">
+                {{ product.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Firm Commitment Checkbox -->
+          <div class="flex items-center">
+            <input type="checkbox" v-model="editForm.isFirm" id="editIsFirm"
+              class="rounded border-gray-300 text-garden-green-600 focus:ring-garden-green-500">
+            <label for="editIsFirm" class="ml-2 text-sm font-medium text-gray-700">
+              This is a firm/committed plan
+            </label>
           </div>
 
           <div>
@@ -265,7 +424,7 @@
             </button>
             <button type="submit" :disabled="formSubmitting"
               class="px-4 py-2 bg-garden-green-600 text-white rounded-md hover:bg-garden-green-700 disabled:opacity-50">
-              {{ formSubmitting ? 'Updating...' : 'Update Commitment' }}
+              {{ formSubmitting ? 'Updating...' : 'Update Plan' }}
             </button>
           </div>
         </form>
@@ -300,10 +459,15 @@ interface Commitment {
   _id: string
   pantryId: Pantry
   weekStartDate: string
+  endDate?: string
+  daysOfWeek?: number[]
+  frequencyWeeks?: number
   commitmentType: 'total' | 'category' | 'produce_type'
   categoryId?: Category
   produceTypeId?: ProduceType
+  dailyWeightLbs?: number
   weeklyWeightLbs: number
+  isFirm?: boolean
   notes?: string
   isActive: boolean
 }
@@ -330,6 +494,17 @@ const selectedPantryId = ref('')
 const filterStartDate = ref('')
 const filterEndDate = ref('')
 
+// Bulk delete
+const selectedCommitments = ref<string[]>([])
+
+// Computed
+const allSelected = computed(() => {
+  return commitments.value.length > 0 && selectedCommitments.value.length === commitments.value.length
+})
+
+// Day options for checkboxes (0 = Sunday, 1 = Monday, etc.)
+const dayOptions = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
 // Forms
 const commitmentForm = ref({
   pantryId: '',
@@ -338,14 +513,24 @@ const commitmentForm = ref({
   produceTypeId: '',
   startDate: '',
   endDate: '',
-  weeklyWeightLbs: 0,
+  daysOfWeek: [] as number[],
+  frequencyWeeks: 1,
+  dailyWeightLbs: 0,
+  isFirm: false,
   notes: ''
 })
 
 const editForm = ref({
   _id: '',
   weekStartDate: '',
-  weeklyWeightLbs: 0,
+  endDate: '',
+  daysOfWeek: [] as number[],
+  frequencyWeeks: 1,
+  dailyWeightLbs: 0,
+  commitmentType: 'total',
+  categoryId: '',
+  produceTypeId: '',
+  isFirm: false,
   notes: ''
 })
 
@@ -414,9 +599,9 @@ const isFormValid = computed(() => {
   return commitmentForm.value.pantryId &&
          commitmentForm.value.startDate &&
          commitmentForm.value.endDate &&
-         commitmentForm.value.weeklyWeightLbs > 0 &&
-         !startDateError.value &&
-         !endDateError.value &&
+         commitmentForm.value.daysOfWeek.length > 0 &&
+         commitmentForm.value.frequencyWeeks > 0 &&
+         commitmentForm.value.dailyWeightLbs > 0 &&
          (commitmentForm.value.commitmentType === 'total' ||
           (commitmentForm.value.commitmentType === 'category' && commitmentForm.value.categoryId) ||
           (commitmentForm.value.commitmentType === 'produce_type' && commitmentForm.value.produceTypeId))
@@ -479,26 +664,11 @@ const fetchCommitments = async () => {
   }
 }
 
-const validateMonday = (field: 'startDate' | 'endDate') => {
-  const dateValue = commitmentForm.value[field]
-  if (!dateValue) return
-
-  const [year, month, day] = dateValue.split('-').map(Number)
-  const date = new Date(year, month - 1, day)
-  const dayOfWeek = date.getDay()
-
-  if (field === 'startDate') {
-    startDateError.value = ''
-  } else {
-    endDateError.value = ''
-  }
-
-  // Auto-adjust to Monday of same week
-  if (dayOfWeek !== 1) {
-    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-    const mondayDate = new Date(year, month - 1, day - daysToSubtract)
-    commitmentForm.value[field] = mondayDate.toISOString().split('T')[0]
-  }
+// Helper function to format days of week
+const formatDaysOfWeek = (days: number[]) => {
+  if (!days || days.length === 0) return '-'
+  const sortedDays = [...days].sort((a, b) => a - b)
+  return sortedDays.map(d => dayOptions[d].substring(0, 3)).join(', ')
 }
 
 const createCommitment = async () => {
@@ -520,8 +690,8 @@ const createCommitment = async () => {
 
     if (response.ok) {
       const data = await response.json()
-      successMessage.value = data.message || 'Commitment created successfully'
-      
+      successMessage.value = data.message || 'Plan created successfully'
+
       // Reset form
       Object.assign(commitmentForm.value, {
         pantryId: selectedPantryId.value, // Keep pantry selected
@@ -530,18 +700,21 @@ const createCommitment = async () => {
         produceTypeId: '',
         startDate: '',
         endDate: '',
-        weeklyWeightLbs: 0,
+        daysOfWeek: [],
+        frequencyWeeks: 1,
+        dailyWeightLbs: 0,
+        isFirm: false,
         notes: ''
       })
-      
+
       showCreateForm.value = false
       await fetchCommitments()
     } else {
       const errorData = await response.json()
-      error.value = errorData.error || 'Failed to create commitment'
+      error.value = errorData.error || 'Failed to create plan'
     }
   } catch (err) {
-    error.value = 'Network error while creating commitment'
+    error.value = 'Network error while creating plan'
   } finally {
     formSubmitting.value = false
   }
@@ -551,7 +724,14 @@ const editCommitment = (commitment: Commitment) => {
   editForm.value = {
     _id: commitment._id,
     weekStartDate: commitment.weekStartDate.split('T')[0],
-    weeklyWeightLbs: commitment.weeklyWeightLbs,
+    endDate: commitment.endDate ? commitment.endDate.split('T')[0] : '',
+    daysOfWeek: commitment.daysOfWeek || [],
+    frequencyWeeks: commitment.frequencyWeeks || 1,
+    dailyWeightLbs: commitment.dailyWeightLbs || commitment.weeklyWeightLbs || 0,
+    commitmentType: commitment.commitmentType || 'total',
+    categoryId: commitment.categoryId?._id || commitment.categoryId || '',
+    produceTypeId: commitment.produceTypeId?._id || commitment.produceTypeId || '',
+    isFirm: commitment.isFirm || false,
     notes: commitment.notes || ''
   }
   showEditModal.value = true
@@ -571,28 +751,81 @@ const updateCommitment = async () => {
       },
       body: JSON.stringify({
         weekStartDate: editForm.value.weekStartDate,
-        weeklyWeightLbs: editForm.value.weeklyWeightLbs,
+        endDate: editForm.value.endDate,
+        daysOfWeek: editForm.value.daysOfWeek,
+        frequencyWeeks: editForm.value.frequencyWeeks,
+        dailyWeightLbs: editForm.value.dailyWeightLbs,
+        commitmentType: editForm.value.commitmentType,
+        categoryId: editForm.value.categoryId || undefined,
+        produceTypeId: editForm.value.produceTypeId || undefined,
+        isFirm: editForm.value.isFirm,
         notes: editForm.value.notes
       })
     })
 
     if (response.ok) {
-      successMessage.value = 'Commitment updated successfully'
+      successMessage.value = 'Plan updated successfully'
       showEditModal.value = false
       await fetchCommitments()
     } else {
       const errorData = await response.json()
-      error.value = errorData.error || 'Failed to update commitment'
+      error.value = errorData.error || 'Failed to update plan'
     }
   } catch (err) {
-    error.value = 'Network error while updating commitment'
+    error.value = 'Network error while updating plan'
+  } finally {
+    formSubmitting.value = false
+  }
+}
+
+const duplicateCommitment = async (commitment: Commitment) => {
+  if (!confirm('Create a duplicate of this plan?')) return
+
+  formSubmitting.value = true
+  error.value = ''
+  successMessage.value = ''
+
+  try {
+    // Create duplicate with same data but new dates
+    const duplicateData = {
+      pantryId: commitment.pantryId?._id || commitment.pantryId,
+      startDate: commitment.weekStartDate.split('T')[0],
+      endDate: commitment.endDate ? commitment.endDate.split('T')[0] : commitment.weekStartDate.split('T')[0],
+      daysOfWeek: commitment.daysOfWeek || [],
+      frequencyWeeks: commitment.frequencyWeeks || 1,
+      dailyWeightLbs: commitment.dailyWeightLbs || commitment.weeklyWeightLbs || 0,
+      commitmentType: commitment.commitmentType || 'total',
+      categoryId: commitment.categoryId?._id || commitment.categoryId,
+      produceTypeId: commitment.produceTypeId?._id || commitment.produceTypeId,
+      isFirm: commitment.isFirm || false,
+      notes: commitment.notes || ''
+    }
+
+    const response = await fetch('/api/commitments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+      },
+      body: JSON.stringify(duplicateData)
+    })
+
+    if (response.ok) {
+      successMessage.value = 'Plan duplicated successfully'
+      await fetchCommitments()
+    } else {
+      const errorData = await response.json()
+      error.value = errorData.error || 'Failed to duplicate plan'
+    }
+  } catch (err) {
+    error.value = 'Network error while duplicating plan'
   } finally {
     formSubmitting.value = false
   }
 }
 
 const deleteCommitment = async (id: string) => {
-  if (!confirm('Are you sure you want to delete this commitment?')) return
+  if (!confirm('Are you sure you want to delete this plan?')) return
 
   try {
     const response = await fetch(`/api/commitments?id=${id}`, {
@@ -603,14 +836,55 @@ const deleteCommitment = async (id: string) => {
     })
 
     if (response.ok) {
-      successMessage.value = 'Commitment deleted successfully'
+      successMessage.value = 'Plan deleted successfully'
       await fetchCommitments()
     } else {
       const errorData = await response.json()
-      error.value = errorData.error || 'Failed to delete commitment'
+      error.value = errorData.error || 'Failed to delete plan'
     }
   } catch (err) {
-    error.value = 'Network error while deleting commitment'
+    error.value = 'Network error while deleting plan'
+  }
+}
+
+const toggleSelectAll = () => {
+  if (allSelected.value) {
+    selectedCommitments.value = []
+  } else {
+    selectedCommitments.value = commitments.value.map(c => c._id)
+  }
+}
+
+const bulkDelete = async () => {
+  const count = selectedCommitments.value.length
+  if (!confirm(`Are you sure you want to delete ${count} plan${count > 1 ? 's' : ''}?`)) return
+
+  try {
+    // Delete all selected plans in parallel
+    const deletePromises = selectedCommitments.value.map(id =>
+      fetch(`/api/commitments?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      })
+    )
+
+    const results = await Promise.all(deletePromises)
+    const failedCount = results.filter(r => !r.ok).length
+
+    if (failedCount === 0) {
+      successMessage.value = `Successfully deleted ${count} plan${count > 1 ? 's' : ''}`
+    } else if (failedCount === count) {
+      error.value = 'Failed to delete all plans'
+    } else {
+      successMessage.value = `Deleted ${count - failedCount} plans. ${failedCount} failed.`
+    }
+
+    selectedCommitments.value = []
+    await fetchCommitments()
+  } catch (err) {
+    error.value = 'Network error while deleting plans'
   }
 }
 

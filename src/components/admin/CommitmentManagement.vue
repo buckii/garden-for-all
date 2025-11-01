@@ -70,7 +70,7 @@
                   {{ formatDateCompact(commitment.weekStartDate) }}
                 </div>
                 <div class="col-span-4">
-                  <span v-if="commitment.commitmentType === 'total'" class="font-medium text-gray-900">Total Weight</span>
+                  <span v-if="commitment.commitmentType === 'total'" class="font-medium text-gray-900">Any Produce</span>
                   <span v-else-if="commitment.commitmentType === 'category'" class="font-medium text-blue-600">{{ getCategoryName(commitment.categoryId) }}</span>
                   <span v-else-if="commitment.commitmentType === 'produce_type'" class="font-medium text-green-600">{{ getProduceTypeName(commitment.produceTypeId) }}</span>
                 </div>
@@ -111,7 +111,7 @@
                   <input v-model="commitmentForm.commitmentType" type="radio" value="total" 
                     class="mt-1 h-4 w-4 text-garden-green-600 focus:ring-garden-green-500 border-gray-300">
                   <div>
-                    <div class="text-sm font-medium text-gray-900">Total Weight</div>
+                    <div class="text-sm font-medium text-gray-900">Any Produce</div>
                     <div class="text-sm text-gray-500">Commit to a total weight regardless of specific products</div>
                   </div>
                 </label>

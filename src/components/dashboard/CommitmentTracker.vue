@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
     <div class="flex items-center justify-between mb-6">
-      <h3 class="text-lg font-semibold text-gray-900">Weekly Commitment Progress - Broad Street Food Pantry</h3>
+      <h3 class="text-lg font-semibold text-gray-900">Weekly Commitment Progress</h3>
       <div class="text-sm text-gray-500">
         Last Week vs This Week
       </div>
@@ -11,20 +11,25 @@
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-garden-green-600"></div>
     </div>
 
-    <div v-else-if="commitmentData.length === 0" class="text-center py-8">
+    <div v-else-if="pantryCommitmentData.length === 0" class="text-center py-8">
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
-      <p class="mt-4 text-sm text-gray-500">No commitments found for Broad Street Food Pantry</p>
+      <p class="mt-4 text-sm text-gray-500">No weekly commitments found</p>
     </div>
 
-    <div v-else class="space-y-6">
-      <!-- Horizontal Bar Chart -->
-      <div class="bg-white border rounded-lg p-4">
-        <h4 class="font-medium text-gray-900 mb-4">This Week Progress Overview</h4>
+    <div v-else class="space-y-8">
+      <!-- Loop through each pantry -->
+      <div v-for="pantryData in pantryCommitmentData" :key="pantryData.pantryId" class="border-b pb-6 last:border-b-0">
+        <!-- Pantry Header -->
+        <h4 class="text-md font-semibold text-gray-800 mb-4">{{ pantryData.pantryName }}</h4>
+
+        <!-- Horizontal Bar Chart -->
+        <div class="bg-white border rounded-lg p-4">
+          <h5 class="font-medium text-gray-900 mb-4 text-sm">This Week Progress Overview</h5>
         <div class="space-y-3">
-          <div v-for="item in commitmentData" :key="item.produceType" class="flex items-center">
+          <div v-for="item in pantryData.commitments" :key="item.produceType" class="flex items-center">
             <!-- Produce type label -->
             <div class="w-24 text-sm text-gray-700 font-medium text-right pr-3">
               {{ item.produceType }}
@@ -134,7 +139,7 @@
       </div>
 
       <!-- Produce Type Breakdown -->
-      <div v-for="item in commitmentData" :key="item.produceType" 
+      <div v-for="item in pantryData.commitments" :key="item.produceType"
         class="border rounded-lg p-4">
         <div class="flex items-center justify-between mb-3">
           <h4 class="font-medium text-gray-900">{{ item.produceType }}</h4>
@@ -190,21 +195,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Weekly Summary -->
-    <div v-if="commitmentData.length > 0" class="mt-6 pt-6 border-t border-gray-200">
-      <div class="grid grid-cols-2 gap-6">
-        <div class="text-center">
-          <div class="text-2xl font-bold text-gray-900">{{ totalLastWeek.toFixed(1) }} lbs</div>
-          <div class="text-sm text-gray-500">Last Week Total</div>
-          <div class="text-xs text-gray-400 mt-1">{{ lastWeekPercentage }}% of {{ totalWeeklyTarget }}lb target</div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-garden-green-600">{{ totalThisWeek.toFixed(1) }} lbs</div>
-          <div class="text-sm text-gray-500">This Week Total</div>
-          <div class="text-xs text-gray-400 mt-1">{{ thisWeekPercentage }}% of {{ totalWeeklyTarget }}lb target</div>
-        </div>
       </div>
     </div>
   </div>
@@ -234,6 +224,7 @@ const props = defineProps<Props>()
 const dashboardStore = useDashboardStore()
 
 const commitmentData = ref<CommitmentItem[]>([])
+const pantryCommitmentData = ref<any[]>([])
 const totalDeliveryData = ref<any>({})
 const internalLoading = ref(false)
 
@@ -277,78 +268,137 @@ const getProgressBarColor = (delivered: number, target: number) => {
 const processCommitmentData = () => {
   if (!dashboardStore.commitmentData) {
     commitmentData.value = []
+    pantryCommitmentData.value = []
     return
   }
 
   const data = dashboardStore.commitmentData
+  const pantries = data.pantries || []
   const thisWeekCommitments = data.thisWeek.commitments
   const lastWeekCommitments = data.lastWeek.commitments
   const thisWeekEntries = data.thisWeek.harvest
   const lastWeekEntries = data.lastWeek.harvest
 
-  // Group commitments by produce type
-  const produceTypeGroups: { [key: string]: any[] } = {}
-  
+  // Group commitments by pantry
+  const pantryGroups = new Map()
+
   // Process this week's commitments
   thisWeekCommitments.forEach((commitment: any) => {
     if (commitment.commitmentType === 'produce_type' && commitment.produceTypeId?.name) {
-      const produceTypeName = commitment.produceTypeId.name
-      if (!produceTypeGroups[produceTypeName]) {
-        produceTypeGroups[produceTypeName] = []
+      // Handle both populated and non-populated pantryId
+      const pantryId = commitment.pantryId?._id || commitment.pantryId?.id || commitment.pantryId
+      const pantryIdStr = typeof pantryId === 'string' ? pantryId : pantryId?.toString()
+
+      if (!pantryGroups.has(pantryIdStr)) {
+        // Try to find pantry by matching various ID formats
+        const pantry = pantries.find((p: any) => {
+          const pId = p._id || p.id
+          const pIdStr = typeof pId === 'string' ? pId : pId?.toString()
+          return pIdStr === pantryIdStr
+        })
+
+        // If pantryId is populated (object), use its name directly
+        const pantryName = commitment.pantryId?.name || pantry?.name || 'Unknown'
+
+        pantryGroups.set(pantryIdStr, {
+          pantryId: pantryIdStr,
+          pantryName,
+          commitments: {}
+        })
       }
-      produceTypeGroups[produceTypeName].push({
-        ...commitment,
-        week: 'this'
-      })
+      const group = pantryGroups.get(pantryIdStr)
+      const produceTypeName = commitment.produceTypeId.name
+      if (!group.commitments[produceTypeName]) {
+        group.commitments[produceTypeName] = { thisWeek: null, lastWeek: null }
+      }
+      group.commitments[produceTypeName].thisWeek = commitment
     }
   })
 
   // Process last week's commitments
   lastWeekCommitments.forEach((commitment: any) => {
     if (commitment.commitmentType === 'produce_type' && commitment.produceTypeId?.name) {
-      const produceTypeName = commitment.produceTypeId.name
-      if (!produceTypeGroups[produceTypeName]) {
-        produceTypeGroups[produceTypeName] = []
+      // Handle both populated and non-populated pantryId
+      const pantryId = commitment.pantryId?._id || commitment.pantryId?.id || commitment.pantryId
+      const pantryIdStr = typeof pantryId === 'string' ? pantryId : pantryId?.toString()
+
+      if (!pantryGroups.has(pantryIdStr)) {
+        // Try to find pantry by matching various ID formats
+        const pantry = pantries.find((p: any) => {
+          const pId = p._id || p.id
+          const pIdStr = typeof pId === 'string' ? pId : pId?.toString()
+          return pIdStr === pantryIdStr
+        })
+
+        // If pantryId is populated (object), use its name directly
+        const pantryName = commitment.pantryId?.name || pantry?.name || 'Unknown'
+
+        pantryGroups.set(pantryIdStr, {
+          pantryId: pantryIdStr,
+          pantryName,
+          commitments: {}
+        })
       }
-      produceTypeGroups[produceTypeName].push({
-        ...commitment,
-        week: 'last'
-      })
+      const group = pantryGroups.get(pantryIdStr)
+      const produceTypeName = commitment.produceTypeId.name
+      if (!group.commitments[produceTypeName]) {
+        group.commitments[produceTypeName] = { thisWeek: null, lastWeek: null }
+      }
+      group.commitments[produceTypeName].lastWeek = commitment
     }
   })
 
-  // Calculate deliveries by produce type for each week
-  const calculateDeliveries = (entries: any[], produceTypeName: string) => {
+  // Calculate deliveries by produce type and pantry for each week
+  const calculateDeliveries = (entries: any[], produceTypeName: string, pantryId: string) => {
     return entries
-      .filter((entry: any) => entry.produceType?.name === produceTypeName)
+      .filter((entry: any) => {
+        const entryPantryId = entry.pantryId?._id || entry.pantryId?.id || entry.pantryId
+        const entryPantryIdStr = typeof entryPantryId === 'string' ? entryPantryId : entryPantryId?.toString()
+        return entry.produceType?.name === produceTypeName && entryPantryIdStr === pantryId
+      })
       .reduce((total: number, entry: any) => {
         const weight = entry.weight || (entry.quantity * (entry.produceType?.conversionFactor || 1))
         return total + weight
       }, 0)
   }
 
-  // Build final data structure
-  const result: CommitmentItem[] = Object.entries(produceTypeGroups).map(([produceTypeName, commitments]) => {
-    const thisWeekCommitment = commitments.find(c => c.week === 'this')
-    const lastWeekCommitment = commitments.find(c => c.week === 'last')
-    
-    const weeklyWeight = thisWeekCommitment?.weeklyWeightLbs || lastWeekCommitment?.weeklyWeightLbs || 0
-    
-    return {
-      produceType: produceTypeName,
-      weeklyWeight,
-      thisWeek: {
-        weekStart: data.thisWeek.weekStart,
-        delivered: calculateDeliveries(thisWeekEntries, produceTypeName)
-      },
-      lastWeek: {
-        weekStart: data.lastWeek.weekStart,
-        delivered: calculateDeliveries(lastWeekEntries, produceTypeName)
+  // Build pantry commitment data
+  const pantryResults: any[] = []
+
+  pantryGroups.forEach((pantryGroup, pantryId) => {
+    const commitments: CommitmentItem[] = Object.entries(pantryGroup.commitments).map(([produceTypeName, data]: [string, any]) => {
+      const thisWeekCommitment = data.thisWeek
+      const lastWeekCommitment = data.lastWeek
+
+      const weeklyWeight = thisWeekCommitment?.weeklyWeightLbs || lastWeekCommitment?.weeklyWeightLbs || 0
+
+      return {
+        produceType: produceTypeName,
+        weeklyWeight,
+        thisWeek: {
+          weekStart: dashboardStore.commitmentData.thisWeek.weekStart,
+          delivered: calculateDeliveries(thisWeekEntries, produceTypeName, pantryId)
+        },
+        lastWeek: {
+          weekStart: dashboardStore.commitmentData.lastWeek.weekStart,
+          delivered: calculateDeliveries(lastWeekEntries, produceTypeName, pantryId)
+        }
       }
+    }).filter(item => item.weeklyWeight > 0)
+
+    if (commitments.length > 0) {
+      pantryResults.push({
+        pantryId: pantryGroup.pantryId,
+        pantryName: pantryGroup.pantryName,
+        commitments
+      })
     }
   })
 
-  commitmentData.value = result.filter(item => item.weeklyWeight > 0)
+  pantryCommitmentData.value = pantryResults
+
+  // Keep the old flat commitmentData for backward compatibility (combine all pantries)
+  commitmentData.value = pantryResults.flatMap(p => p.commitments)
   
   // Calculate totals for ALL deliveries (including non-committed items)
   const allThisWeekDeliveries = thisWeekEntries.reduce((total: number, entry: any) => {

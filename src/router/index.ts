@@ -24,6 +24,11 @@ const router = createRouter({
       component: () => import('../views/HarvestHistoryView.vue'),
     },
     {
+      path: '/commitment-calendar',
+      name: 'commitment-calendar',
+      component: () => import('../views/CommitmentCalendarView.vue'),
+    },
+    {
       path: '/order',
       name: 'order',
       component: () => import('../views/OrderView.vue'),
