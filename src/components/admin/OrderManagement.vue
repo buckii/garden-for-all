@@ -20,11 +20,11 @@
             <option value="draft">Draft</option>
             <option value="in-progress">In Progress</option>
             <option value="ready">Ready</option>
-            <option value="completed">Completed</option>
+            <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Pantry</label>
           <select v-model="filters.pantryId" @change="fetchOrders"
@@ -117,7 +117,7 @@
                   <option value="draft">Draft</option>
                   <option value="in-progress">In Progress</option>
                   <option value="ready">Ready</option>
-                  <option value="completed">Completed</option>
+                  <option value="delivered">Delivered</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
@@ -490,7 +490,8 @@ const getStatusClass = (status: string) => {
       return 'bg-yellow-100 text-yellow-800'
     case 'ready':
       return 'bg-blue-100 text-blue-800'
-    case 'completed':
+    case 'delivered':
+    case 'completed': // legacy alias for pre-rename orders
       return 'bg-green-100 text-green-800'
     case 'cancelled':
       return 'bg-red-100 text-red-800'

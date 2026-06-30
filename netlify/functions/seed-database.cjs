@@ -1162,7 +1162,7 @@ exports.handler = async function(event, context) {
           // Determine order type and status
           const deliveryDate = new Date(group.deliveryDate);
           const now = new Date();
-          let status = 'completed'; // Set all seeded orders to completed
+          let status = 'delivered'; // Set all seeded orders to delivered
           let orderType = 'delivery';
 
           // Some orders are pickups

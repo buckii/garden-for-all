@@ -62,7 +62,7 @@
                   <option value="draft">Draft</option>
                   <option value="in-progress">In Progress</option>
                   <option value="ready">Ready</option>
-                  <option value="completed">Completed</option>
+                  <option value="delivered">Delivered</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>

@@ -21,7 +21,8 @@
     "seed": "node scripts/seed.js",
     "seed:clear": "node scripts/seed.js --clear",
     "seed:all": "node scripts/seed.js --clear --all",
-    "seed:prod": "node scripts/seed-prod.cjs"
+    "seed:prod": "node scripts/seed-prod.cjs",
+    "migrate:order-status": "node scripts/migrate-order-status.cjs"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.19",

@@ -193,7 +193,9 @@ const orderSchema = new mongoose.Schema({
   pickupTime: { type: String, trim: true }, // Time in HH:MM format
   packerName: { type: String, required: false, trim: true },
   orderType: { type: String, required: true, enum: ['delivery', 'pickup'], default: 'delivery' },
-  status: { type: String, required: true, enum: ['draft', 'in-progress', 'ready', 'completed', 'cancelled'], default: 'draft' },
+  // 'delivered' is the current terminal status. 'completed' is a legacy alias kept in the enum
+  // so pre-rename records still validate on update; run scripts/migrate-order-status.cjs to convert them.
+  status: { type: String, required: true, enum: ['draft', 'in-progress', 'ready', 'delivered', 'completed', 'cancelled'], default: 'draft' },
   notes: { type: String, trim: true },
   // Cached totals - recalculated when harvest entries are added/removed
   totalWeight: { type: Number, default: 0, min: 0 },
