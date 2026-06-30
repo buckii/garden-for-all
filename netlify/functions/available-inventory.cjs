@@ -39,19 +39,21 @@ exports.handler = async function(event, context) {
     const harvestGroups = new Map();
 
     harvestEntries.forEach(entry => {
-      if (!entry.produceTypeId || !entry.pantryId) return;
+      if (!entry.produceTypeId) return;
 
       const produceTypeId = entry.produceTypeId._id.toString();
-      const pantryId = entry.pantryId._id.toString();
+      // pantryId is optional — entries with no pantry are general inventory
+      const pantryId = entry.pantryId ? entry.pantryId._id.toString() : null;
+      const pantryName = entry.pantryId ? entry.pantryId.name : 'General Inventory';
 
       // Key without date - we aggregate all harvests for this pantry/produce combo
-      const key = `${produceTypeId}:${pantryId}`;
+      const key = `${produceTypeId}:${pantryId || 'general'}`;
 
       if (!harvestGroups.has(key)) {
         harvestGroups.set(key, {
           produceType: entry.produceTypeId.name,
           pantryId: pantryId,
-          pantryName: entry.pantryId.name,
+          pantryName: pantryName,
           totalHarvested: 0,
           pricePerLb: entry.produceTypeId.pricePerLb || 0,
           harvests: []  // Track individual harvests for detailed display
