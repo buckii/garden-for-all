@@ -193,6 +193,10 @@ npm run seed:prod -- --confirm
 npm run db:backup                       # dump to ./backup/<db>-<timestamp>/
 npm run db:list-backups                 # list available backups
 npm run db:restore <backup-folder-name> # restore (drops target collections first)
+
+# One-time migration: rename order status 'completed' -> 'delivered'. Idempotent.
+# Reads MONGODB_URI from .env, or pass it inline. Run db:backup first.
+npm run migrate:order-status
 ```
 
 > ⚠️ The `seed:prod`, `db:backup`, and `db:restore` scripts read `MONGODB_URI`
