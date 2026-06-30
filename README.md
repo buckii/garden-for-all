@@ -11,6 +11,7 @@ A comprehensive web application for tracking produce production and distribution
 
 ### 📊 **Core Functionality**
 - **Produce Tracking** - Record harvest quantities with automatic value calculations
+- **Order Packing** - Build pantry orders from available inventory, taking either a full harvest entry or just part of its weight (the remainder stays available)
 - **Pantry Management** - Track commitments and delivery progress for local food pantries
 - **Real-time Updates** - Live dashboard updates using Pusher
 - **Excel Export** - Generate detailed reports for analysis and record-keeping
