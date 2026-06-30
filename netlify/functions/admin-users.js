@@ -8,7 +8,8 @@ const createUserSchema = Joi.object({
   password: Joi.string().min(6).required(),
   role: Joi.string().valid('admin', 'user').default('user'),
   firstName: Joi.string().trim().allow(''),
-  lastName: Joi.string().trim().allow('')
+  lastName: Joi.string().trim().allow(''),
+  isActive: Joi.boolean().default(true)
 });
 
 const updateUserSchema = Joi.object({
