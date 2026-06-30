@@ -16,7 +16,7 @@ exports.handler = async function(event, context) {
 
     // Get query parameters
     const queryParams = event.queryStringParameters || {};
-    const { date, startDate, endDate, pantryId, limit = 100, page = 1, search = '', sortBy = 'harvestDate', sortOrder = 'desc' } = queryParams;
+    const { date, startDate, endDate, pantryId, includeUnallocated, limit = 100, page = 1, search = '', sortBy = 'harvestDate', sortOrder = 'desc' } = queryParams;
 
     // Build query
     let query = {};
@@ -37,9 +37,14 @@ exports.handler = async function(event, context) {
       }
     }
     
-    // Handle pantry filtering
+    // Handle pantry filtering. When includeUnallocated is set, also return
+    // general inventory (entries with no pantry assigned) alongside this pantry's.
     if (pantryId) {
-      query.pantryId = pantryId;
+      if (includeUnallocated === '1' || includeUnallocated === 'true') {
+        query.pantryId = { $in: [pantryId, null] };
+      } else {
+        query.pantryId = pantryId;
+      }
     }
 
     // Add search functionality
