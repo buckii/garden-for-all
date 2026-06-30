@@ -11,6 +11,7 @@
           <p class="text-gray-600">Garden For All Production Overview</p>
         </div>
         <div class="flex items-center space-x-4">
+          <RecordHarvestQR />
           <div class="text-sm text-gray-500">
             Last updated: {{ formattedLastUpdated }}
           </div>
@@ -118,6 +119,7 @@ import Charts from '@/components/dashboard/Charts.vue'
 import CommitmentTracker from '@/components/dashboard/CommitmentTracker.vue'
 import CountyStats from '@/components/dashboard/CountyStats.vue'
 import ProductionSummary from '@/components/dashboard/ProductionSummary.vue'
+import RecordHarvestQR from '@/components/dashboard/RecordHarvestQR.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { useAuth } from '@/composables/useAuth'
 import { usePusher } from '@/composables/usePusher'
