@@ -165,12 +165,37 @@ npm run build
 
 # Preview production build
 npm run preview
-
-# Re-seed database (clears existing data)
-curl -X POST https://localhost:8888/api/seed-database \
-  -H "Content-Type: application/json" \
-  -d '{"clearData": true}'
 ```
+
+### Data Management
+
+Harvest data is seeded from `data/harvestentries.csv`. The seed commands POST to
+the running dev server, so `npm run dev` must be up for the `seed:*` commands.
+
+```bash
+# Convert a "Produce totals" spreadsheet export (CSV) into the tab-separated
+# data/harvestentries.csv the seeder reads. Drops summary/footer rows and
+# preserves quoted fields with embedded commas.
+npm run convert-produce "/path/to/Produce totals.csv"
+
+# Seed the local database (dev server must be running)
+npm run seed          # incremental — add only entries newer than the DB
+npm run seed:clear    # clear data, then reseed
+npm run seed:all      # clear data, then import the full historical dataset
+
+# Direct clear-and-reseed against MONGODB_URI in .env (no dev server needed).
+# Reads the LOCAL data/harvestentries.csv. Destructive — requires --confirm
+# and should be preceded by a backup.
+npm run seed:prod -- --confirm
+
+# Backup / restore (mongodump/mongorestore against MONGODB_URI in .env)
+npm run db:backup                       # dump to ./backup/<db>-<timestamp>/
+npm run db:list-backups                 # list available backups
+npm run db:restore <backup-folder-name> # restore (drops target collections first)
+```
+
+> ⚠️ The `seed:prod`, `db:backup`, and `db:restore` scripts read `MONGODB_URI`
+> from `.env` — make sure it points at the intended database before running.
 
 ## Database Schema
 
