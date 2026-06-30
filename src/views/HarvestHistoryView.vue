@@ -420,7 +420,7 @@ const getAuthHeader = () => {
 // Computed properties to separate orders
 const incompleteOrders = computed(() => {
   return todaysOrders.value.filter(order =>
-    ['pending', 'packed', 'draft', 'in-progress'].includes(order.status?.toLowerCase())
+    ['pending', 'packed', 'draft', 'in-progress', 'ready'].includes(order.status?.toLowerCase())
   )
 })
 
@@ -602,6 +602,8 @@ const getStatusClass = (status: string) => {
   switch (status) {
     case 'pending':
       return 'bg-yellow-100 text-yellow-800'
+    case 'ready':
+      return 'bg-indigo-100 text-indigo-800'
     case 'packed':
       return 'bg-blue-100 text-blue-800'
     case 'delivered':
