@@ -1,4 +1,1096 @@
-Type 	Product 	Quantity 	Weight (lbs)	Servings	Delivery Date 	Month	Year	Pantry
+Type	Product	Quantity	Weight (lbs)	Servings	Delivery Date	Month	Year	Pantry
+Greens	Kale	3 large bags	0.75	4.00	6/30/20	Jun	2020	
+Greens	Mixed Greens	2 large bags	0.5	2.67	6/30/20	Jun	2020	
+Herbs	Basil	1 large bag	0.23	7.36	7/10/20	Jul	2020	
+Herbs	Cilantro	3 large bags	0.37	11.84	7/10/20	Jul	2020	
+Vegetables	Cucumbers	8	2.70	12.34	7/10/20	Jul	2020	
+Herbs	Dill	9 small bags	0.39	12.48	7/10/20	Jul	2020	
+Vegetables	Peppers	1	0.25	0.75	7/10/20	Jul	2020	
+Greens	Kale	3 large bags	0.73	3.89	7/10/20	Jul	2020	
+Vegetables	Peas	1 small bag	0.34	1.55	7/10/20	Jul	2020	
+Herbs	Sage	4 small bags	0.11	3.52	7/10/20	Jul	2020	
+Vegetables	Yellow squash	7	2.6	11.89	7/10/20	Jul	2020	
+Vegetables	Zucchini	12	6.3	28.80	7/10/20	Jul	2020	
+Vegetables	Cucumbers	6	1.40	6.40	7/14/20	Jul	2020	
+Greens	Kale	2 large bags	0.75	4.00	7/14/20	Jul	2020	
+Vegetables	Yellow squash	6	1.98	9.05	7/14/20	Jul	2020	
+Vegetables	Zucchini	5	2.14	9.78	7/14/20	Jul	2020	
+Vegetables	Beans	4 boxes	3.56	18.99	7/17/20	Jul	2020	
+Vegetables	Tomatoes	4	0.06	0.15	7/17/20	Jul	2020	
+Vegetables	Cucumbers	2	0.63	2.88	7/17/20	Jul	2020	
+Vegetables	Yellow squash	13	5.11	23.36	7/17/20	Jul	2020	
+Vegetables	Zucchini	4	1.7	7.77	7/17/20	Jul	2020	
+Vegetables	Beans	1 large bag	1.91	10.19	7/20/20	Jul	2020	
+Vegetables	Cucumbers	11	3.06	13.99	7/20/20	Jul	2020	
+Vegetables	Eggplant	8	2.78	12.71	7/20/20	Jul	2020	
+Vegetables	Peas	1 small bag	0.23	1.05	7/20/20	Jul	2020	
+Vegetables	Yellow squash	11	4.14	18.93	7/20/20	Jul	2020	
+Vegetables	Zucchini	11	6.02	27.52	7/20/20	Jul	2020	
+Herbs	Basil	2 large bags	0.36	11.52	7/24/20	Jul	2020	
+Vegetables	Beans	3 boxes	2.04	10.88	7/24/20	Jul	2020	
+Vegetables	Cucumbers	12	3.26	14.90	7/24/20	Jul	2020	
+Greens	Kale	3 large bags	1.45	7.73	7/24/20	Jul	2020	
+Vegetables	Tomatoes	.5 boxes	0.56	1.41	7/24/20	Jul	2020	
+Vegetables	Yellow squash	3	1.11	5.07	7/24/20	Jul	2020	
+Vegetables	Zucchini	11	6.25	28.57	7/24/20	Jul	2020	
+Vegetables	Beans	3 boxes	1.79	9.55	7/28/20	Jul	2020	
+Vegetables	Cucumbers	7	2.21	10.10	7/28/20	Jul	2020	
+Vegetables	Eggplant	3	0.98	4.48	7/28/20	Jul	2020	
+Vegetables	Tomatoes	1 box	1.2	3.02	7/28/20	Jul	2020	
+Vegetables	Yellow squash	12	5.66	25.87	7/28/20	Jul	2020	
+Vegetables	Zucchini	10	8.57	39.18	7/28/20	Jul	2020	
+Herbs	Basil	1.5 large bags	0.19	6.08	8/1/20	Aug	2020	
+Vegetables	Beans	1 large box	0.8	4.27	8/1/20	Aug	2020	
+Vegetables	Cucumbers	10	8.28	37.85	8/1/20	Aug	2020	
+Vegetables	Eggplant	3	0.89	4.07	8/1/20	Aug	2020	
+Vegetables	Peppers	3	0.56	1.69	8/1/20	Aug	2020	
+Vegetables	Tomatoes	3 pint + 1 large	3.19	8.04	8/1/20	Aug	2020	
+Vegetables	Yellow squash	10	5.61	25.65	8/1/20	Aug	2020	
+Vegetables	Zucchini	4	4.83	22.08	8/1/20	Aug	2020	
+Vegetables	Beans	..5 large box	0.42	2.24	8/4/20	Aug	2020	
+Vegetables	Cucumbers	13	6.49	29.67	8/4/20	Aug	2020	
+Vegetables	Tomatoes	1 large box + 2	1.24	3.12	8/4/20	Aug	2020	
+Vegetables	Yellow squash	1	0.5	2.29	8/4/20	Aug	2020	
+Vegetables	Zucchini	5	4.1	18.74	8/4/20	Aug	2020	
+Vegetables	Beans	1 small box	0.51	2.72	8/7/20	Aug	2020	
+Vegetables	Cucumbers	8	3.31	15.13	8/7/20	Aug	2020	
+Vegetables	Peppers	3 bell	0.48	1.45	8/7/20	Aug	2020	
+Vegetables	Peppers	3 banana	0.12	0.36	8/7/20	Aug	2020	
+Vegetables	Tomatoes	1 XL box	2.15	5.42	8/7/20	Aug	2020	
+Vegetables	Tomatoes	12	4.48	11.29	8/7/20	Aug	2020	
+Vegetables	Tomatoes	13	1.84	4.64	8/7/20	Aug	2020	
+Vegetables	Yellow squash	7	4.1	18.74	8/7/20	Aug	2020	
+Vegetables	Zucchini	9	7.8	35.66	8/7/20	Aug	2020	
+Vegetables	Beans	1 large box	0.63	3.36	8/10/20	Aug	2020	
+Vegetables	Cucumbers	2	1.20	5.49	8/10/20	Aug	2020	
+Vegetables	Tomatoes	1 lg box, 1 sm box	2.1	5.29	8/10/20	Aug	2020	
+Vegetables	Tomatoes	10	3	7.56	8/10/20	Aug	2020	
+Vegetables	Yellow squash	5	3	13.71	8/10/20	Aug	2020	
+Vegetables	Zucchini	8	11.78	53.85	8/10/20	Aug	2020	
+Herbs	Basil	2 bags	0.31	9.92	8/14/20	Aug	2020	
+Vegetables	Beans	3 bags	1.93	10.29	8/14/20	Aug	2020	
+Vegetables	Cucumbers	19	10.51	48.05	8/14/20	Aug	2020	
+Vegetables	Garlic	10	0.27	8.64	8/14/20	Aug	2020	
+Greens	Kale	6 bags	1.42	7.57	8/14/20	Aug	2020	
+Vegetables	Onions	7	1.4	4.23	8/14/20	Aug	2020	
+Vegetables	Peppers	3	0.44	1.33	8/14/20	Aug	2020	
+Vegetables	Tomatoes	2 box	3	7.56	8/14/20	Aug	2020	
+Vegetables	Tomatoes	1 peck box, 1 lg box	12.26	30.89	8/14/20	Aug	2020	
+Vegetables	Yellow squash	13	8.43	38.54	8/14/20	Aug	2020	
+Vegetables	Zucchini	10	12.29	56.18	8/14/20	Aug	2020	
+Vegetables	Beans		0.56	2.99	8/18/20	Aug	2020	
+Vegetables	Cucumbers	9	5.79	26.47	8/18/20	Aug	2020	
+Vegetables	Eggplant		1.43	6.54	8/18/20	Aug	2020	
+Vegetables	Peppers		0.39	1.18	8/18/20	Aug	2020	
+Greens	Swiss Chard		0.34	1.81	8/18/20	Aug	2020	
+Vegetables	Tomatoes		4.68	11.79	8/18/20	Aug	2020	
+Vegetables	Yellow squash	6	3.54	16.18	8/18/20	Aug	2020	
+Vegetables	Zucchini	6	6.1	27.89	8/18/20	Aug	2020	
+Vegetables	Beans	1 lg box 2 bags	1.89	10.08	8/21/20	Aug	2020	
+Vegetables	Cucumbers	3	1.86	8.50	8/21/20	Aug	2020	
+Greens	Kale	3 bags	0.86	4.59	8/21/20	Aug	2020	
+Vegetables	Onions	12	1.26	3.80	8/21/20	Aug	2020	
+Herbs	Parsley	2 bunch	0.96	30.72	8/21/20	Aug	2020	
+Vegetables	Peppers	6 yellow (sm)	0.16	0.48	8/21/20	Aug	2020	
+Vegetables	Tomatoes	4 sm 1 lg box	5.38	13.56	8/21/20	Aug	2020	
+Vegetables	Tomatoes	cardboard box	9.53	24.01	8/21/20	Aug	2020	
+Vegetables	Yellow squash	3	1.99	9.10	8/21/20	Aug	2020	
+Vegetables	Zucchini	5	4.25	19.43	8/21/20	Aug	2020	
+Vegetables	Cucumbers	5	1.56	7.13	8/24/20	Aug	2020	
+Vegetables	Peppers	10	1.26	3.80	8/24/20	Aug	2020	
+Vegetables	Tomatoes	4 pint	2.99	7.53	8/24/20	Aug	2020	
+Vegetables	Tomatoes	XL bag	10.78	27.16	8/24/20	Aug	2020	
+Vegetables	Tomatoes	1 lg box	2.88	7.26	8/24/20	Aug	2020	
+Vegetables	Tomatoes	XL box	6.75	17.01	8/24/20	Aug	2020	
+Vegetables	Yellow squash	6	4.99	22.81	8/24/20	Aug	2020	
+Vegetables	Zucchini	9	11.1	50.74	8/24/20	Aug	2020	
+Vegetables	Beans	4 bags	2.93	15.63	8/28/20	Aug	2020	
+Fruit	Cantaloupe	1	1.76	5.03	8/28/20	Aug	2020	
+Vegetables	Cucumbers	9	5.75	26.29	8/28/20	Aug	2020	
+Greens	Kale	3 bags	0.56	2.99	8/28/20	Aug	2020	
+Vegetables	Peppers	4	0.72	2.17	8/28/20	Aug	2020	
+Vegetables	Peppers	7	0.67	2.02	8/28/20	Aug	2020	
+Vegetables	Tomatoes	6 pints	4.25	10.71	8/28/20	Aug	2020	
+Vegetables	Tomatoes	Lg box	13.65	34.39	8/28/20	Aug	2020	
+Vegetables	Tomatoes	2 pints, 1 peck	6.65	16.76	8/28/20	Aug	2020	
+Vegetables	Yellow squash	9	5.72	26.15	8/28/20	Aug	2020	
+Vegetables	Zucchini	15	18.15	82.97	8/28/20	Aug	2020	
+Vegetables	Acorn squash	2	1.99	4.39	8/31/20	Aug	2020	
+Fruit	Cantaloupe	3	4.26	12.17	8/31/20	Aug	2020	
+Vegetables	Cucumbers	8	6.35	29.03	8/31/20	Aug	2020	
+Vegetables	Peppers	2	0.48	1.45	8/31/20	Aug	2020	
+Vegetables	Peppers	6	0.58	1.75	8/31/20	Aug	2020	
+Vegetables	Peppers	6	0.18	0.54	8/31/20	Aug	2020	
+Vegetables	Tomatoes	3 pints	2.28	5.74	8/31/20	Aug	2020	
+Vegetables	Tomatoes	18	7.22	18.19	8/31/20	Aug	2020	
+Vegetables	Tomatoes	2 XL Box	4.18	10.53	8/31/20	Aug	2020	
+Vegetables	Yellow squash	2	0.98	4.48	8/31/20	Aug	2020	
+Vegetables	Zucchini	5	3.61	16.50	8/31/20	Aug	2020	
+Vegetables	Acorn squash	3	2.11	4.66	9/2/20	Sep	2020	
+Vegetables	Beans	3 bags	1.82	9.71	9/2/20	Sep	2020	
+Vegetables	Peppers	2	0.3	0.91	9/2/20	Sep	2020	
+Vegetables	Tomatoes	4 pints	3.11	7.84	9/2/20	Sep	2020	
+Vegetables	Tomatoes	21	6.41	16.15	9/2/20	Sep	2020	
+Vegetables	Tomatoes	XL Box	2.11	5.32	9/2/20	Sep	2020	
+Vegetables	Yellow squash	3	1.68	7.68	9/2/20	Sep	2020	
+Vegetables	Zucchini	3	3.26	14.90	9/2/20	Sep	2020	
+Vegetables	Acorn Squash	3	1.98	4.37	9/8/20	Sep	2020	
+Vegetables	Beans	1 bag	0.48	2.56	9/8/20	Sep	2020	
+Fruit	Cantaloupe	1	1.63	4.66	9/8/20	Sep	2020	
+Vegetables	Cucumbers	5	5.23	23.91	9/8/20	Sep	2020	
+Vegetables	Peppers	2	0.39	1.18	9/8/20	Sep	2020	
+Vegetables	Tomatoes	7 pints	4.4	11.09	9/8/20	Sep	2020	
+Vegetables	Tomatoes	18	7.26	18.29	9/8/20	Sep	2020	
+Vegetables	Tomatoes	5 lg box	6.68	16.83	9/8/20	Sep	2020	
+Vegetables	Yellow squash	1	0.46	2.10	9/8/20	Sep	2020	
+Vegetables	Zucchini	5	6.95	31.77	9/8/20	Sep	2020	
+Fruit	Cantaloupe	2	2.03	5.80	9/11/20	Sep	2020	
+Vegetables	Peppers	1 XL box	1.31	3.95	9/11/20	Sep	2020	
+Vegetables	Radishes	3	0.21	1.12	9/11/20	Sep	2020	
+Vegetables	Tomatoes	1 XL box, 2 Lg box, 2 pint	6.68	16.83	9/11/20	Sep	2020	
+Vegetables	Tomatoes	2 XXL box	14	35.28	9/11/20	Sep	2020	
+Vegetables	Beans, wax	4 bags, 1XXL box, 1 XL box, 2 lg box	9.52	50.77	9/11/20	Sep	2020	
+Vegetables	Yellow squash	9	6.71	30.67	9/11/20	Sep	2020	
+Vegetables	Zucchini	6	9.74	44.53	9/11/20	Sep	2020	
+Fruit	Cantaloupe	3	3.19	9.11	9/15/20	Sep	2020	
+Vegetables	Eggplant	1	0.75	3.43	9/15/20	Sep	2020	
+Vegetables	Tomatoes		26	65.51	9/15/20	Sep	2020	
+Vegetables	Beans, wax	4 bags	3.75	20.00	9/15/20	Sep	2020	
+Vegetables	Yellow squash	6	4.13	18.88	9/15/20	Sep	2020	
+Vegetables	Zucchini	7	6.13	28.02	9/15/20	Sep	2020	
+Vegetables	Butternut Squash	1	2.69	5.94	9/18/20	Sep	2020	
+Fruit	Cantaloupe		1	2.86	9/18/20	Sep	2020	
+Vegetables	Peppers	1	0.06	0.18	9/18/20	Sep	2020	
+Vegetables	Tomatillos	5	0.44	1.50	9/18/20	Sep	2020	
+Vegetables	Tomatoes		18.38	46.31	9/18/20	Sep	2020	
+Vegetables	Beans, wax		2.38	12.69	9/18/20	Sep	2020	
+Vegetables	Yellow squash		1	4.57	9/18/20	Sep	2020	
+Vegetables	Zucchini		0.88	4.02	9/18/20	Sep	2020	
+Fruit	Cantaloupe	2	4.4	12.57	9/21/20	Sep	2020	
+Vegetables	Tomatoes		5.6	14.11	9/21/20	Sep	2020	
+Vegetables	Tomatoes		26.2	66.02	9/21/20	Sep	2020	
+Vegetables	Yellow squash	2	2.96	13.53	9/21/20	Sep	2020	
+Vegetables	Zucchini	3	4.44	20.30	9/21/20	Sep	2020	
+Vegetables	Peppers	3	0.42	1.27	9/25/20	Sep	2020	
+Vegetables	Tomatoes	8 pints	6.1	15.37	9/25/20	Sep	2020	
+Vegetables	Tomatoes		5.25	13.23	9/25/20	Sep	2020	
+Vegetables	Yellow squash	3	1.25	5.71	9/25/20	Sep	2020	
+Vegetables	Zucchini	2	0.65	2.97	9/25/20	Sep	2020	
+Vegetables	Peppers	3	0.42	1.27	9/28/20	Sep	2020	
+Vegetables	Tomatoes	8 pints	6.1	15.37	9/28/20	Sep	2020	
+Vegetables	Tomatoes		5.25	13.23	9/28/20	Sep	2020	
+Vegetables	Beans, wax	5 boxes	11.25	60.00	9/28/20	Sep	2020	
+Vegetables	Yellow squash	3	1.25	5.71	9/28/20	Sep	2020	
+Vegetables	Zucchini	2	0.65	2.97	9/28/20	Sep	2020	
+Vegetables	Eggplant	1	1.15	5.26	10/3/20	Oct	2020	
+Vegetables	Peppers	3	0.37	1.12	10/3/20	Oct	2020	
+Vegetables	Tomatillos	12	0.93	3.17	10/3/20	Oct	2020	
+Vegetables	Tomatoes	7 pints	5.1	12.85	10/3/20	Oct	2020	
+Vegetables	Tomatoes		1.46	3.68	10/3/20	Oct	2020	
+Vegetables	Tomatoes	1 quart	1.55	3.91	10/3/20	Oct	2020	
+Vegetables	Yellow squash	4	1.69	7.73	10/3/20	Oct	2020	
+Vegetables	Zucchini	1	0.34	1.55	10/3/20	Oct	2020	
+Vegetables	Peppers	4	0.5	1.51	10/6/20	Oct	2020	
+Vegetables	Tomatillos		0.5	1.70	10/6/20	Oct	2020	
+Vegetables	Tomatoes		10	25.20	10/6/20	Oct	2020	
+Vegetables	Yellow squash	4	2.5	11.43	10/6/20	Oct	2020	
+Vegetables	Zucchini	4	5.5	25.14	10/6/20	Oct	2020	
+Greens	Arugula	3 bags	1.1	5.87	10/12/20	Oct	2020	
+Vegetables	Peppers	4	0.6	1.81	10/12/20	Oct	2020	
+Vegetables	Radishes	4	0.4	2.13	10/12/20	Oct	2020	
+Vegetables	Tomatoes		9.6	24.19	10/12/20	Oct	2020	
+Vegetables	Yellow squash	3	1.2	5.49	10/12/20	Oct	2020	
+Vegetables	Peppers	15	0.94	2.84	10/17/20	Oct	2020	
+Vegetables	Tomatoes		1.52	3.83	10/17/20	Oct	2020	
+Vegetables	Tomatoes		5.88	14.82	10/17/20	Oct	2020	
+Vegetables	Tomatoes		14.1	35.53	10/17/20	Oct	2020	
+Vegetables	Tomatoes		4.55	11.46	10/17/20	Oct	2020	
+Vegetables	Yellow squash	2	1.32	6.03	10/17/20	Oct	2020	
+Vegetables	Zucchini	5	5.64	25.78	10/17/20	Oct	2020	
+Greens	Mixed Greens	3 gallons	1.5	8.00	5/4/21	May	2021	
+Greens	Mixed Greens		5.31	28.32	5/14/21	May	2021	
+Vegetables	Radishes		1.56	8.32	5/14/21	May	2021	
+Vegetables	Broccoli		1.43	4.32	5/21/21	May	2021	
+Greens	Mixed Greens		6.9	36.80	5/21/21	May	2021	
+Vegetables	Radishes		3.5	18.67	5/21/21	May	2021	
+Vegetables	Broccoli		1.4	4.23	5/27/21	May	2021	
+Greens	Mixed Greens		2.6	13.87	5/27/21	May	2021	
+Vegetables	Radishes		1	5.33	5/27/21	May	2021	
+Greens	Mixed Greens		1.4	7.47	6/1/2021	Jun	2021	
+Vegetables	Radishes		0.16	0.85	6/1/21	Jun	2021	
+Herbs	Dill		2.45	78.40	6/11/21	Jun	2021	
+Greens	Kale		2.79	14.88	6/11/21	Jun	2021	
+Greens	Mixed Greens		10.98	58.56	6/11/21	Jun	2021	
+Herbs	Oregano		0.16	5.12	6/11/21	Jun	2021	
+Vegetables	Radishes		4.73	25.23	6/11/21	Jun	2021	
+Herbs	Sage		0.35	11.20	6/11/21	Jun	2021	
+Vegetables	Peas		0.75	3.43	6/16/21	Jun	2021	
+Herbs	Basil		0.28	8.96	6/18/2021	Jun	2021	
+Vegetables	Carrots		1.50	8.57	6/18/2021	Jun	2021	
+Herbs	Dill		0.06	1.92	6/18/2021	Jun	2021	
+Greens	Mixed Greens		6	32.00	6/18/2021	Jun	2021	
+Vegetables	Peppers		0.47	1.42	6/18/2021	Jun	2021	
+Vegetables	Radishes		1.98	10.56	6/18/2021	Jun	2021	
+Vegetables	Carrots		2.00	11.43	6/26/21	Jun	2021	
+Greens	Mixed Greens		1.93	10.29	6/26/2021	Jun	2021	
+Vegetables	Tomatoes		0.33	0.83	6/26/21	Jun	2021	
+Vegetables	Yellow squash		18	82.29	6/26/21	Jun	2021	
+Vegetables	Eggplant		0.7	3.20	6/29/21	Jun	2021	
+Greens	Mixed Greens		2.9	15.47	6/29/21	Jun	2021	
+Vegetables	Peppers		0.9	2.72	6/29/21	Jun	2021	
+Fruit	Strawberries		0.2	0.76	6/29/21	Jun	2021	
+Vegetables	Tomatoes		0.4	1.01	6/29/21	Jun	2021	
+Vegetables	Yellow squash		10.7	48.91	6/29/21	Jun	2021	
+Vegetables	Zucchini		20.8	95.09	6/29/21	Jun	2021	
+Herbs	Basil		0.11	3.52	7/2/21	Jul	2021	
+Vegetables	Cucumbers		1.64	7.50	7/2/21	Jul	2021	
+Herbs	Dill		0.55	17.60	7/2/21	Jul	2021	
+Vegetables	Eggplant		0.35	1.60	7/2/21	Jul	2021	
+Vegetables	Peppers		0.84	2.54	7/2/21	Jul	2021	
+Vegetables	Tomatoes		0.1	0.25	7/2/21	Jul	2021	
+Vegetables	Yellow squash		13.86	63.36	7/2/21	Jul	2021	
+Vegetables	Zucchini		11.37	51.98	7/2/21	Jul	2021	
+Vegetables	Cucumbers		2.05	9.37	7/6/21	Jul	2021	
+Vegetables	Eggplant		0.39	1.78	7/6/21	Jul	2021	
+Greens	Kale		0.51	2.72	7/6/21	Jul	2021	
+Greens	Mixed Greens		2.21	11.79	7/6/21	Jul	2021	
+Vegetables	Peppers		2.76	8.33	7/6/21	Jul	2021	
+Vegetables	Tomatoes		0.45	1.13	7/6/21	Jul	2021	
+Vegetables	Yellow squash		19.37	88.55	7/6/21	Jul	2021	
+Vegetables	Zucchini		20.11	91.93	7/6/21	Jul	2021	
+Herbs	Basil		0.24	7.68	7/9/2021	Jul	2021	
+Vegetables	Beans		2.82	15.04	7/9/2021	Jul	2021	
+Vegetables	Carrots		3.59	20.51	7/9/2021	Jul	2021	
+Vegetables	Cucumbers		7.99	36.53	7/9/2021	Jul	2021	
+Vegetables	Daikon Radish		3.03	16.16	7/9/2021	Jul	2021	
+Vegetables	Eggplant		0.81	3.70	7/9/2021	Jul	2021	
+Vegetables	Garlic		0.74	23.68	7/9/2021	Jul	2021	
+Greens	Mixed Greens		1.44	7.68	7/9/2021	Jul	2021	
+Greens	Kale		1.82	9.71	7/9/2021	Jul	2021	
+Greens	Mixed Greens		12.52	66.77	7/9/2021	Jul	2021	
+Vegetables	Onions		2.24	6.76	7/9/2021	Jul	2021	
+Vegetables	Peppers		0.7	2.11	7/9/2021	Jul	2021	
+Vegetables	Yellow squash		7.71	35.25	7/9/2021	Jul	2021	
+Vegetables	Zucchini		12.06	55.13	7/9/2021	Jul	2021	
+Vegetables	Cucumbers		12.29	56.18	7/12/21	Jul	2021	
+Vegetables	Yellow squash		4.81	21.99	7/12/21	Jul	2021	
+Vegetables	Zucchini		7.96	36.39	7/12/21	Jul	2021	
+Vegetables	Beans		8.14	43.41	7/13/21	Jul	2021	
+Vegetables	Cucumbers		4.89	22.35	7/13/21	Jul	2021	
+Vegetables	Yellow squash		5.44	24.87	7/13/21	Jul	2021	
+Vegetables	Zucchini		10.74	49.10	7/13/21	Jul	2021	
+Vegetables	Beans		16.06	85.65	7/16/21	Jul	2021	
+Vegetables	Cucumbers		7.17	32.78	7/16/21	Jul	2021	
+Vegetables	Eggplant		0.88	4.02	7/16/21	Jul	2021	
+Greens	Mixed Greens		2.06	10.99	7/16/21	Jul	2021	
+Greens	Kale		0.4	2.13	7/16/21	Jul	2021	
+Vegetables	Onions		0.02	0.06	7/16/21	Jul	2021	
+Vegetables	Peppers		1.35	4.08	7/16/21	Jul	2021	
+Vegetables	Tomatoes		2.53	6.37	7/16/21	Jul	2021	
+Vegetables	Yellow squash		23.8	108.80	7/16/21	Jul	2021	
+Vegetables	Zucchini		30.19	138.01	7/16/21	Jul	2021	
+Vegetables	Beans		20.24	107.95	7/19/21	Jul	2021	
+Vegetables	Cucumbers		39.79	181.90	7/19/21	Jul	2021	
+Vegetables	Eggplant		1.02	4.66	7/19/21	Jul	2021	
+Vegetables	Peppers		10.73	32.39	7/19/21	Jul	2021	
+Fruit	Strawberries		0.24	0.91	7/19/21	Jul	2021	
+Vegetables	Tomatillos		1.98	6.74	7/19/21	Jul	2021	
+Vegetables	Tomatoes		10.87	27.39	7/19/21	Jul	2021	
+Vegetables	Yellow squash		10.85	49.60	7/19/21	Jul	2021	
+Vegetables	Zucchini		12.15	55.54	7/19/21	Jul	2021	
+Vegetables	Daikon Radish		0.60	3.20	7/21/21	Jul	2021	
+Vegetables	Peppers		3.62	10.93	7/21/21	Jul	2021	
+Vegetables	Tomatillos		1.45	4.94	7/21/21	Jul	2021	
+Vegetables	Tomatoes		9.73	24.52	7/21/21	Jul	2021	
+Herbs	Basil		0.45	14.40	7/23/21	Jul	2021	
+Vegetables	Beans		4.48	23.89	7/23/21	Jul	2021	
+Vegetables	Beets		8.65	28.83	7/23/21	Jul	2021	
+Vegetables	Cucumbers		20.95	95.77	7/23/21	Jul	2021	
+Flowers	Flower bouquets	6	0	0.00	7/23/21	Jul	2021	
+Herbs	Herbs		0.48	15.36	7/23/21	Jul	2021	
+Greens	Kale		3.2	17.07	7/23/21	Jul	2021	
+Greens	Mixed Greens		3.53	18.83	7/23/21	Jul	2021	
+Greens	Swiss Chard		1.25	6.67	7/23/21	Jul	2021	
+Vegetables	Tomatillos		6.45	21.96	7/23/21	Jul	2021	
+Vegetables	Tomatoes		14.83	37.37	7/23/21	Jul	2021	
+Vegetables	Yellow squash		7.26	33.19	7/23/21	Jul	2021	
+Vegetables	Zucchini		19.97	91.29	7/23/21	Jul	2021	
+Vegetables	Beans		6.49	34.61	7/26/21	Jul	2021	
+Vegetables	Cucumbers		35.99	164.53	7/26/21	Jul	2021	
+Vegetables	Daikon Radish		17.32	92.37	7/26/21	Jul	2021	
+Vegetables	Eggplant		0.92	4.21	7/26/21	Jul	2021	
+Flowers	Flower bouquets	6	0	0.00	7/26/21	Jul	2021	
+Vegetables	Okra		0.43	1.97	7/26/21	Jul	2021	
+Vegetables	Tomatillos		1.51	5.14	7/26/21	Jul	2021	
+Vegetables	Tomatoes		29.48	74.28	7/26/21	Jul	2021	
+Vegetables	Yellow squash		5.41	24.73	7/26/21	Jul	2021	
+Vegetables	Zucchini		14.31	65.42	7/26/21	Jul	2021	
+Vegetables	Beans		3.15	16.80	7/28/21	Jul	2021	
+Vegetables	Cucumbers		6.24	28.53	7/28/21	Jul	2021	
+Vegetables	Eggplant		1.23	5.62	7/28/21	Jul	2021	
+Greens	Mixed Greens		0.51	2.72	7/28/21	Jul	2021	
+Vegetables	Tomatoes		8.47	21.34	7/28/21	Jul	2021	
+Vegetables	Yellow squash		1.12	5.12	7/28/21	Jul	2021	
+Vegetables	Zucchini		5.51	25.19	7/28/21	Jul	2021	
+Flowers	Flower bouquets	10	0	0.00	7/29/21	Jul	2021	
+Vegetables	Cucumbers		5.00	22.86	7/30/21	Jul	2021	
+Vegetables	Beans		1.51	8.05	7/31/21	Jul	2021	
+Greens	Mixed Greens		0.31	1.65	7/31/21	Jul	2021	
+Vegetables	Okra		0.14	0.64	7/31/21	Jul	2021	
+Vegetables	Peppers		1.6	4.83	7/31/21	Jul	2021	
+Vegetables	Tomatillos		3.5	11.91	7/31/21	Jul	2021	
+Vegetables	Tomatoes		56.34	141.96	7/31/21	Jul	2021	
+Vegetables	Yellow squash		5.74	26.24	7/31/21	Jul	2021	
+Vegetables	Zucchini		9.58	43.79	7/31/21	Jul	2021	
+Vegetables	Beans		6.99	37.28	8/2/21	Aug	2021	
+Vegetables	Cucumbers		22.04	100.75	8/2/21	Aug	2021	
+Vegetables	Edamame		12.11	35.23	8/2/21	Aug	2021	
+Vegetables	Eggplant		2.26	10.33	8/2/21	Aug	2021	
+Greens	Kale		1.83	9.76	8/2/21	Aug	2021	
+Vegetables	Okra		0.54	2.47	8/2/21	Aug	2021	
+Vegetables	Peppers		3.78	11.41	8/2/21	Aug	2021	
+Greens	Swiss Chard		1.06	5.65	8/2/21	Aug	2021	
+Vegetables	Tomatillos		3.21	10.93	8/2/21	Aug	2021	
+Vegetables	Tomatoes		83.42	210.19	8/2/21	Aug	2021	
+Vegetables	Yellow squash		11.33	51.79	8/2/21	Aug	2021	
+Vegetables	Zucchini		11.12	50.83	8/2/21	Aug	2021	
+Vegetables	Beans		3.97	21.17	8/4/21	Aug	2021	
+Vegetables	Cucumbers		7.00	32.00	8/4/21	Aug	2021	
+Vegetables	Daikon Radish		1.10	5.87	8/4/21	Aug	2021	
+Vegetables	Eggplant		0.4	1.83	8/4/21	Aug	2021	
+Vegetables	Peppers		1.31	3.95	8/4/21	Aug	2021	
+Vegetables	Tomatillos		2.24	7.63	8/4/21	Aug	2021	
+Vegetables	Tomatoes		76.9	193.76	8/4/21	Aug	2021	
+Vegetables	Yellow squash		0.8	3.66	8/4/21	Aug	2021	
+Vegetables	Zucchini		3.4	15.54	8/4/21	Aug	2021	
+Herbs	Basil		0.31	9.92	8/6/21	Aug	2021	
+Vegetables	Beans		1.01	5.39	8/6/21	Aug	2021	
+Vegetables	Cucumbers		10.79	49.33	8/6/21	Aug	2021	
+Vegetables	Daikon Radish		4.87	25.97	8/6/21	Aug	2021	
+Vegetables	Eggplant		1.19	5.44	8/6/21	Aug	2021	
+Herbs	Oregano		0.02	0.64	8/6/21	Aug	2021	
+Vegetables	Peppers		6.02	18.17	8/6/21	Aug	2021	
+Herbs	Rosemary		0.1	3.20	8/6/21	Aug	2021	
+Vegetables	Tomatillos		0.55	1.87	8/6/21	Aug	2021	
+Vegetables	Tomatoes		56.3	141.86	8/6/21	Aug	2021	
+Vegetables	Yellow squash		2.49	11.38	8/6/21	Aug	2021	
+Vegetables	Zucchini		7.31	33.42	8/6/21	Aug	2021	
+Vegetables	Beans		1.3	6.93	8/9/21	Aug	2021	
+Vegetables	Cucumbers		18.54	84.75	8/9/21	Aug	2021	
+Vegetables	Daikon Radish		20.27	108.11	8/9/21	Aug	2021	
+Flowers	Flower bouquets	8	0	0.00	8/9/21	Aug	2021	
+Greens	Kale		2.45	13.07	8/9/21	Aug	2021	
+Vegetables	Okra		1.12	5.12	8/9/21	Aug	2021	
+Vegetables	Onions		1.46	4.41	8/9/21	Aug	2021	
+Vegetables	Peppers		3.32	10.02	8/9/21	Aug	2021	
+Fruit	Strawberries		0.51	1.94	8/9/21	Aug	2021	
+Greens	Swiss Chard		0.93	4.96	8/9/21	Aug	2021	
+Vegetables	Tomatillos		0.7	2.38	8/9/21	Aug	2021	
+Vegetables	Tomatoes		76.54	192.86	8/9/21	Aug	2021	
+Vegetables	Yellow squash		5.11	23.36	8/9/21	Aug	2021	
+Vegetables	Zucchini		25.88	118.31	8/9/21	Aug	2021	
+Vegetables	Beans		0.16	0.85	8/11/21	Aug	2021	
+Vegetables	Cucumbers		8.53	38.99	8/11/21	Aug	2021	
+Vegetables	Okra		0.12	0.55	8/11/21	Aug	2021	
+Vegetables	Peppers		1.02	3.08	8/11/21	Aug	2021	
+Greens	Swiss Chard		0.52	2.77	8/11/21	Aug	2021	
+Vegetables	Tomatillos		0.59	2.01	8/11/21	Aug	2021	
+Vegetables	Tomatoes		65.16	164.18	8/11/21	Aug	2021	
+Vegetables	Yellow squash		1.14	5.21	8/11/21	Aug	2021	
+Vegetables	Zucchini		6.9	31.54	8/11/21	Aug	2021	
+Herbs	Basil		0.39	12.48	8/13/21	Aug	2021	
+Vegetables	Beans		0.51	2.72	8/13/21	Aug	2021	
+Vegetables	Cucumbers		7.37	33.69	8/13/21	Aug	2021	
+Vegetables	Daikon Radish		5.03	26.83	8/13/21	Aug	2021	
+Vegetables	Eggplant		2.71	12.39	8/13/21	Aug	2021	
+Herbs	Lavender		0.07	2.24	8/13/21	Aug	2021	
+Greens	Mixed Greens		0.2	1.07	8/13/21	Aug	2021	
+Vegetables	Okra		0.21	0.96	8/13/21	Aug	2021	
+Herbs	Oregano		0.22	7.04	8/13/21	Aug	2021	
+Vegetables	Peppers		6.95	20.98	8/13/21	Aug	2021	
+Herbs	Sage		0.2	6.40	8/13/21	Aug	2021	
+Fruit	Strawberries		0.57	2.17	8/13/21	Aug	2021	
+Herbs	Thyme		0.18	5.76	8/13/21	Aug	2021	
+Vegetables	Tomatillos		5.33	18.14	8/13/21	Aug	2021	
+Vegetables	Tomatoes		32.75	82.52	8/13/21	Aug	2021	
+Vegetables	Yellow squash		2.75	12.57	8/13/21	Aug	2021	
+Vegetables	Zucchini		15.74	71.95	8/13/21	Aug	2021	
+Vegetables	Beans		0.64	3.41	8/16/21	Aug	2021	
+Vegetables	Cucumbers		7.94	36.30	8/16/21	Aug	2021	
+Greens	Kale		2.17	11.57	8/16/21	Aug	2021	
+Vegetables	Okra		0.31	1.42	8/16/21	Aug	2021	
+Vegetables	Peppers		1.43	4.32	8/16/21	Aug	2021	
+Fruit	Strawberries		0.62	2.36	8/16/21	Aug	2021	
+Greens	Swiss Chard		0.51	2.72	8/16/21	Aug	2021	
+Vegetables	Tomatillos		3.51	11.95	8/16/21	Aug	2021	
+Vegetables	Tomatoes		60.31	151.96	8/16/21	Aug	2021	
+Vegetables	Yellow squash		4.7	21.49	8/16/21	Aug	2021	
+Vegetables	Zucchini		7.66	35.02	8/16/21	Aug	2021	
+Vegetables	Tomatillos		1.12	3.81	8/18/21	Aug	2021	
+Vegetables	Tomatoes		8.35	21.04	8/18/21	Aug	2021	
+Vegetables	Beans		1.31	6.99	8/20/21	Aug	2021	
+Vegetables	Cucumbers		4.64	21.21	8/20/21	Aug	2021	
+Herbs	Dill		0.08	2.56	8/20/21	Aug	2021	
+Vegetables	Eggplant		0.75	3.43	8/20/21	Aug	2021	
+Flowers	Flower bouquets	24	0	0.00	8/20/21	Aug	2021	
+Greens	Kale		1.28	6.83	8/20/21	Aug	2021	
+Greens	Mixed Greens		0.25	1.33	8/20/21	Aug	2021	
+Vegetables	Peppers		4.84	14.61	8/20/21	Aug	2021	
+Fruit	Strawberries		0.39	1.49	8/20/21	Aug	2021	
+Vegetables	Tomatillos		1.02	3.47	8/20/21	Aug	2021	
+Vegetables	Tomatoes		58.23	146.72	8/20/21	Aug	2021	
+Vegetables	Yellow squash		4.3	19.66	8/20/21	Aug	2021	
+Vegetables	Zucchini		2.94	13.44	8/20/21	Aug	2021	
+Vegetables	Beans		1.41	7.52	8/23/21	Aug	2021	
+Vegetables	Cucumbers		4.22	19.29	8/23/21	Aug	2021	
+Vegetables	Eggplant		1.16	5.30	8/23/21	Aug	2021	
+Flowers	Flower bouquets	10	0	0.00	8/23/21	Aug	2021	
+Greens	Mixed Greens		1.21	6.45	8/23/21	Aug	2021	
+Vegetables	Okra		0.93	4.25	8/23/21	Aug	2021	
+Vegetables	Peppers		5.95	17.96	8/23/21	Aug	2021	
+Vegetables	Tomatillos		4.15	14.13	8/23/21	Aug	2021	
+Vegetables	Tomatoes		24.44	61.58	8/23/21	Aug	2021	
+Vegetables	Yellow squash		2.47	11.29	8/23/21	Aug	2021	
+Vegetables	Zucchini		3.99	18.24	8/23/21	Aug	2021	
+Herbs	Basil		0.05	1.60	8/25/21	Aug	2021	
+Herbs	Dill		0.05	1.60	8/25/21	Aug	2021	
+Vegetables	Eggplant		2.58	11.79	8/25/21	Aug	2021	
+Vegetables	Okra		1.28	5.85	8/25/21	Aug	2021	
+Vegetables	Peppers		4.91	14.82	8/25/21	Aug	2021	
+Vegetables	Tomatillos		3.36	11.44	8/25/21	Aug	2021	
+Vegetables	Tomatoes		17.01	42.86	8/25/21	Aug	2021	
+Vegetables	Zucchini		1.81	8.27	8/25/21	Aug	2021	
+Herbs	Basil		0.07	2.24	8/27/21	Aug	2021	
+Vegetables	Butternut Squash		16.19	35.73	8/27/21	Aug	2021	
+Vegetables	Cucumbers		2.60	11.89	8/27/21	Aug	2021	
+Vegetables	Daikon Radish		0.25	1.33	8/27/21	Aug	2021	
+Herbs	Dill		0.17	5.44	8/27/21	Aug	2021	
+Vegetables	Eggplant		0.44	2.01	8/27/21	Aug	2021	
+Greens	Kale		1.79	9.55	8/27/21	Aug	2021	
+Greens	Mixed Greens		0.99	5.28	8/27/21	Aug	2021	
+Vegetables	Okra		1.11	5.07	8/27/21	Aug	2021	
+Vegetables	Peppers		4.85	14.64	8/27/21	Aug	2021	
+Herbs	Rosemary		0.16	5.12	8/27/21	Aug	2021	
+Greens	Swiss Chard		0.79	4.21	8/27/21	Aug	2021	
+Vegetables	Tomatillos		1.67	5.69	8/27/21	Aug	2021	
+Vegetables	Tomatoes		28.58	72.01	8/27/21	Aug	2021	
+Vegetables	Yellow squash		0.29	1.33	8/27/21	Aug	2021	
+Vegetables	Zucchini		5.37	24.55	8/27/21	Aug	2021	
+Vegetables	Cucumbers		0.32	1.46	8/30/21	Aug	2021	
+Vegetables	OKra		3.19	14.58	8/30/21	Aug	2021	
+Vegetables	Peppers		3.59	10.84	8/30/21	Aug	2021	
+Vegetables	Beans		0.54	2.88	8/30/21	Aug	2021	
+Vegetables	Tomatillos		4.16	14.16	8/30/21	Aug	2021	
+Vegetables	Tomatoes		33.45	84.28	8/30/21	Aug	2021	
+Vegetables	Yellow squash		1.11	5.07	8/30/21	Aug	2021	
+Vegetables	Zucchini		5.55	25.37	8/30/21	Aug	2021	
+Herbs	Basil		1.05	33.60	9/1/21	Sep	2021	
+Vegetables	Beans		0.17	0.91	9/1/21	Sep	2021	
+Vegetables	Carrots		0.06	0.34	9/1/21	Sep	2021	
+Vegetables	Cucumbers		1.43	6.54	9/1/21	Sep	2021	
+Vegetables	Eggplant		0.11	0.50	9/1/21	Sep	2021	
+Greens	Kale		0.81	4.32	9/1/21	Sep	2021	
+Vegetables	Okra		0.49	2.24	9/1/21	Sep	2021	
+Vegetables	Peppers		4.03	12.17	9/1/21	Sep	2021	
+Greens	Swiss Chard		0.56	2.99	9/1/21	Sep	2021	
+Vegetables	Tomatillos		1.21	4.12	9/1/21	Sep	2021	
+Vegetables	Tomatoes		14.98	37.74	9/1/21	Sep	2021	
+Vegetables	Yellow squash		0.65	2.97	9/1/21	Sep	2021	
+Vegetables	Zucchini		4.02	18.38	9/1/21	Sep	2021	
+Herbs	Basil		0.13	4.16	9/3/21	Sep	2021	
+Vegetables	Eggplant		0.15	0.69	9/3/21	Sep	2021	
+Vegetables	Okra		0.75	3.43	9/3/21	Sep	2021	
+Vegetables	Peppers		4.76	14.37	9/3/21	Sep	2021	
+Vegetables	Tomatillos		0.71	2.42	9/3/21	Sep	2021	
+Vegetables	Tomatoes		20.16	50.80	9/3/21	Sep	2021	
+Vegetables	Yellow squash		1.45	6.63	9/3/21	Sep	2021	
+Vegetables	Zucchini		1.08	4.94	9/3/21	Sep	2021	
+Vegetables	Butternut Squash		32.11	70.86	9/8/21	Sep	2021	
+Vegetables	Carrots		1.64	9.37	9/8/21	Sep	2021	
+Vegetables	Cucumbers		0.89	4.07	9/8/21	Sep	2021	
+Vegetables	Daikon Radish		0.63	3.36	9/8/21	Sep	2021	
+Vegetables	Okra		4.17	19.06	9/8/21	Sep	2021	
+Vegetables	Peppers		5.44	16.42	9/8/21	Sep	2021	
+Vegetables	Radishes		4.62	24.64	9/8/21	Sep	2021	
+Greens	Lettuce		0.24	1.28	9/8/21	Sep	2021	
+Greens	Swiss Chard		0.58	3.09	9/8/21	Sep	2021	
+Vegetables	Tomatillos		6.57	22.37	9/8/21	Sep	2021	
+Vegetables	Tomatoes		10.52	26.51	9/8/21	Sep	2021	
+Vegetables	Yellow squash		2.6	11.89	9/8/21	Sep	2021	
+Vegetables	Zucchini		1.68	7.68	9/8/21	Sep	2021	
+Vegetables	Daikon Radish		2.43	12.96	9/10/21	Sep	2021	
+Flowers	Flower bouquets	7	0	0.00	9/10/21	Sep	2021	
+Vegetables	Okra		3.11	14.22	9/10/21	Sep	2021	
+Vegetables	Peppers		1.08	3.26	9/10/21	Sep	2021	
+Vegetables	Tomatoes		16	40.31	9/10/21	Sep	2021	
+Vegetables	Yellow squash		1.5	6.86	9/10/21	Sep	2021	
+Vegetables	Zucchini		2.48	11.34	9/10/21	Sep	2021	
+Vegetables	Beans		1.07	5.71	9/13/21	Sep	2021	
+Vegetables	Butternut Squash		7.27	16.04	9/13/21	Sep	2021	
+Vegetables	Okra		2.89	13.21	9/13/21	Sep	2021	
+Vegetables	Peppers		2.74	8.27	9/13/21	Sep	2021	
+Vegetables	Radishes		2.6	13.87	9/13/21	Sep	2021	
+Vegetables	Tomatillos		8	27.23	9/13/21	Sep	2021	
+Vegetables	Tomatoes		16.06	40.47	9/13/21	Sep	2021	
+Vegetables	Yellow squash		5.6	25.60	9/13/21	Sep	2021	
+Vegetables	Zucchini		1.65	7.54	9/13/21	Sep	2021	
+Vegetables	Beans		0.44	2.35	9/15/21	Sep	2021	
+Vegetables	Daikon Radish		0.51	2.72	9/15/21	Sep	2021	
+Vegetables	Okra		2.57	11.75	9/15/21	Sep	2021	
+Vegetables	Peppers		5.78	17.45	9/15/21	Sep	2021	
+Vegetables	Radishes		0.85	4.53	9/15/21	Sep	2021	
+Greens	lettuce		0.12	0.64	9/15/21	Sep	2021	
+Herbs	Thyme		0.15	4.80	9/15/21	Sep	2021	
+Vegetables	Tomatillos		5.91	20.12	9/15/21	Sep	2021	
+Vegetables	Tomatoes		5.08	12.80	9/15/21	Sep	2021	
+Vegetables	Yellow squash		0.28	1.28	9/15/21	Sep	2021	
+Vegetables	Zucchini		0.96	4.39	9/15/21	Sep	2021	
+Herbs	Basil		0.48	15.36	9/20/21	Sep	2021	
+Vegetables	Beans		1.19	6.35	9/20/21	Sep	2021	
+Flowers	Flower bouquets	15	0	0.00	9/20/21	Sep	2021	
+Vegetables	Okra		5.04	23.04	9/20/21	Sep	2021	
+Vegetables	Peppers		6.71	20.26	9/20/21	Sep	2021	
+Vegetables	Radishes		0.91	4.85	9/20/21	Sep	2021	
+Greens	lettuce		7.4	39.47	9/20/21	Sep	2021	
+Vegetables	Tomatoes		1.46	3.68	9/20/21	Sep	2021	
+Vegetables	Yellow squash		0.89	4.07	9/20/21	Sep	2021	
+Vegetables	Zucchini		3.37	15.41	9/20/21	Sep	2021	
+Vegetables	Beans		3.11	16.59	9/24/21	Sep	2021	
+Vegetables	Butternut Squash		44.4	97.99	9/24/21	Sep	2021	
+Vegetables	Carrots		36.33	207.60	9/24/21	Sep	2021	
+Vegetables	Daikon Radish		1.65	8.80	9/24/21	Sep	2021	
+Vegetables	Okra		2.19	10.01	9/24/21	Sep	2021	
+Vegetables	Peppers		2.65	8.00	9/24/21	Sep	2021	
+Vegetables	Radishes		1.21	6.45	9/24/21	Sep	2021	
+Greens	lettuce		16.21	86.45	9/24/21	Sep	2021	
+Greens	Swiss Chard		1	5.33	9/24/21	Sep	2021	
+Vegetables	Beans		4.8	25.60	9/27/21	Sep	2021	
+Flowers	Flower bouquets	20	0	0.00	9/27/21	Sep	2021	
+Greens	Mixed Greens		15.87	84.64	9/27/21	Sep	2021	
+Vegetables	Okra		0.85	3.89	9/27/21	Sep	2021	
+Vegetables	Peppers		6.46	19.50	9/27/21	Sep	2021	
+Vegetables	Radishes		3.4	18.13	9/27/21	Sep	2021	
+Vegetables	Zucchini		8.73	39.91	9/27/21	Sep	2021	
+Vegetables	Beans		10.43	55.63	10/1/21	Oct	2021	
+Greens	Mixed Greens		16.3	86.93	10/1/21	Oct	2021	
+Vegetables	Okra		3.68	16.82	10/1/21	Oct	2021	
+Vegetables	Peppers		4.04	12.20	10/1/21	Oct	2021	
+Vegetables	Radishes		1.25	6.67	10/1/21	Oct	2021	
+Greens	Swiss Chard		1.34	7.15	10/1/21	Oct	2021	
+Vegetables	Tomatillos		3.43	11.68	10/1/21	Oct	2021	
+Vegetables	Yellow squash		0.29	1.33	10/1/21	Oct	2021	
+Vegetables	Zucchini		1.08	4.94	10/1/21	Oct	2021	
+Flowers	Flower bouquets	40	0	0.00	10/2/21	Oct	2021	
+Vegetables	Beans		15	80.00	10/4/21	Oct	2021	
+Greens	Mixed Greens		20	106.67	10/4/21	Oct	2021	
+Vegetables	Peppers		7	21.13	10/4/21	Oct	2021	
+Vegetables	Radishes		6.5	34.67	10/4/21	Oct	2021	
+Vegetables	Beans		16.12	85.97	10/8/21	Oct	2021	
+Greens	Kale		0.89	4.75	10/8/21	Oct	2021	
+Greens	Mixed Greens		21.55	114.93	10/8/21	Oct	2021	
+Vegetables	Okra		2.27	10.38	10/8/21	Oct	2021	
+Vegetables	Peppers		6.08	18.35	10/8/21	Oct	2021	
+Vegetables	Radishes		1.5	8.00	10/8/21	Oct	2021	
+Vegetables	Tomatillos		0.58	1.97	10/8/21	Oct	2021	
+Vegetables	Beans		6.22	33.17	10/11/21	Oct	2021	
+Vegetables	Butternut Squash		2.91	6.42	10/11/21	Oct	2021	
+Greens	Mixed Greens		19.51	104.05	10/11/21	Oct	2021	
+Vegetables	Okra		2.46	11.25	10/11/21	Oct	2021	
+Vegetables	Peppers		3.82	11.53	10/11/21	Oct	2021	
+Vegetables	Radishes		0.98	5.23	10/11/21	Oct	2021	
+Greens	Swiss Chard		3.01	16.05	10/11/21	Oct	2021	
+Vegetables	Beans		4.9	26.13	10/15/21	Oct	2021	
+Vegetables	Beets		2.61	8.70	10/15/21	Oct	2021	
+Greens	Mixed Greens		9.76	52.05	10/15/21	Oct	2021	
+Vegetables	Okra		1.72	7.86	10/15/21	Oct	2021	
+Vegetables	Peppers		11.74	35.44	10/15/21	Oct	2021	
+Vegetables	Radishes		5.26	28.05	10/15/21	Oct	2021	
+Vegetables	Turnips		4.5	16.00	10/15/21	Oct	2021	
+Vegetables	Beets		3.16	10.53	10/18/21	Oct	2021	
+Greens	Mixed Greens		5.34	28.48	10/18/21	Oct	2021	
+Greens	Kale		0.36	1.92	10/18/21	Oct	2021	
+Greens	Mixed Greens		0.98	5.23	10/18/21	Oct	2021	
+Vegetables	Okra		0.53	2.42	10/18/21	Oct	2021	
+Vegetables	Peppers		5.38	16.24	10/18/21	Oct	2021	
+Vegetables	Radishes		5.05	26.93	10/18/21	Oct	2021	
+Greens	lettuce		2.26	12.05	10/18/21	Oct	2021	
+Greens	Swiss Chard		2.73	14.56	10/18/21	Oct	2021	
+Vegetables	Turnips		2.93	10.42	10/18/21	Oct	2021	
+Vegetables	Beans		4.22	22.51	10/22/21	Oct	2021	
+Greens	Kale		1.02	5.44	10/22/21	Oct	2021	
+Vegetables	Okra		0.63	2.88	10/22/21	Oct	2021	
+Vegetables	Peppers		5.82	17.57	10/22/21	Oct	2021	
+Vegetables	Radishes		4.17	22.24	10/22/21	Oct	2021	
+Greens	lettuce		4.51	24.05	10/22/21	Oct	2021	
+Vegetables	Sweet Potatoes		57.04	198.40	10/22/21	Oct	2021	
+Greens	Swiss Chard		2.09	11.15	10/22/21	Oct	2021	
+Vegetables	Turnips		1.5	5.33	10/22/21	Oct	2021	
+Vegetables	Beets		0.76	2.53	10/29/21	Oct	2021	
+Vegetables	Daikon Radish		6.21	33.12	10/29/21	Oct	2021	
+Greens	Kale		2.71	14.45	10/29/21	Oct	2021	
+Greens	Mixed Greens		7.8	41.60	10/29/21	Oct	2021	
+Vegetables	Peppers		4.38	13.22	10/29/21	Oct	2021	
+Vegetables	Radishes		1.65	8.80	10/29/21	Oct	2021	
+Vegetables	Turnips		3.35	11.91	10/29/21	Oct	2021	
+Greens	Mixed Greens		13	69.33	5/9/2022	May	2022	
+Vegetables	Radishes		0.7	3.73	5/9/2022	May	2022	
+Greens	Bok Choy		9	57.60	5/13/2022	May	2022	
+Greens	Mixed Greens		24	128.00	5/13/2022	May	2022	
+Vegetables	Radishes		11	58.67	5/13/2022	May	2022	
+Greens	Mixed Greens		12.5	66.67	5/18/2022	May	2022	
+Vegetables	Radishes		37	197.33	5/18/2022	May	2022	
+Vegetables	Broccoli		1.49	4.50	5/25/2022	May	2022	
+Greens	Kale		4.6	24.53	5/25/2022	May	2022	
+Greens	Mixed Greens		35.57	189.71	5/25/2022	May	2022	
+Vegetables	Radishes		8.32	44.37	5/25/2022	May	2022	
+Vegetables	Broccoli		7.38	22.28	6/2/2022	Jun	2022	
+Greens	Kale		5.45	29.07	6/2/2022	Jun	2022	
+Greens	Mixed Greens		13.06	69.65	6/2/2022	Jun	2022	
+Vegetables	Radishes		12.17	64.91	6/2/2022	Jun	2022	
+Fruit	Strawberries		8.62	32.84	6/2/2022	Jun	2022	
+Greens	Swiss Chard		6.37	33.97	6/2/2022	Jun	2022	
+Herbs	Herbs		0.5	16.00	6/6/2022	Jun	2022	
+Fruit	Strawberries		5.46	20.80	6/6/2022	Jun	2022	
+Greens	Kale		1.91	10.19	6/9/2022	Jun	2022	
+Greens	Mixed Greens		9.69	51.68	6/9/2022	Jun	2022	
+Vegetables	Radishes		5.26	28.05	6/9/2022	Jun	2022	
+Herbs	Garlic Scapes		0.59	31.47	6/9/2022	Jun	2022	
+Fruit	Strawberries		4.17	15.89	6/9/2022	Jun	2022	
+Greens	Swiss Chard		2.49	13.28	6/9/2022	Jun	2022	
+Herbs	Basil		1.13	36.16	6/17/2022	Jun	2022	
+Greens	Kale		2.51	13.39	6/17/2022	Jun	2022	
+Greens	Mixed Greens		7.55	40.27	6/17/2022	Jun	2022	
+Vegetables	Radishes		17	90.67	6/17/2022	Jun	2022	
+Greens	lettuce		15.05	80.27	6/17/2022	Jun	2022	
+Herbs	Sage		0.29	9.28	6/17/2022	Jun	2022	
+Fruit	Strawberries		1.49	5.68	6/17/2022	Jun	2022	
+Greens	Swiss Chard		3.06	16.32	6/17/2022	Jun	2022	
+Herbs	Thyme		1.86	59.52	6/17/2022	Jun	2022	
+Greens	Mixed Greens		7.86	41.92	6/20/2022	Jun	2022	
+Vegetables	Radishes		4.02	21.44	6/20/2022	Jun	2022	
+Herbs	Basil		1.06	33.92	6/27/2022	Jun	2022	
+Vegetables	Beans		1.37	7.31	6/27/2022	Jun	2022	
+Greens	Kale		2.58	13.76	6/27/2022	Jun	2022	
+Greens	Mixed Greens		8.46	45.12	6/27/2022	Jun	2022	
+Vegetables	Peppers		0.15	0.45	6/27/2022	Jun	2022	
+Vegetables	Radishes		2.76	14.72	6/27/2022	Jun	2022	
+Herbs	Rosemary		0.06	1.92	6/27/2022	Jun	2022	
+Herbs	Sage		0.17	5.44	6/27/2022	Jun	2022	
+Greens	Swiss Chard		2.83	15.09	6/27/2022	Jun	2022	
+Herbs	Thyme		0.1	3.20	6/27/2022	Jun	2022	
+Vegetables	Beans		5.9	31.47	6/29/2022	Jun	2022	
+Vegetables	Garlic		4.8	153.60	6/29/2022	Jun	2022	
+Greens	Mixed Greens		8.8	46.93	6/29/2022	Jun	2022	
+Greens	Swiss Chard		1.15	6.13	6/29/2022	Jun	2022	
+Herbs	Basil		0.8	25.60	7/4/2022	Jul	2022	
+Vegetables	Beans		8	42.67	7/4/2022	Jul	2022	
+Herbs	Chives		0.3	9.60	7/4/2022	Jul	2022	
+Herbs	Cutting Celery		0.1	3.20	7/4/2022	Jul	2022	
+Greens	Mixed Greens		2	10.67	7/4/2022	Jul	2022	
+Herbs	Oregano		0.1	3.20	7/4/2022	Jul	2022	
+Herbs	Parsley		0.12	3.84	7/4/2022	Jul	2022	
+Herbs	Rosemary		0.12	3.84	7/4/2022	Jul	2022	
+Greens	Swiss Chard		2.4	12.80	7/4/2022	Jul	2022	
+Herbs	Tarragon		0.1	3.20	7/4/2022	Jul	2022	
+Vegetables	Beans		5.62	29.97	7/6/2022	Jul	2022	
+Greens	Mixed Greens		3.94	21.01	7/6/2022	Jul	2022	
+Vegetables	Peppers		0.23	0.69	7/6/2022	Jul	2022	
+Vegetables	Radishes		0.27	1.44	7/6/2022	Jul	2022	
+Flowers	Flower bouquets	5	0	0.00	7/7/2022	Jul	2022	
+Vegetables	Beans		8.21	43.79	7/8/2022	Jul	2022	
+Herbs	Herbs		1.3	41.60	7/8/2022	Jul	2022	
+Greens	Kale		1.94	10.35	7/8/2022	Jul	2022	
+Vegetables	Peppers		0.87	2.63	7/8/2022	Jul	2022	
+Greens	Swiss Chard		2.6	13.87	7/8/2022	Jul	2022	
+Vegetables	Zucchini		0.25	1.14	7/8/2022	Jul	2022	
+Vegetables	Beans		6.47	34.51	7/11/2022	Jul	2022	
+Vegetables	Carrots		1.00	5.71	7/11/2022	Jul	2022	
+Flowers	Flower bouquets	30	0	0.00	7/11/2022	Jul	2022	
+Greens	Kale		1.01	5.39	7/11/2022	Jul	2022	
+Vegetables	Peppers		0.87	2.63	7/11/2022	Jul	2022	
+Greens	Swiss Chard		1.32	7.04	7/11/2022	Jul	2022	
+Vegetables	Yellow squash		0.71	3.25	7/11/2022	Jul	2022	
+Vegetables	Zucchini		1.95	8.91	7/11/2022	Jul	2022	
+Herbs	Basil		0.56	17.92	7/13/2022	Jul	2022	
+Vegetables	Beans		5.98	31.89	7/13/2022	Jul	2022	
+Herbs	Cutting Celery		0.18	5.76	7/13/2022	Jul	2022	
+Greens	Kale		1.6	8.53	7/13/2022	Jul	2022	
+Herbs	Oregano		0.07	2.24	7/13/2022	Jul	2022	
+Herbs	Parsley		0.19	6.08	7/13/2022	Jul	2022	
+Vegetables	Peppers		0.05	0.15	7/13/2022	Jul	2022	
+Herbs	Rosemary		0.12	3.84	7/13/2022	Jul	2022	
+Herbs	Tarragon		0.17	5.44	7/13/2022	Jul	2022	
+Vegetables	Yellow squash		0.24	1.10	7/13/2022	Jul	2022	
+Vegetables	Zucchini		6.23	28.48	7/13/2022	Jul	2022	
+Herbs	Basil		1.07	34.24	7/15/2022	Jul	2022	
+Vegetables	Beans		7.61	40.59	7/15/2022	Jul	2022	
+Vegetables	Carrots		2.83	16.17	7/15/2022	Jul	2022	
+Herbs	Chives		0.29	9.28	7/15/2022	Jul	2022	
+Greens	Mixed Greens		5.31	28.32	7/15/2022	Jul	2022	
+Vegetables	Peppers		0.4	1.21	7/15/2022	Jul	2022	
+Herbs	Sage		0.25	8.00	7/15/2022	Jul	2022	
+Vegetables	Zucchini		4.09	18.70	7/15/2022	Jul	2022	
+Vegetables	Zucchini		10.1	46.17	7/18/2022	Jul	2022	
+Vegetables	Yellow Squash		0.61	2.79	7/18/2022	Jul	2022	
+Vegetables	Peppers		0.06	0.18	7/18/2022	Jul	2022	
+Vegetables	Beans		14.86	79.25	7/18/2022	Jul	2022	
+Herbs	Herbs		1.2	38.40	7/18/2022	Jul	2022	
+Greens	lettuce		2.2	11.73	7/18/2022	Jul	2022	
+Flowers	Flower bouquets	17	0	0.00	7/18/2022	Jul	2022	
+Vegetables	Zucchini		6.5	29.71	7/20/2022	Jul	2022	
+Vegetables	Peppers		0.6	1.81	7/20/2022	Jul	2022	
+Greens	Swiss Chard		5.26	28.05	7/20/2022	Jul	2022	
+Greens	Kale		3.16	16.85	7/20/2022	Jul	2022	
+Greens	Mixed Greens		0.57	3.04	7/20/2022	Jul	2022	
+Vegetables	Beans		5.95	31.73	7/20/2022	Jul	2022	
+Vegetables	Carrots		0.44	2.51	7/22/2022	Jul	2022	
+Vegetables	Zucchini		5.85	26.74	7/22/2022	Jul	2022	
+Vegetables	Cucumbers		0.49	2.24	7/22/2022	Jul	2022	
+Vegetables	Yellow Squash		0.98	4.48	7/22/2022	Jul	2022	
+Vegetables	Beans		16.3	86.93	7/22/2022	Jul	2022	
+Vegetables	Tomatoes		1.11	2.80	7/22/2022	Jul	2022	
+Vegetables	Peppers		0.38	1.15	7/22/2022	Jul	2022	
+Herbs	Chives		0.35	11.20	7/22/2022	Jul	2022	
+Herbs	Basil		1	32.00	7/22/2022	Jul	2022	
+Herbs	Sage		0.14	4.48	7/22/2022	Jul	2022	
+Herbs	Thyme		0.33	10.56	7/22/2022	Jul	2022	
+Flowers	Flower bouquets	20	0	0.00	7/22/2022	Jul	2022	
+Vegetables	Beans		10.06	53.65	7/25/2022	Jul	2022	
+Vegetables	Zucchini		7.41	33.87	7/25/2022	Jul	2022	
+Vegetables	Cucumbers		6.34	28.98	7/25/2022	Jul	2022	
+Vegetables	Carrots		1.60	9.14	7/25/2022	Jul	2022	
+Vegetables	Tomatoes		3.92	9.88	7/25/2022	Jul	2022	
+Vegetables	Peppers		0.66	1.99	7/25/2022	Jul	2022	
+Herbs	Basil		1.41	45.12	7/25/2022	Jul	2022	
+Vegetables	Butternut Squash		2.27	5.01	7/28/2022	Jul	2022	
+Vegetables	Beans		10.88	58.03	7/28/2022	Jul	2022	
+Vegetables	Tomatoes		2.49	6.27	7/28/2022	Jul	2022	
+Vegetables	Yellow Squash		3.07	14.03	7/28/2022	Jul	2022	
+Vegetables	Zucchini		5.64	25.78	7/28/2022	Jul	2022	
+Vegetables	Cucumbers		2.37	10.83	7/28/2022	Jul	2022	
+Vegetables	Peppers		0.92	2.78	7/28/2022	Jul	2022	
+Vegetables	Eggplant		1.96	8.96	7/28/2022	Jul	2022	
+Vegetables	Carrots		0.56	3.20	7/28/2022	Jul	2022	
+Vegetables	Broccoli		0.91	2.75	7/28/2022	Jul	2022	
+Vegetables	Sweet Potatoes		0.93	3.23	7/28/2022	Jul	2022	
+Flowers	Flower bouquets	46	0.00	0.00	7/28/2022	Jul	2022	
+Vegetables	Zucchini		2.73	12.48	7/29/2022	Jul	2022	
+Vegetables	Yellow Squash		1.28	5.85	7/29/2022	Jul	2022	
+Herbs	chives		0.27	8.64	8/1/2022	Aug	2022	
+Greens	Kale		3.27	17.44	8/1/2022	Aug	2022	
+Vegetables	Tomatillos		0.36	1.23	8/1/2022	Aug	2022	
+Greens	Swiss Chard		3.71	19.79	8/1/2022	Aug	2022	
+Vegetables	Peppers		0.03	0.09	8/1/2022	Aug	2022	
+Vegetables	Beans		13.81	73.65	8/1/2022	Aug	2022	
+Vegetables	Tomatoes		7.24	18.24	8/1/2022	Aug	2022	
+Vegetables	Carrots		0.80	4.57	8/1/2022	Aug	2022	
+Vegetables	Eggplant		0.59	2.70	8/1/2022	Aug	2022	
+Vegetables	Cucumbers		3.47	15.86	8/1/2022	Aug	2022	
+Vegetables	Zucchini		10.00	45.71	8/1/2022	Aug	2022	
+Vegetables	Yellow Squash		1.19	5.44	8/1/2022	Aug	2022	
+Herbs	Basil		0.89	28.48	8/1/2022	Aug	2022	
+Herbs	Thyme		0.44	14.08	8/1/2022	Aug	2022	
+Flowers	Flower bouquets	23	0.00	0.00	8/3/2022	Aug	2022	
+Vegetables	Peppers		0.95	2.87	8/3/2022	Aug	2022	
+Vegetables	Beans		7.45	39.73	8/3/2022	Aug	2022	
+Vegetables	Zucchini		10.88	49.74	8/3/2022	Aug	2022	
+Vegetables	Tomatoes		8.63	21.74	8/3/2022	Aug	2022	
+Vegetables	Eggplant		0.49	2.24	8/3/2022	Aug	2022	
+Vegetables	Cucumbers		0.40	1.83	8/3/2022	Aug	2022	
+Herbs	Cutting Celery		0.13	4.16	8/3/2022	Aug	2022	
+Herbs	Rosemary		0.04	1.28	8/3/2022	Aug	2022	
+Herbs	Parsley		0.10	3.20	8/3/2022	Aug	2022	
+Herbs	Thyme		0.02	0.64	8/3/2022	Aug	2022	
+Herbs	Tarragon		0.07	2.24	8/3/2022	Aug	2022	
+Herbs	Oregano		0.08	2.56	8/3/2022	Aug	2022	
+Herbs	Dill		0.04	1.28	8/3/2022	Aug	2022	
+Herbs	Chives		0.19	6.08	8/3/2022	Aug	2022	
+Herbs	Basil		0.51	16.32	8/3/2022	Aug	2022	
+Vegetables	Zucchini		5.49	25.10	8/5/2022	Aug	2022	
+Vegetables	Yellow Squash		4.16	19.02	8/5/2022	Aug	2022	
+Vegetables	Cucumbers		4.90	22.40	8/5/2022	Aug	2022	
+Vegetables	Peppers		1.22	3.68	8/5/2022	Aug	2022	
+Herbs	Dill		0.07	2.24	8/5/2022	Aug	2022	
+Vegetables	Eggplant		0.97	4.43	8/5/2022	Aug	2022	
+Vegetables	Tomatoes		6.54	16.48	8/5/2022	Aug	2022	
+Herbs	Chives		0.44	14.08	8/5/2022	Aug	2022	
+Vegetables	Tomatillos		0.80	2.72	8/5/2022	Aug	2022	
+Herbs	Basil		1.08	34.56	8/5/2022	Aug	2022	
+Vegetables	Beans		9.18	48.96	8/5/2022	Aug	2022	
+Flowers	Flower bouquets	26	0.00	0.00	8/5/2022	Aug	2022	
+Vegetables	Tomatoes		8.58	21.62	8/8/2022	Aug	2022	
+Greens	Mixed Greens		2.01	10.72	8/8/2022	Aug	2022	
+Greens	Kale		1.54	8.21	8/8/2022	Aug	2022	
+Greens	Swiss Chard		5.41	28.85	8/8/2022	Aug	2022	
+Vegetables	Beans		2.36	12.59	8/8/2022	Aug	2022	
+Vegetables	Peppers		0.44	1.33	8/8/2022	Aug	2022	
+Vegetables	Yellow Squash		3.00	13.71	8/8/2022	Aug	2022	
+Vegetables	Tomatillos		0.23	0.78	8/8/2022	Aug	2022	
+Vegetables	Zucchini		3.84	17.55	8/8/2022	Aug	2022	
+Vegetables	Cucumbers		6.30	28.80	8/8/2022	Aug	2022	
+Herbs	Basil		0.91	29.12	8/8/2022	Aug	2022	
+Herbs	Thyme		0.25	8.00	8/8/2022	Aug	2022	
+Herbs	Dill		0.21	6.72	8/8/2022	Aug	2022	
+Herbs	Sage		0.31	9.92	8/8/2022	Aug	2022	
+Herbs	Chives		0.39	12.48	8/8/2022	Aug	2022	
+Flowers	Flower bouquets	36	0.00	0.00	8/8/2022	Aug	2022	
+Vegetables	Carrots		7.00	40.00	8/8/2022	Aug	2022	
+Vegetables	Carrots		40.17	229.54	8/10/2022	Aug	2022	
+Vegetables	Zucchini		7.06	32.27	8/10/2022	Aug	2022	
+Vegetables	Cucumbers		2.54	11.63	8/10/2022	Aug	2022	
+Vegetables	Yellow Squash		5.05	23.09	8/10/2022	Aug	2022	
+Vegetables	Tomatoes		6.60	16.63	8/10/2022	Aug	2022	
+Vegetables	Beans		2.68	14.29	8/10/2022	Aug	2022	
+Greens	lettuce		0.44	2.35	8/10/2022	Aug	2022	
+Herbs	Sage		0.44	14.08	8/10/2022	Aug	2022	
+Vegetables	Peppers		0.65	1.96	8/10/2022	Aug	2022	
+Herbs	Chives		0.42	13.44	8/10/2022	Aug	2022	
+Herbs	Basil		0.79	25.28	8/10/2022	Aug	2022	
+Vegetables	Tomatoes		9.32	23.48	8/12/2022	Aug	2022	
+Vegetables	Beans		0.34	1.81	8/12/2022	Aug	2022	
+Vegetables	Zucchini		3.57	16.32	8/12/2022	Aug	2022	
+Vegetables	Tomatillos		0.49	1.67	8/12/2022	Aug	2022	
+Vegetables	Cucumbers		6.04	27.61	8/12/2022	Aug	2022	
+Vegetables	Yellow Squash		2.06	9.42	8/12/2022	Aug	2022	
+Vegetables	Peppers		1.00	3.02	8/12/2022	Aug	2022	
+Vegetables	Okra		0.07	0.32	8/12/2022	Aug	2022	
+Vegetables	Carrots		14.66	83.77	8/12/2022	Aug	2022	
+Herbs	Dill		0.22	7.04	8/12/2022	Aug	2022	
+Vegetables	Zucchini		13.53	61.85	8/15/2022	Aug	2022	
+Vegetables	Cucumbers		7.26	33.19	8/15/2022	Aug	2022	
+Vegetables	Yellow Squash		1.63	7.45	8/15/2022	Aug	2022	
+Vegetables	Beans		0.44	2.35	8/15/2022	Aug	2022	
+Vegetables	Tomatoes		11.15	28.09	8/15/2022	Aug	2022	
+Vegetables	Eggplant		1.27	5.81	8/15/2022	Aug	2022	
+Greens	Swiss Chard		3.48	18.56	8/15/2022	Aug	2022	
+Vegetables	Tomatillos		1.19	4.05	8/15/2022	Aug	2022	
+Greens	Kale		1.90	10.13	8/15/2022	Aug	2022	
+Vegetables	Peppers		2.18	6.58	8/15/2022	Aug	2022	
+Vegetables	Okra		0.08	0.37	8/15/2022	Aug	2022	
+Greens	Mixed Greens		0.99	5.28	8/15/2022	Aug	2022	
+Vegetables	Radishes		0.89	4.75	8/15/2022	Aug	2022	
+Herbs	Basil		0.78	25.06	8/15/2022	Aug	2022	
+Flowers	Flower bouquets	20	0.00	0.00	8/15/2022	Aug	2022	
+Vegetables	Yellow Squash		4.79	21.90	8/17/2022	Aug	2022	
+Vegetables	Zucchini		4.63	21.17	8/17/2022	Aug	2022	
+Vegetables	Okra		0.09	0.41	8/17/2022	Aug	2022	
+Vegetables	Beans		0.75	4.00	8/17/2022	Aug	2022	
+Vegetables	Tomatillos		0.64	2.18	8/17/2022	Aug	2022	
+Vegetables	Cucumbers		1.16	5.30	8/17/2022	Aug	2022	
+Vegetables	Peppers		2.15	6.49	8/17/2022	Aug	2022	
+Vegetables	Tomatoes		15.65	39.43	8/17/2022	Aug	2022	
+Greens	Kale		0.67	3.57	8/17/2022	Aug	2022	
+Herbs	Basil		0.93	29.76	8/17/2022	Aug	2022	
+Herbs	Sage		0.11	3.52	8/17/2022	Aug	2022	
+Flowers	Sunflowers	5	0.00	0.00	8/17/2022	Aug	2022	
+Greens	Swiss Chard		2.28	12.16	8/19/2022	Aug	2022	
+Vegetables	Yellow Squash		3.67	16.78	8/19/2022	Aug	2022	
+Vegetables	Zucchini		0.45	2.06	8/19/2022	Aug	2022	
+Vegetables	Cucumbers		1.95	8.91	8/19/2022	Aug	2022	
+Vegetables	Peppers		0.39	1.18	8/19/2022	Aug	2022	
+Vegetables	Beans		0.53	2.83	8/19/2022	Aug	2022	
+Vegetables	Tomatoes		10.14	25.55	8/19/2022	Aug	2022	
+Vegetables	Tomatillos		0.09	0.31	8/19/2022	Aug	2022	
+Herbs	Basil		0.36	11.52	8/19/2022	Aug	2022	
+Greens	lettuce		4.62	24.64	8/19/2022	Aug	2022	
+Greens	Mixed Greens		3.26	17.39	8/19/2022	Aug	2022	
+Flowers	Flower bouquets	25	0.00	0.00	8/19/2022	Aug	2022	
+Vegetables	Tomatillos		2.25	7.66	8/22/2022	Aug	2022	
+Vegetables	Tomatoes		14.71	37.06	8/22/2022	Aug	2022	
+Vegetables	Beans		1.02	5.44	8/22/2022	Aug	2022	
+Vegetables	Okra		0.18	0.82	8/22/2022	Aug	2022	
+Vegetables	Eggplant		0.98	4.48	8/22/2022	Aug	2022	
+Greens	Mixed Greens		2.87	15.31	8/22/2022	Aug	2022	
+Herbs	Basil		0.22	7.04	8/22/2022	Aug	2022	
+Vegetables	Peppers		1.56	4.71	8/22/2022	Aug	2022	
+Vegetables	Zucchini		11.62	53.12	8/22/2022	Aug	2022	
+Vegetables	Yellow Squash		6.69	30.58	8/22/2022	Aug	2022	
+Vegetables	Cucumbers		3.18	14.54	8/22/2022	Aug	2022	
+Vegetables	Radishes		1.09	5.81	8/22/2022	Aug	2022	
+Vegetables	Carrots		0.19	1.09	8/22/2022	Aug	2022	
+Flowers	Sunflowers	4	0.00	0.00	8/22/2022	Aug	2022	
+Vegetables	Yellow Squash		4.80	21.94	8/25/2022	Aug	2022	
+Vegetables	Tomatillos		0.26	0.89	8/25/2022	Aug	2022	
+Vegetables	Cucumbers		12.31	56.27	8/25/2022	Aug	2022	
+Vegetables	Tomatoes		3.59	9.05	8/25/2022	Aug	2022	
+Vegetables	Zucchini		4.74	21.67	8/25/2022	Aug	2022	
+Vegetables	Peppers		2.28	6.88	8/25/2022	Aug	2022	
+Vegetables	Beans		1.23	6.56	8/25/2022	Aug	2022	
+Vegetables	Okra		0.32	1.46	8/25/2022	Aug	2022	
+Greens	Swiss Chard		2.47	13.17	8/25/2022	Aug	2022	
+Herbs	Basil		1.03	32.96	8/25/2022	Aug	2022	
+Herbs	Chives		0.66	21.12	8/25/2022	Aug	2022	
+Vegetables	Butternut Squash		2.16	4.77	8/25/2022	Aug	2022	
+Vegetables	Eggplant		1.24	5.67	8/25/2022	Aug	2022	
+Vegetables	Sweet Potatoes		1.60	5.57	8/25/2022	Aug	2022	
+Flowers	Flower bouquets	40	0.00	0.00	8/25/2022	Aug	2022	
+Vegetables	Cucumbers		16.90	77.26	8/29/2022	Aug	2022	
+Vegetables	Zucchini		18.78	85.85	8/29/2022	Aug	2022	
+Vegetables	Peppers		3.35	10.11	8/29/2022	Aug	2022	
+Vegetables	Yellow Squash		14.53	66.42	8/29/2022	Aug	2022	
+Vegetables	Okra		0.81	3.70	8/29/2022	Aug	2022	
+Vegetables	Tomatoes		13.82	34.82	8/29/2022	Aug	2022	
+Herbs	Basil		0.81	25.92	8/29/2022	Aug	2022	
+Vegetables	Beans		1.76	9.39	8/29/2022	Aug	2022	
+Herbs	Sage		0.26	8.32	8/29/2022	Aug	2022	
+Vegetables	Zucchini		1.21	5.53	8/31/2022	Aug	2022	
+Vegetables	Yellow Squash		1.36	6.22	8/31/2022	Aug	2022	
+Vegetables	Tomatoes		3.44	8.67	8/31/2022	Aug	2022	
+Vegetables	Peppers		1.41	4.26	8/31/2022	Aug	2022	
+Vegetables	Okra		0.25	1.14	8/31/2022	Aug	2022	
+Vegetables	Tomatillos		0.31	1.06	8/31/2022	Aug	2022	
+Greens	Swiss Chard		2.85	15.20	8/31/2022	Aug	2022	
+Herbs	Basil		0.50	16.00	8/31/2022	Aug	2022	
+Flowers	Flower bouquets	11	0.00	0.00	8/31/2022	Aug	2022	
+Vegetables	Beans		1.37	7.31	9/2/2022	Sep	2022	
+Vegetables	Yellow Squash		2.21	10.10	9/2/2022	Sep	2022	
+Vegetables	Zucchini		2.25	10.29	9/2/2022	Sep	2022	
+Vegetables	Cucumbers		9.51	43.47	9/2/2022	Sep	2022	
+Greens	Mixed Greens		1.64	8.75	9/2/2022	Sep	2022	
+Greens	Swiss Chard		3.03	16.16	9/2/2022	Sep	2022	
+Vegetables	Peppers		4.00	12.08	9/2/2022	Sep	2022	
+Vegetables	Okra		0.57	2.61	9/2/2022	Sep	2022	
+Herbs	Basil		0.32	10.24	9/2/2022	Sep	2022	
+Vegetables	Tomatillos		1.96	6.67	9/2/2022	Sep	2022	
+Vegetables	Tomatoes		13.56	34.17	9/2/2022	Sep	2022	
+Greens	lettuce		5.25	28.00	9/2/2022	Sep	2022	
+Greens	Kale		0.29	1.55	9/2/2022	Sep	2022	
+Flowers	Flower bouquets	37	0.00	0.00	9/2/2022	Sep	2022	
+Vegetables	Okra		1.22	5.58	9/5/2022	Sep	2022	
+Vegetables	Peppers		4.80	14.49	9/5/2022	Sep	2022	
+Vegetables	Zucchini		8.01	36.62	9/5/2022	Sep	2022	
+Vegetables	Yellow Squash		5.33	24.37	9/5/2022	Sep	2022	
+Vegetables	Tomatillos		2.63	8.95	9/5/2022	Sep	2022	
+Herbs	Basil		1.10	35.20	9/5/2022	Sep	2022	
+Vegetables	Beans		1.14	6.08	9/5/2022	Sep	2022	
+Vegetables	Cucumbers		8.79	40.18	9/5/2022	Sep	2022	
+Vegetables	Tomatoes		11.73	29.56	9/5/2022	Sep	2022	
+Herbs	Tarragon		0.11	3.52	9/5/2022	Sep	2022	
+Herbs	Parsley		0.23	7.36	9/5/2022	Sep	2022	
+Herbs	Cutting Celery		0.46	14.72	9/5/2022	Sep	2022	
+Vegetables	Daikon Radish		1.25	6.67	9/5/2022	Sep	2022	
+Vegetables	Carrots		0.12	0.69	9/5/2022	Sep	2022	
+Greens	Swiss Chard		4.26	22.72	9/5/2022	Sep	2022	
+Flowers	Flower bouquets	40	0.00	0.00	9/5/2022	Sep	2022	
+Vegetables	Tomatoes		5.29	13.33	9/6/2022	Sep	2022	
+Vegetables	Eggplant		1.00	4.57	9/6/2022	Sep	2022	
+Vegetables	Peppers		3.27	9.87	9/6/2022	Sep	2022	
+Vegetables	Cucumbers		2.31	10.56	9/6/2022	Sep	2022	
+Vegetables	Yellow Squash		2.79	12.75	9/6/2022	Sep	2022	
+Vegetables	Okra		0.55	2.51	9/6/2022	Sep	2022	
+Herbs	Basil		0.96	30.72	9/6/2022	Sep	2022	
+Vegetables	Peppers		6.36	19.20	9/12/2022	Sep	2022	
+Herbs	Basil		1.06	33.92	9/12/2022	Sep	2022	
+Herbs	Sage		0.32	10.24	9/12/2022	Sep	2022	
+Vegetables	Tomatoes		9.70	24.44	9/12/2022	Sep	2022	
+Vegetables	Okra		1.55	7.09	9/12/2022	Sep	2022	
+Vegetables	Tomatillos		1.38	4.70	9/12/2022	Sep	2022	
+Greens	Lettuce		27.44	146.35	9/12/2022	Sep	2022	
+Greens	Swiss Chard		2.20	11.73	9/12/2022	Sep	2022	
+Vegetables	Yellow Squash		6.04	27.61	9/12/2022	Sep	2022	
+Vegetables	Cucumbers		4.61	21.07	9/12/2022	Sep	2022	
+Vegetables	Zucchini		6.24	28.53	9/12/2022	Sep	2022	
+Flowers	Flower bouquets	50	0.00	0.00	9/14/2022	Sep	2022	
+Vegetables	Peppers		1.33	4.02	9/14/2022	Sep	2022	
+Vegetables	Tomatoes		7.80	19.65	9/14/2022	Sep	2022	
+Vegetables	Eggplant		2.02	9.23	9/14/2022	Sep	2022	
+Vegetables	Okra		0.36	1.65	9/14/2022	Sep	2022	
+Vegetables	Cucumbers		2.13	9.74	9/14/2022	Sep	2022	
+Herbs	Basil		0.25	8.00	9/14/2022	Sep	2022	
+Herbs	Sage		0.27	8.64	9/14/2022	Sep	2022	
+Herbs	Chives		0.87	27.84	9/14/2022	Sep	2022	
+Vegetables	Tomatillos		2.24	7.63	9/16/2022	Sep	2022	
+Vegetables	Tomatoes		27.12	68.33	9/16/2022	Sep	2022	
+Greens	Swiss Chard		5.19	27.68	9/16/2022	Sep	2022	
+Greens	Kale		0.43	2.29	9/16/2022	Sep	2022	
+Vegetables	Eggplant		0.93	4.25	9/16/2022	Sep	2022	
+Vegetables	Peppers		0.47	1.42	9/16/2022	Sep	2022	
+Vegetables	Okra		0.29	1.33	9/16/2022	Sep	2022	
+Greens	Lettuce		3.71	19.79	9/16/2022	Sep	2022	
+Vegetables	Spaghetti Squash		17.01	49.85	9/16/2022	Sep	2022	
+Herbs	Herbs		1.31	41.92	9/19/2022	Sep	2022	
+Greens	Swiss Chard		1.65	8.80	9/19/2022	Sep	2022	
+Vegetables	Peppers		3.10	9.36	9/19/2022	Sep	2022	
+Vegetables	Tomatillos		1.09	3.71	9/19/2022	Sep	2022	
+Vegetables	Okra		2.52	11.52	9/19/2022	Sep	2022	
+Vegetables	Tomatoes		8.45	21.29	9/19/2022	Sep	2022	
+Vegetables	Radishes		2.12	11.31	9/19/2022	Sep	2022	
+Vegetables	Yellow Squash		0.81	3.70	9/19/2022	Sep	2022	
+Flowers	Flower bouquets	32	0.00	0.00	9/19/2022	Sep	2022	
+Vegetables	Daikon Radish		8.00	42.67	9/23/2022	Sep	2022	
+Vegetables	Tomatoes		9.48	23.89	9/23/2022	Sep	2022	
+Vegetables	Okra		2.14	9.78	9/23/2022	Sep	2022	
+Greens	Swiss Chard		2.63	14.03	9/23/2022	Sep	2022	
+Vegetables	Yellow Squash		1.58	7.22	9/23/2022	Sep	2022	
+Vegetables	Tomatillos		5.77	19.64	9/23/2022	Sep	2022	
+Vegetables	Peppers		2.12	6.40	9/23/2022	Sep	2022	
+Herbs	Basil		0.28	8.96	9/23/2022	Sep	2022	
+Herbs	Rosemary		0.12	3.84	9/23/2022	Sep	2022	
+Herbs	Thyme		0.48	15.36	9/23/2022	Sep	2022	
+Herbs	Sage		0.50	16.00	9/23/2022	Sep	2022	
+Herbs	Dill		0.22	7.04	9/23/2022	Sep	2022	
+Herbs	Chives		1.96	62.72	9/23/2022	Sep	2022	
+Flowers	Flower bouquets	45	0.00	0.00	9/28/2022	Sep	2022	
+Vegetables	Okra		0.92	4.21	9/28/2022	Sep	2022	
+Vegetables	Peppers		3.34	10.08	9/28/2022	Sep	2022	
+Vegetables	Tomatoes		25.23	63.57	9/28/2022	Sep	2022	
+Greens	Kale		1.46	7.79	9/28/2022	Sep	2022	
+Greens	Swiss Chard		4.31	22.99	9/28/2022	Sep	2022	
+Vegetables	Yellow Squash		0.39	1.78	9/28/2022	Sep	2022	
+Vegetables	Radishes		16.40	87.47	9/28/2022	Sep	2022	
+Vegetables	Spaghetti Squash		15.00	43.96	9/28/2022	Sep	2022	
+Vegetables	Butternut Squash		12.00	26.48	9/28/2022	Sep	2022	
+Vegetables	Peppers		0.45	1.36	9/30/2022	Sep	2022	
+Vegetables	Beans		0.45	2.40	9/30/2022	Sep	2022	
+Vegetables	Okra		0.38	1.74	9/30/2022	Sep	2022	
+Vegetables	Tomatillos		6.63	22.57	9/30/2022	Sep	2022	
+Vegetables	Radishes		1.29	6.88	9/30/2022	Sep	2022	
+Vegetables	Daikon Radish		7.18	38.29	9/30/2022	Sep	2022	
+Vegetables	Zucchini		2.52	11.52	9/30/2022	Sep	2022	
+Vegetables	Cucumbers		1.84	8.41	9/30/2022	Sep	2022	
+Greens	Lettuce		23.15	123.47	10/7/2022	Oct	2022	
+Greens	Swiss Chard		3.39	18.08	10/7/2022	Oct	2022	
+Greens	Lettuce		4.08	21.76	10/7/2022	Oct	2022	
+Vegetables	Radishes		6.71	35.79	10/7/2022	Oct	2022	
+Vegetables	Tomatoes		22.26	56.09	10/7/2022	Oct	2022	
+Greens	Microgreens		0.69	12.55	10/7/2022	Oct	2022	
+Vegetables	Yellow squash		0.26	1.19	10/7/2022	Oct	2022	
+Greens	Turnip Greens		1.97	16.25	10/7/2022	Oct	2022	
+Vegetables	Turnips		0.74	2.63	10/7/2022	Oct	2022	
+Vegetables	Tomatoes		4.48	11.29	10/12/2022	Oct	2022	
+Greens	Microgreens		1.48	26.91	10/12/2022	Oct	2022	
+Fruit	Apples		18.61	84.59	10/12/2022	Oct	2022	
+Vegetables	Blue Hubbard squash		18.43	72.10	10/12/2022	Oct	2022	
+Vegetables	Butternut Squash		49.56	109.37	10/12/2022	Oct	2022	
+Vegetables	Spaghetti Squash		30.51	89.41	10/12/2022	Oct	2022	
+Greens	Lettuce		7.44	39.68	10/14/2022	Oct	2022	
+Vegetables	Daikon Radish		5.74	30.61	10/14/2022	Oct	2022	
+Greens	Kale		3.13	16.69	10/14/2022	Oct	2022	
+Vegetables	Tomatoes		2.28	5.74	10/14/2022	Oct	2022	
+Greens	Mixed Greens		5.77	30.77	10/14/2022	Oct	2022	
+Vegetables	Peppers		1.76	5.31	10/14/2022	Oct	2022	
+Vegetables	Carrots		0.32	1.83	10/28/2022	Oct	2022	
+Vegetables	Radishes		15.00	80.00	10/28/2022	Oct	2022	
+Vegetables	Turnips		0.87	3.09	10/28/2022	Oct	2022	
+Greens	Kale		6.00	32.00	10/28/2022	Oct	2022	
+Greens	Bok Choy		2.60	16.64	10/28/2022	Oct	2022	
+Greens	Mixed Greens		13.60	72.53	10/28/2022	Oct	2022	
+Greens	Arugula		3.52	18.77	10/28/2022	Oct	2022	
+Vegetables	Butternut Squash		31.73	70.02	10/28/2022	Oct	2022	
+Vegetables	Spaghetti Squash		9.29	27.22	10/28/2022	Oct	2022	
+Vegetables	Blue Hubbard squash		21.06	82.39	10/28/2022	Oct	2022	
+Vegetables	Radishes		4.69	25.01	11/9/2022	Nov	2022	
+Vegetables	Beets		4.22	14.07	11/9/2022	Nov	2022	
+Vegetables	Dill		0.70	22.40	11/9/2022	Nov	2022	
+Greens	Mixed Greens		4.37	23.31	11/9/2022	Nov	2022	
+Greens	Kale		7.35	39.20	11/9/2022	Nov	2022	
+Greens	Swiss Chard		4.13	22.03	11/9/2022	Nov	2022	
+Greens	Bok Choy		1.60	10.24	11/10/2022	Nov	2022	
+Greens	Kale		1.24	6.61	11/10/2022	Nov	2022	
+Greens	Mixed Greens		3.06	16.32	11/10/2022	Nov	2022	
+Greens	Microgreens	21	7.88	143.18	12/12/2022	Dec	2022	GRIN
+Greens	Microgreens	18	6.75	122.73	12/15/2022	Dec	2022	NAFP
+Greens	Microgreens	22	8.25	150.00	12/21/2022	Dec	2022	GRIN
 Greens	Microgreens	22	8.25	150.00	1/13/2023	Jan	2023	NAFP
 Greens	Microgreens	27	10.13	184.09	1/23/2023	Jan	2023	NAFP
 Greens	Kale		2.66	14.19	3/24/2023	Mar	2023	GRIN
@@ -285,7 +1377,7 @@ Vegetables	Peppers		6.67	20.14	8/2/2023	Aug	2023	GRIN
 Vegetables	Tomatoes		0.80	2.02	8/2/2023	Aug	2023	GRIN
 Vegetables	Yellow Squash		7.20	32.91	8/2/2023	Aug	2023	GRIN
 Vegetables	Yellow Squash		3.49	15.95	8/2/2023	Aug	2023	GRIN
-Flowers	Flower bouquets	25	0.00	0.00	8/2/2023	Aug	2023	Stygler 
+Flowers	Flower bouquets	25	0.00	0.00	8/2/2023	Aug	2023	Stygler
 Vegetables	Cherry Tomatoes		16.06	48.94	8/7/2023	Aug	2023	GRIN
 Vegetables	Cucumbers		26.50	121.14	8/7/2023	Aug	2023	GRIN
 Vegetables	Eggplant		23.44	107.15	8/7/2023	Aug	2023	GRIN
@@ -2486,3 +3578,351 @@ Greens	Swiss Chard		5	26.67	10/31/2025	Oct	2025	Market Street
 Vegetables	Turnips		26	92.44	10/31/2025	Oct	2025	Market Street
 Vegetables	Onions		5	15.09	10/31/2025	Oct	2025	Market Street
 Greens	Cabbage		90	458.60	10/31/2025	Oct	2025	Market Street
+Greens	Lettuce		8	42.67	11/1/2025	Nov	2025	GRIN
+Greens	Mustard Greens		1	3.00	11/1/2025	Nov	2025	GRIN
+Greens	Kale		1	5.33	11/1/2025	Nov	2025	GRIN
+Greens	Kale		20	106.67	11/1/2025	Nov	2025	GRIN
+Greens	Collards		13	69.33	11/1/2025	Nov	2025	GRIN
+Greens	Swiss Chard		6	32.00	11/1/2025	Nov	2025	GRIN
+Vegetables	Turnips		27	96.00	11/1/2025	Nov	2025	GRIN
+Vegetables	Onions		17	51.32	11/1/2025	Nov	2025	GRIN
+Greens	Cabbage		94	478.98	11/1/2025	Nov	2025	GRIN
+Vegetables	Broccoli		9	27.17	11/1/2025	Nov	2025	GRIN
+Vegetables	Radishes		40	213.33	11/1/2025	Nov	2025	GRIN
+Vegetables	Turnips		17	60.44	11/1/2025	Nov	2025	GRIN
+Vegetables	Daikon Radish		4.5	24.00	11/5/2025	Nov	2025	Market Street
+Vegetables	Turnips		4.5	16.00	11/5/2025	Nov	2025	Market Street
+Vegetables	Butternut Squash		40	88.28	11/5/2025	Nov	2025	Market Street
+Vegetables	Acorn Squash		25	55.17	11/5/2025	Nov	2025	Market Street
+Greens	Kale		13	69.33	11/5/2025	Nov	2025	Market Street
+Greens	Lettuce		18	96.00	11/5/2025	Nov	2025	Market Street
+Greens	Cabbage		104	529.94	11/5/2025	Nov	2025	Market Street
+Greens	Kale		63	336.00	11/5/2025	Nov	2025	NAFP
+Greens	Lettuce		12	64.00	11/5/2025	Nov	2025	NAFP
+Greens	Cabbage		103	524.84	11/5/2025	Nov	2025	NAFP
+Greens	Spinach		17	90.67	11/5/2025	Nov	2025	NAFP
+Vegetables	Onions		17	51.32	11/5/2025	Nov	2025	NAFP
+Greens	Swiss Chard		14	74.67	11/5/2025	Nov	2025	NAFP
+Greens	Mustard Greens		12	36.00	11/5/2025	Nov	2025	NAFP
+Herbs	Cilantro		6	192.00	11/5/2025	Nov	2025	GRIN
+Greens	Cabbage		35	178.34	11/5/2025	Nov	2025	GRIN
+Greens	Kale		18	96.00	11/5/2025	Nov	2025	GRIN
+Greens	Spinach		5	26.67	11/8/2025	Nov	2025	Market Street
+Greens	Mixed Greens		10	53.33	11/8/2025	Nov	2025	Market Street
+Vegetables	Daikon Radish		29	154.67	11/8/2025	Nov	2025	Market Street
+Vegetables	Turnips		14	49.78	11/8/2025	Nov	2025	Market Street
+Vegetables	Onions		29	87.55	11/8/2025	Nov	2025	Market Street
+Greens	Kale		14	74.67	11/8/2025	Nov	2025	Market Street
+Greens	Collards		6	32.00	11/8/2025	Nov	2025	Market Street
+Greens	Cabbage		141	718.47	11/8/2025	Nov	2025	Market Street
+Greens	Swiss Chard		12	64.00	11/13/2025	Nov	2025	GRIN
+Vegetables	Turnips		17	60.44	11/13/2025	Nov	2025	GRIN
+Vegetables	Daikon Radish		15	80.00	11/13/2025	Nov	2025	GRIN
+Greens	Cabbage		36	183.44	11/13/2025	Nov	2025	GRIN
+Greens	Spinach		3	16.00	11/13/2025	Nov	2025	GRIN
+Greens	Kale		104	554.67	11/13/2025	Nov	2025	GRIN
+Greens	Kale		57	304.00	11/13/2025	Nov	2025	Market Street
+Greens	Collards		36	192.00	11/13/2025	Nov	2025	Market Street
+Greens	Kale		24	128.00	11/19/2025	Nov	2025	NAFP
+Greens	Collards		25	133.33	11/19/2025	Nov	2025	NAFP
+Greens	Spinach		49	261.33	11/19/2025	Nov	2025	NAFP
+Greens	Lettuce		32	170.67	11/21/2025	Nov	2025	GRIN
+Vegetables	Turnips		19	67.56	11/21/2025	Nov	2025	GRIN
+Vegetables	Radishes		38	202.67	11/21/2025	Nov	2025	GRIN
+Greens	Collards		13	69.33	11/21/2025	Nov	2025	GRIN
+Greens	Kale		50	266.67	11/21/2025	Nov	2025	GRIN
+Greens	Swiss Chard		22	117.33	11/25/2025	Nov	2025	GRIN
+Greens	Collards		35	186.67	11/25/2025	Nov	2025	GRIN
+Greens	Spinach		16	85.33	11/25/2025	Nov	2025	GRIN
+Greens	Kale		5	26.67	11/25/2025	Nov	2025	GRIN
+Greens	Mixed Greens		17	90.67	12/9/2025	Dec	2025	GRIN
+Greens	Collards		17	90.67	12/17/2025	Dec	2025	NAFP
+Greens	Spinach		12	64.00	12/17/2025	Dec	2025	NAFP
+Greens	Kale		28	149.33	12/17/2025	Dec	2025	NAFP
+Herbs	Cilantro		2	64.00	12/18/2025	Dec	2025	GRIN
+Greens	Spinach		14	74.67	12/18/2025	Dec	2025	GRIN
+Greens	Swiss Chard		22	117.33	12/18/2025	Dec	2025	GRIN
+Greens	Collards		44	234.67	12/18/2025	Dec	2025	GRIN
+Greens	Kale		77	410.67	12/18/2025	Dec	2025	GRIN
+Vegetables	Carrots		61	348.57	1/8/2026	Jan	2026	GRIN
+Greens	Spinach		22	117.33	1/8/2026	Jan	2026	GRIN
+Greens	Kale		5	26.67	1/8/2026	Jan	2026	GRIN
+Greens	Lettuce		20	106.67	1/22/2026	Jan	2026	GRIN
+Vegetables	Carrots		65	371.43	2/20/2026	Feb	2026	GRIN
+Greens	Collards		42	224.00	3/3/2026	Mar	2026	GRIN
+Vegetables	Carrots		40	228.57	3/11/2026	Mar	2026	GRIN
+Greens	Kale		31	165.33	2/20/2026	Feb	2026	GRIN
+Greens	Lettuce		56	298.67	4/17/2026	Apr	2026	NAFP
+Vegetables	Radishes		36	192.00	4/17/2026	Apr	2026	NAFP
+Vegetables	Radishes		36	192.00	4/17/2026	Apr	2026	GRIN
+Greens	Lettuce		57	304.00	4/17/2026	Apr	2026	GRIN
+Greens	Lettuce		25	133.33	4/21/2026	Apr	2026	Broad St
+Vegetables	Radishes		42	224.00	4/21/2026	Apr	2026	Broad St
+Greens	Lettuce		43	229.33	4/24/2026	Apr	2026	GRIN
+Vegetables	Radishes		40	213.33	4/24/2026	Apr	2026	GRIN
+Greens	Lettuce		24	128.00	4/24/2026	Apr	2026	Motherful
+Vegetables	Radishes		7	37.33	4/24/2026	Apr	2026	Motherful
+Greens	Lettuce		21.9	116.80	4/27/2026	Apr	2026	GRIN
+Vegetables	Radishes		29	154.67	4/27/2026	Apr	2026	GRIN
+Vegetables	Turnips		22	78.22	4/27/2026	Apr	2026	GRIN
+Greens	Kale		12	64.00	4/27/2026	Apr	2026	GRIN
+Greens	Lettuce		26	138.67	4/29/2026	Apr	2026	Broad St
+Vegetables	Turnips		17	60.44	4/29/2026	Apr	2026	Broad St
+Vegetables	Radishes		41	218.67	4/29/2026	Apr	2026	Broad St
+Greens	Lettuce		45	240.00	4/29/2026	Apr	2026	NAFP
+Vegetables	Radishes		30	160.00	4/29/2026	Apr	2026	NAFP
+Vegetables	Turnips		35	124.44	4/29/2026	Apr	2026	NAFP
+Greens	Lettuce		7	37.33	4/30/2026	Apr	2026	Faith Care
+Vegetables	Radishes		34	181.33	4/30/2026	Apr	2026	Faith Care
+Vegetables	Turnips		24	85.33	4/30/2026	Apr	2026	Faith Care
+Vegetables	Radishes		71	378.67	5/1/2026	May	2026	Market Street
+Vegetables	Turnips		16	56.89	5/1/2026	May	2026	Market Street
+Greens	Lettuce		54	288.00	5/1/2026	May	2026	Market Street
+Greens	Lettuce		56	298.67	5/1/2026	May	2026	GRIN
+Vegetables	Turnips		15	53.33	5/1/2026	May	2026	GRIN
+Greens	Lettuce		12	64.00	5/1/2026	May	2026	Motherful
+Greens	Lettuce		1	5.33	4/30/2026	Apr	2026	Other
+Vegetables	Radishes		3	16.00	4/30/2026	Apr	2026	Other
+Vegetables	Radishes		32	170.67	5/4/2026	May	2026	GRIN
+Vegetables	Turnips		15	53.33	5/4/2026	May	2026	GRIN
+Greens	Lettuce		38	202.67	5/4/2026	May	2026	GRIN
+Herbs	Cilantro		12	384.00	5/4/2026	May	2026	GRIN
+Vegetables	Radishes		15	80.00	5/1/2026	May	2026	NAFP
+Greens	Lettuce		41	218.67	5/1/2026	May	2026	NAFP
+Vegetables	Turnips		31	110.22	5/1/2026	May	2026	NAFP
+Vegetables	Turnips		17	60.44	5/5/2026	May	2026	Broad St
+Greens	Lettuce		25	133.33	5/5/2026	May	2026	Broad St
+Herbs	Cilantro		12	384.00	5/5/2026	May	2026	Broad St
+Greens	Lettuce		34	181.33	5/6/2026	May	2026	Market Street
+Greens	Lettuce		6	32.00	5/7/2026	May	2026	Faith Care
+Greens	Lettuce		34	181.33	5/6/2026	May	2026	GRIN
+Greens	Kale		4	21.33	5/6/2026	May	2026	GRIN
+Greens	Lettuce		17	90.67	5/8/2026	May	2026	Market Street
+Greens	Mixed Greens		19	101.33	5/8/2026	May	2026	Motherful
+Greens	Mixed Greens		35	186.67	5/8/2026	May	2026	GRIN
+Vegetables	Radishes		17	90.67	5/8/2026	May	2026	GRIN
+Greens	Lettuce		25	133.33	5/13/2026	May	2026	NAFP
+Vegetables	Turnips		20	71.11	5/13/2026	May	2026	NAFP
+Greens	Lettuce		30	160.00	5/12/2026	May	2026	Broad St
+Vegetables	Turnips		31	110.22	5/12/2026	May	2026	Broad St
+Greens	Lettuce		15	80.00	5/15/2026	May	2026	Market Street
+Vegetables	Turnips		31	110.22	5/15/2026	May	2026	Market Street
+Greens	Lettuce		23	122.67	5/15/2026	May	2026	Motherful
+Vegetables	Radishes		8	42.67	5/15/2026	May	2026	Motherful
+Vegetables	Turnips		8	28.44	5/15/2026	May	2026	Motherful
+Greens	Lettuce		52	277.33	5/15/2026	May	2026	NAFP
+Vegetables	Radishes		21	112.00	5/15/2026	May	2026	NAFP
+Vegetables	Turnips		21	74.67	5/15/2026	May	2026	NAFP
+Vegetables	Onions		32	96.60	5/18/26	May	2026	GRIN
+Vegetables	Turnips		35	124.44	5/18/2026	May	2026	GRIN
+Vegetables	Radishes		21	112.00	5/18/2026	May	2026	GRIN
+Greens	Lettuce		40	213.33	5/18/2026	May	2026	GRIN
+Greens	Lettuce		32	170.67	5/21/2026	May	2026	Faith Care
+Vegetables	Turnips		14	49.78	5/21/2026	May	2026	Faith Care
+Greens	Lettuce		123	656.00	5/20/2026	May	2026	Market Street
+Vegetables	Turnips		57	202.67	5/20/2026	May	2026	Market Street
+Vegetables	Onions		15	45.28	5/20/2026	May	2026	Market Street
+Greens	Lettuce		14	74.67	5/21/2026	May	2026	Northridge
+Greens	Lettuce		25	133.33	5/20/2026	May	2026	Broad St
+Greens	Lettuce		34	181.33	5/20/2026	May	2026	Broad St
+Vegetables	Turnips		76	270.22	5/20/2026	May	2026	Broad St
+Vegetables	Radishes		22	117.33	5/20/2026	May	2026	Broad St
+Greens	Lettuce		148	789.33	5/22/2026	May	2026	Market Street
+Greens	Lettuce		115.8	617.60	5/21/2026	May	2026	FPN Brice
+Greens	Lettuce		14	74.67	5/22/2026	May	2026	Motherful
+Greens	Kale		30	160.00	5/22/2026	May	2026	Motherful
+Vegetables	Radishes		27	144.00	5/22/2026	May	2026	Motherful
+Greens	Kale		68	362.67	5/26/2026	May	2026	GRIN
+Vegetables	Radishes		27	144.00	5/26/2026	May	2026	GRIN
+Greens	Lettuce		137.6	733.87	5/27/2026	May	2026	Market Street
+Greens	Lettuce		23	122.67	5/28/2026	May	2026	Faith Care
+Greens	Lettuce		47	250.67	5/27/2026	May	2026	Broad St
+Greens	Mustard Greens		20	60.00	5/27/2026	May	2026	NAFP
+Vegetables	Radishes		25	133.33	5/27/2026	May	2026	NAFP
+Greens	Lettuce		45	240.00	5/27/2026	May	2026	NAFP
+Greens	Lettuce		46	245.33	5/27/2026	May	2026	FPN Brice
+Vegetables	Radishes		24	128.00	5/27/2026	May	2026	FPN Brice
+Greens	Lettuce		51.5	274.67	5/29/2026	May	2026	GRIN
+Herbs	Cilantro		5.5	176.00	5/29/2026	May	2026	GRIN
+Herbs	Basil		0.5	16.00	5/29/2026	May	2026	GRIN
+Herbs	Garlic Scapes		9	480.00	5/29/2026	May	2026	GRIN
+Vegetables	Turnips		45	160.00	5/29/2026	May	2026	Motherful
+Herbs	Cilantro		5	160.00	5/29/2026	May	2026	Motherful
+Vegetables	Turnips		20	71.11	5/29/2026	May	2026	NAFP
+Vegetables	Turnips		41	145.78	5/29/2026	May	2026	NAFP
+Greens	Lettuce		18	96.00	5/29/2026	May	2026	NAFP
+Herbs	Cilantro		12	384.00	5/29/2026	May	2026	NAFP
+Vegetables	Onions		93	280.75	5/29/2026	May	2026	NAFP
+Greens	Lettuce		53	282.67	6/2/2026	Jun	2026	Broad St
+Herbs	Cilantro		13	416.00	6/2/2026	Jun	2026	Broad St
+Vegetables	Turnips		34	120.89	6/2/2026	Jun	2026	Broad St
+Greens	Mustard Greens		13	39.00	6/2/2026	Jun	2026	Broad St
+Herbs	Cilantro		14	448.00	6/1/2026	Jun	2026	GRIN
+Vegetables	Turnips		39	138.67	6/1/2026	Jun	2026	GRIN
+Greens	Lettuce		42	224.00	6/1/2026	Jun	2026	GRIN
+Greens	Mustard Greens		34	102.00	6/1/2026	Jun	2026	GRIN
+Vegetables	Turnips		41	145.78	6/2/2026	Jun	2026	Broad St
+Vegetables	Turnips		10	35.56	6/1/2026	Jun	2026	Bags
+Herbs	Cilantro		2	64.00	6/1/2026	Jun	2026	Bags
+Greens	Kale		20	106.67	6/1/2026	Jun	2026	Bags
+Greens	Collards		48	256.00	6/3/2026	Jun	2026	Market Street
+Greens	Lettuce		28	149.33	6/3/2026	Jun	2026	Market Street
+Greens	Mustard Greens		11	33.00	6/3/2026	Jun	2026	Market Street
+Herbs	Cilantro		16	512.00	6/3/2026	Jun	2026	Market Street
+Vegetables	Turnips		8	28.44	6/3/2026	Jun	2026	Market Street
+Herbs	Garlic Scapes		5	266.67	6/3/2026	Jun	2026	Market Street
+Greens	Lettuce		14	74.67	6/3/2026	Jun	2026	OSU Newark
+Greens	Mustard Greens		9	27.00	6/3/2026	Jun	2026	OSU Newark
+Greens	Collards		26	138.67	6/3/2026	Jun	2026	OSU Newark
+Herbs	Garlic Scapes		4	213.33	6/3/2026	Jun	2026	OSU Newark
+Greens	Lettuce		64	341.33	6/5/2026	Jun	2026	Broad St
+Vegetables	Turnips		71	252.44	6/5/2026	Jun	2026	Broad St
+Greens	Collards		12	64.00	6/5/2026	Jun	2026	Broad St
+Greens	Lettuce		25	133.33	6/6/2026	Jun	2026	Motherful
+Greens	Kale		28	149.33	6/4/2026	Jun	2026	GRIN
+Greens	Lettuce		42	224.00	6/4/2026	Jun	2026	GRIN
+Greens	Lettuce		12	64.00	6/1/2026	Jun	2026	Bags
+Vegetables	Turnips		47	167.11	6/7/2026	Jun	2026	GRIN
+Vegetables	Turnips		47	167.11	6/8/2026	Jun	2026	GRIN
+Greens	Lettuce		61	325.33	6/8/2026	Jun	2026	GRIN
+Vegetables	Onions		8.15	24.60	6/8/2026	Jun	2026	Bags
+Greens	Lettuce		21	112.00	6/8/2026	Jun	2026	Bags
+Greens	Collards		20	106.67	6/4/2026	Jun	2026	Faith Care
+Herbs	Cilantro		4	128.00	6/4/2026	Jun	2026	Faith Care
+Vegetables	Turnips		8	28.44	6/4/2026	Jun	2026	Faith Care
+Greens	Lettuce		16	85.33	6/4/2026	Jun	2026	Faith Care
+Greens	Lettuce		25	133.33	6/9/2026	Jun	2026	Broad St
+Greens	Lettuce		24	128.00	6/9/2026	Jun	2026	Broad St
+Greens	Lettuce		47	250.67	6/5/26	Jun	2026	Market Street
+Vegetables	Turnips		64	227.56	6/5/26	Jun	2026	Market Street
+Greens	Lettuce		37	197.33	6/5/2026	Jun	2026	NAFP
+Vegetables	Turnips		26	92.44	6/5/2026	Jun	2026	NAFP
+Greens	Lettuce		52	277.33	6/5/2026	Jun	2026	Broad St
+Vegetables	Turnips		71	252.44	6/5/2026	Jun	2026	Broad St
+Greens	Collards		12	64.00	6/5/2026	Jun	2026	Broad St
+Greens	Lettuce		19	101.33	6/11/2026	Jun	2026	Faith Care
+Vegetables	Onions		12	36.23	6/11/2026	Jun	2026	Faith Care
+Greens	Lettuce		20	106.67	6/11/2026	Jun	2026	Northridge
+Vegetables	Onions		9	27.17	6/11/2026	Jun	2026	Northridge
+Greens	Lettuce		75	400.00	6/10/2026	Jun	2026	Market Street
+Vegetables	Onions		13	39.25	6/10/2026	Jun	2026	Market Street
+Greens	Collards		44	234.67	6/10/2026	Jun	2026	Market Street
+Vegetables	Turnips		19	67.56	6/10/2026	Jun	2026	Market Street
+Greens	Collards		18	96.00	6/12/2026	Jun	2026	Motherful
+Greens	Lettuce		90	480.00	6/10/2026	Jun	2026	NAFP
+Greens	Collards		14.9	79.47	6/12/2026	Jun	2026	NAFP
+Vegetables	Turnips		30.2	107.38	6/12/2026	Jun	2026	NAFP
+Vegetables	Onions		81.5	246.04	6/12/2026	Jun	2026	NAFP
+Vegetables	Radishes		62	330.67	6/12/2026	Jun	2026	NAFP
+Greens	Lettuce		235	1,253.33	6/10/2026	Jun	2026	FPN Brice
+Vegetables	Radishes		30	160.00	6/10/2026	Jun	2026	FPN Brice
+Vegetables	Turnips		32	113.78	6/10/2026	Jun	2026	NAFP
+Greens	Collards		61	325.33	6/10/2026	Jun	2026	NAFP
+Vegetables	Onions		11	33.21	6/10/2026	Jun	2026	NAFP
+Vegetables	Cucumbers		12	54.86	6/12/2026	Jun	2026	NAFP
+Greens	Lettuce		3	16.00	6/12/2026	Jun	2026	Motherful
+Greens	Lettuce		14.86	79.25	6/12/2026	Jun	2026	Motherful
+Greens	Lettuce		31	165.33	6/12/2026	Jun	2026	NAFP
+Greens	Lettuce		54	288.00	6/12/2026	Jun	2026	GRIN
+Greens	Lettuce		54	288.00	6/15/2026	Jun	2026	GRIN
+Vegetables	Peppers		31	93.58	6/15/2026	Jun	2026	GRIN
+Vegetables	Cucumbers		43	196.57	6/15/2026	Jun	2026	GRIN
+Greens	Lettuce		23	122.67	6/15/2026	Jun	2026	Bags
+Vegetables	Peppers		11	33.21	6/15/2026	Jun	2026	Bags
+Vegetables	Cucumbers		41	187.43	6/15/2026	Jun	2026	Bags
+Vegetables	Beets		22.6	75.33	6/17/2026	Jun	2026	Market Street
+Greens	Lettuce		39.9	212.80	6/17/2026	Jun	2026	Market Street
+Vegetables	Cucumbers		14.65	66.97	6/17/2026	Jun	2026	Market Street
+Herbs	Cilantro		3.75	120.00	6/17/2026	Jun	2026	Market Street
+Vegetables	Beets		4.8	16.00	6/18/2026	Jun	2026	Faith Care
+Herbs	Cilantro		1.45	46.40	6/18/2026	Jun	2026	Faith Care
+Greens	Lettuce		17	90.67	6/18/2026	Jun	2026	Faith Care
+Greens	Lettuce		13.5	72.00	6/18/2026	Jun	2026	Northridge
+Vegetables	Beets		10	33.33	6/18/2026	Jun	2026	Northridge
+Herbs	Cilantro		2.8	89.60	6/18/2026	Jun	2026	Northridge
+Greens	Lettuce		25	133.33	6/17/2026	Jun	2026	Broad St
+Vegetables	Peppers		17	51.32	6/17/2026	Jun	2026	Broad St
+Vegetables	Cucumbers		41	187.43	6/17/2026	Jun	2026	Broad St
+Herbs	Cilantro		11	352.00	6/19/2026	Jun	2026	Motherful
+Vegetables	Cucumbers		36	164.57	6/19/2026	Jun	2026	Motherful
+Vegetables	Beets		23	76.67	6/19/2026	Jun	2026	Motherful
+Greens	Lettuce		13	69.33	6/19/2026	Jun	2026	Motherful
+Greens	Lettuce		88	469.33	6/19/2026	Jun	2026	NAFP
+Vegetables	Beets		40	133.33	6/19/2026	Jun	2026	NAFP
+Vegetables	Onions		23	69.43	6/19/2026	Jun	2026	NAFP
+Greens	Lettuce		88	469.33	6/19/2026	Jun	2026	GRIN
+Herbs	Cilantro		3	96.00	6/19/2026	Jun	2026	GRIN
+Vegetables	Cucumbers		71	324.57	6/19/2026	Jun	2026	GRIN
+Vegetables	Onions		28	84.53	6/19/2026	Jun	2026	GRIN
+Vegetables	Beets		41	136.67	6/19/2026	Jun	2026	GRIN
+Vegetables	Onions		12	36.23	6/19/2026	Jun	2026	Motherful
+Greens	Lettuce		67.3	358.93	6/19/2026	Jun	2026	Market Street
+Greens	Lettuce		38.2	203.73	6/21/2026	Jun	2026	GRIN
+Vegetables	Cucumbers		36	164.57	6/21/2026	Jun	2026	Bags
+Greens	Cabbage		20	101.91	6/21/2026	Jun	2026	Bags
+Greens	Lettuce		15	80.00	6/21/2026	Jun	2026	Bags
+Greens	Kale		21	112.00	6/25/2026	Jun	2026	Faith Care
+Vegetables	Onions		3	9.06	6/25/2026	Jun	2026	Faith Care
+Herbs	Parsley		1.1	35.20	6/25/2026	Jun	2026	Faith Care
+Greens	Kale		20	106.67	6/25/2026	Jun	2026	Northridge
+Vegetables	Onions		3.5	10.57	6/25/2026	Jun	2026	Northridge
+Herbs	Parsley		1	32.00	6/25/2026	Jun	2026	Northridge
+Greens	Kale		54	288.00	6/25/2026	Jun	2026	NAFP
+Vegetables	Beets		46	153.33	6/24/2026	Jun	2026	NAFP
+Vegetables	Onions		12	36.23	6/24/2026	Jun	2026	NAFP
+Herbs	Basil		3	96.00	6/24/2026	Jun	2026	NAFP
+Herbs	Parsley		1.3	41.60	6/24/2026	Jun	2026	NAFP
+Vegetables	Cucumbers		12	54.86	6/24/2026	Jun	2026	NAFP
+Fruit	Blueberries		11	33.72	6/24/2026	Jun	2026	Broad St
+Vegetables	Onions		9.5	28.68	6/24/2026	Jun	2026	Broad St
+Greens	Lettuce		28	149.33	6/24/2026	Jun	2026	Broad St
+Greens	Collards		10	53.33	6/24/2026	Jun	2026	Broad St
+Vegetables	Beets		75	250.00	6/24/2026	Jun	2026	Broad St
+Vegetables	Cucumbers		14	64.00	6/24/2026	Jun	2026	Broad St
+Herbs	Basil		3	96.00	6/24/2026	Jun	2026	Broad St
+Greens	Kale		105	560.00	6/24/2026	Jun	2026	Broad St
+Greens	Cabbage		18	91.72	6/24/2026	Jun	2026	Broad St
+Herbs	Parsley		2	64.00	6/24/2026	Jun	2026	Broad St
+Greens	Lettuce		15	80.00	6/24/2026	Jun	2026	Market Street
+Greens	Kale		17.3	92.27	6/24/2026	Jun	2026	Market Street
+Vegetables	Onions		10	30.19	6/24/2026	Jun	2026	Market Street
+Herbs	Basil		3	96.00	6/24/2026	Jun	2026	Market Street
+Herbs	Parsley		1	32.00	6/24/2026	Jun	2026	Market Street
+Vegetables	Beets		16	53.33	6/24/2026	Jun	2026	Market Street
+Vegetables	Cucumbers		14.5	66.29	6/24/2026	Jun	2026	Market Street
+Greens	Kale		48	256.00	6/24/2026	Jun	2026	GRIN
+Vegetables	Beets		16	53.33	6/24/2026	Jun	2026	GRIN
+Vegetables	Onions		23	69.43	6/24/2026	Jun	2026	GRIN
+Herbs	Basil		3	96.00	6/24/2026	Jun	2026	GRIN
+Greens	Lettuce		22	117.33	6/24/2026	Jun	2026	GRIN
+Herbs	Parsley		1	32.00	6/24/2026	Jun	2026	GRIN
+Greens	Lettuce		69	368.00	6/24/2026	Jun	2026	NAFP
+Greens	Cabbage		96	489.17	6/20/2026	Jun	2026	GRIN
+Vegetables	Beets		18	60.00	6/26/2026	Jun	2026	Broad St
+Greens	Collards		57	304.00	6/26/2026	Jun	2026	Broad St
+Greens	Lettuce		42	224.00	6/26/2026	Jun	2026	Broad St
+Greens	Cabbage		59	300.64	6/26/2026	Jun	2026	Broad St
+Vegetables	Cucumbers		23	105.14	6/26/2026	Jun	2026	Broad St
+Vegeatbles	Beets		15	50.00	6/26/2026	Jun	2026	Market Street
+Greens	Collards		23	122.67	6/26/2026	Jun	2026	Market Street
+Greens	Lettuce		26	138.67	6/26/2026	Jun	2026	Market Street
+Greens	Cabbage		35	178.34	6/26/2026	Jun	2026	Market Street
+Vegetables	Beets		30	100.00	6/26/2026	Jun	2026	NAFP
+Greens	Collards		47	250.67	6/26/2026	Jun	2026	NAFP
+Greens	Lettuce		33	176.00	6/26/2026	Jun	2026	NAFP
+Greens	Cabbage		122	621.66	6/26/2026	Jun	2026	NAFP
+Vegetables	Beets		18	60.00	6/26/2026	Jun	2026	GRIN
+Greens	Collards		39	208.00	6/26/2026	Jun	2026	GRIN
+Greens	Lettuce		24	128.00	6/26/2026	Jun	2026	GRIN
+Greens	Cabbage		53	270.06	6/26/2026	Jun	2026	GRIN
+Vegetables	Cucumbers		23	105.14	6/26/2026	Jun	2026	GRIN
+Vegetables	Beets		14	46.67	6/26/2026	Jun	2026	Motherful
+Greens	Collards		13	69.33	6/26/2026	Jun	2026	Motherful
+Greens	Lettuce		7	37.33	6/26/2026	Jun	2026	Motherful
+Greens	Lettuce		122	650.67	6/26/2026	Jun	2026	NAFP
+Vegetables	Peppers		12	36.23	6/26/2026	Jun	2026	NAFP
+Flowers	Flower bouquets	17 bouquets			6/26/2026	Jun	2026	NAFP
+Greens	Lettuce		107	570.67	6/26/2026	Jun	2026	GRIN
+Greens	Lettuce		25	133.33	7/1/2026	Jul	2026	Broad St
+Greens	Lettuce		52	277.33	6/29/2026	Jun	2026	GRIN
+Vegetables	Carrots		88	502.86	6/29/2026	Jun	2026	GRIN
