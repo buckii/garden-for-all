@@ -4,18 +4,9 @@
 
     <div class="max-w-7xl mx-auto px-4 py-4 sm:py-6 pb-28 lg:pb-6">
       <!-- Page Header -->
-      <div class="mb-4 sm:mb-8 flex justify-between items-start gap-3">
-        <div>
-          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 font-poppins">Create New Order</h1>
-          <p class="hidden sm:block text-gray-600 mt-2">Select harvest entries to pack for delivery to a food pantry</p>
-        </div>
-        <router-link to="/harvest"
-          class="inline-flex items-center px-3 py-2 sm:px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-garden-green-600 hover:bg-garden-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-garden-green-500 transition-colors whitespace-nowrap">
-          <svg class="w-5 h-5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span class="hidden sm:inline">Add Harvest</span>
-        </router-link>
+      <div class="mb-4 sm:mb-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 font-poppins">Create New Order</h1>
+        <p class="hidden sm:block text-gray-600 mt-2">Select harvest entries to pack for delivery to a food pantry</p>
       </div>
 
       <!-- Error/Success Messages -->
@@ -63,16 +54,7 @@
 
               <!-- Expanded form -->
               <div v-else class="p-4 sm:p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Order Details</h2>
-                  <button v-if="detailsComplete" type="button" @click="detailsCollapsed = true"
-                    class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-garden-green-600 rounded-lg hover:bg-garden-green-700 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Done
-                  </button>
-                </div>
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Order Details</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <!-- Pantry Selection -->
@@ -114,8 +96,8 @@
 
                   <!-- Packer Name -->
                   <div :class="form.orderType === 'delivery' ? 'md:col-span-2' : ''">
-                    <label for="packerName" class="block text-sm font-medium text-gray-700 mb-2">Packer Name</label>
-                    <input type="text" id="packerName" v-model="form.packerName"
+                    <label for="packerName" class="block text-sm font-medium text-gray-700 mb-2">Packer Name *</label>
+                    <input type="text" id="packerName" v-model="form.packerName" required
                       class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base focus:ring-2 focus:ring-garden-green-500 focus:border-garden-green-500">
                   </div>
                 </div>
@@ -126,11 +108,25 @@
                   <textarea id="notes" v-model="form.notes" rows="3"
                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base focus:ring-2 focus:ring-garden-green-500 focus:border-garden-green-500"></textarea>
                 </div>
+
+                <!-- Save and continue to produce picker (desktop; mobile uses the floating bar) -->
+                <div class="mt-6 hidden lg:block">
+                  <button type="button" @click="saveDetails" :disabled="!detailsComplete"
+                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-white bg-garden-green-600 rounded-lg hover:bg-garden-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Save and Pick Items
+                  </button>
+                  <p v-if="!detailsComplete" class="text-xs text-gray-500 text-center mt-2">
+                    Select a food pantry, delivery date, and packer name to continue
+                  </p>
+                </div>
               </div>
             </div>
 
             <!-- Available Harvest Entries -->
-            <div v-if="form.pantryId" class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
+            <div v-if="detailsCollapsed" class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
               <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
                 Available Harvest
                 <span class="hidden sm:inline">Entries for {{ selectedPantryName }}</span>
@@ -181,11 +177,27 @@
                       Weight to add (max {{ entry.weight.toFixed(1) }} lbs)
                     </label>
                     <div class="flex items-center gap-2">
+                      <button type="button" @click.stop="adjustAllocation(entry, -1)"
+                        :disabled="(selectedAllocations[entry._id] || 0) <= 0"
+                        aria-label="Decrease weight by 1 lb"
+                        class="flex-shrink-0 w-10 h-10 inline-flex items-center justify-center border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                        </svg>
+                      </button>
                       <input type="number" inputmode="decimal" step="0.1" min="0.1" :max="entry.weight"
                         :value="selectedAllocations[entry._id]"
                         @input="updateAllocation(entry, $event)"
                         @click.stop
-                        class="w-24 border border-gray-300 rounded px-2 py-2 text-base focus:ring-1 focus:ring-garden-green-500 focus:border-garden-green-500">
+                        class="w-20 text-center border border-gray-300 rounded-lg px-2 py-2 text-base focus:ring-1 focus:ring-garden-green-500 focus:border-garden-green-500">
+                      <button type="button" @click.stop="adjustAllocation(entry, 1)"
+                        :disabled="(selectedAllocations[entry._id] || 0) >= entry.weight"
+                        aria-label="Increase weight by 1 lb"
+                        class="flex-shrink-0 w-10 h-10 inline-flex items-center justify-center border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                      </button>
                       <span class="text-sm text-gray-500">lbs</span>
                       <button type="button" @click.stop="setFullWeight(entry)"
                         class="ml-auto text-sm text-garden-green-600 hover:text-garden-green-700 hover:underline px-2 py-1">
@@ -293,8 +305,24 @@
       </div>
     </div>
 
+    <!-- Mobile Floating Save bar (shown while editing order details) -->
+    <div v-if="!detailsCollapsed"
+      class="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-white border-t shadow-[0_-2px_10px_rgba(0,0,0,0.08)] px-4 py-3"
+      style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom));">
+      <button type="button" @click="saveDetails" :disabled="!detailsComplete"
+        class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-white bg-garden-green-600 rounded-lg hover:bg-garden-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        Save and Pick Items
+      </button>
+      <p v-if="!detailsComplete" class="text-xs text-gray-500 text-center mt-1">
+        Select a food pantry, delivery date, and packer name to continue
+      </p>
+    </div>
+
     <!-- Mobile Floating Summary (lg:hidden) -->
-    <div v-if="form.pantryId" class="lg:hidden fixed inset-x-0 bottom-0 z-40">
+    <div v-if="detailsCollapsed" class="lg:hidden fixed inset-x-0 bottom-0 z-40">
       <!-- Expandable detail sheet -->
       <transition
         enter-active-class="transition ease-out duration-200"
@@ -443,7 +471,9 @@ const selectedPantryName = computed(() => {
 })
 
 // Required order settings are filled in — enables collapsing the details card
-const detailsComplete = computed(() => !!form.value.pantryId && !!form.value.deliveryDate)
+const detailsComplete = computed(() =>
+  !!form.value.pantryId && !!form.value.deliveryDate && !!form.value.packerName.trim()
+)
 
 const selectedEntryIds = computed(() => Object.keys(selectedAllocations.value))
 
@@ -565,7 +595,13 @@ const getAuthHeader = () => {
 }
 
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
+  if (!dateString) return ''
+  // A plain YYYY-MM-DD string parses as UTC midnight, which shifts back a day
+  // when rendered in a negative-offset timezone. Treat it as a local date.
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString)
+  const date = match
+    ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+    : new Date(dateString)
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
@@ -595,6 +631,22 @@ const setFullWeight = (entry: any) => {
   selectedAllocations.value[entry._id] = entry.weight
 }
 
+// Step the allocation up/down by a whole pound, clamped to [0, entry.weight]
+const adjustAllocation = (entry: any, delta: number) => {
+  const current = selectedAllocations.value[entry._id] || 0
+  let val = current + delta
+  if (val < 0) val = 0
+  if (val > entry.weight) val = entry.weight
+  // Round to 1 decimal to avoid floating-point drift
+  selectedAllocations.value[entry._id] = Math.round(val * 10) / 10
+}
+
+// Collapse the order details into a summary and reveal the produce picker.
+const saveDetails = () => {
+  if (!detailsComplete.value) return
+  detailsCollapsed.value = true
+}
+
 const onPantryChange = async () => {
   selectedAllocations.value = {}
   if (form.value.pantryId) {
@@ -602,11 +654,6 @@ const onPantryChange = async () => {
       fetchAvailableEntries(),
       fetchPlans()
     ])
-    // Once a pantry is picked and details are complete, collapse the settings
-    // so the produce selection gets the screen — especially on mobile.
-    if (detailsComplete.value) {
-      detailsCollapsed.value = true
-    }
   } else {
     availableEntries.value = []
     plans.value = []
@@ -783,9 +830,6 @@ onMounted(async () => {
       fetchAvailableEntries(),
       fetchPlans()
     ])
-    if (detailsComplete.value) {
-      detailsCollapsed.value = true
-    }
   }
 })
 </script>
