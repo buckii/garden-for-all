@@ -37,3 +37,6 @@ coverage
 
 # Personal files
 TODO.md
+
+# Database backups (mongodump output)
+backup/
