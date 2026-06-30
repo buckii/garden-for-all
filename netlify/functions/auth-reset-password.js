@@ -41,8 +41,20 @@ export async function handler(event, context) {
       const resetToken = user.createPasswordResetToken();
       await user.save({ validateBeforeSave: false });
       
-      // Send email with reset link
-      const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5174'}/reset-password/${resetToken}`;
+      // Send email with reset link. Derive the base URL from the request that
+      // initiated the reset so the link always points back to wherever the user
+      // actually is (prod domain, deploy preview, or local dev) — no env config.
+      const headers = event.headers || {};
+      const baseUrl =
+        headers.origin ||
+        (headers.host && `${headers['x-forwarded-proto'] || 'https'}://${headers.host}`);
+
+      if (!baseUrl) {
+        console.error('Could not determine base URL from request headers');
+        return createErrorResponse(500, 'Internal server error');
+      }
+
+      const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
       await sendPasswordResetEmail(user.email, resetUrl);
       
       console.log(`Password reset token for ${email}: ${resetToken}`);
