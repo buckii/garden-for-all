@@ -1,2 +1,8 @@
 # API URL abstraction - rewrite /api/* to /.netlify/functions/*
 /api/*  /.netlify/functions/:splat  200
+
+# SPA fallback — serve index.html for all other routes so direct navigation
+# and refresh work on every client-side route. Listed after /api/* so those
+# match first; real static assets are served before this 200 rewrite applies.
+# Lives here (not netlify.toml) so it does NOT interfere with `netlify dev`.
+/*  /index.html  200

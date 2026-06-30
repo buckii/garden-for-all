@@ -42,28 +42,7 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# SPA fallback for specific routes only (to avoid dev conflicts)
-[[redirects]]
-  from = "/harvest-history"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/admin/*"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/login"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/forgot-password"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/reset-password/*"
-  to = "/index.html"
-  status = 200
+# NOTE: The SPA catch-all lives in public/_redirects (built into dist/), NOT here.
+# A catch-all in netlify.toml is also applied by `netlify dev`, where it rewrites
+# Vite's own module requests to /index.html and breaks the dev server. In dev,
+# Vite already serves index.html for client-side routes, so no rule is needed.
