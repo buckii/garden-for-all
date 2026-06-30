@@ -66,11 +66,13 @@ import { usePusher } from '@/composables/usePusher'
 import { useAdminStore } from '@/stores/admin'
 import { useHarvestStore } from '@/stores/harvest'
 import { computed, nextTick, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 
 type ProduceType = Database['public']['Tables']['produce_types']['Row']
 type HarvestEntry = Database['public']['Tables']['harvest_entries']['Row']
 
+const router = useRouter()
 const harvestStore = useHarvestStore()
 const adminStore = useAdminStore()
 const { subscribeToHarvestUpdates } = usePusher()
@@ -172,17 +174,8 @@ const handleHarvestSubmit = async (data: any) => {
   try {
     await harvestStore.createHarvestEntry(data)
 
-    // Show success message
-    const produceName = selectedProduce.value?.name || 'item'
-    successMessage.value = `Successfully recorded ${data.quantity} ${data.unit} of ${produceName}!`
-
-    // Move to history step
-    currentStep.value = 'history'
-
-    // Auto-clear success message
-    setTimeout(() => {
-      successMessage.value = ''
-    }, 5000)
+    // Redirect to harvest history to show today's status
+    router.push('/harvest-history')
 
   } catch (error) {
     console.error('Failed to create harvest entry:', error)

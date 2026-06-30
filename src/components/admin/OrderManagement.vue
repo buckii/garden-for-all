@@ -260,8 +260,11 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import OrderEditModal from './OrderEditModal.vue'
 import ConfirmModal from '../ui/ConfirmModal.vue'
+
+const router = useRouter()
 
 // State
 const orders = ref<any[]>([])
@@ -398,7 +401,8 @@ const closeEditModal = () => {
 }
 
 const handleOrderSaved = () => {
-  fetchOrders(pagination.value.current)
+  // Redirect to harvest history to show today's status
+  router.push('/harvest-history')
 }
 
 const viewOrder = (order: any) => {
