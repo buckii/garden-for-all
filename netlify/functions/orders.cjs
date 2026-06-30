@@ -46,6 +46,72 @@ exports.handler = async function(event, context) {
   }
 };
 
+// Round to 2 decimal places to keep weights/quantities tidy and avoid float drift
+function round2(n) {
+  return Math.round((n || 0) * 100) / 100;
+}
+
+// Assign harvest entries to an order, optionally taking only PART of an entry's weight.
+// allocations: [{ harvestEntryId, weight }]. If weight is omitted or >= the entry's available
+// weight, the whole entry is assigned. Otherwise the entry is split: a new entry holding the
+// requested weight is created and attached to the order, and the original entry's weight/quantity
+// are reduced proportionally so the remainder stays in available inventory.
+async function assignAllocationsToOrder(order, allocations, pantryId) {
+  for (const alloc of allocations) {
+    if (!alloc || !alloc.harvestEntryId) continue;
+
+    // Security: only allow available entries (no order yet) belonging to this order's pantry
+    const entry = await HarvestEntry.findOne({
+      _id: alloc.harvestEntryId,
+      pantryId: pantryId,
+      $or: [
+        { orderId: null },
+        { orderId: { $exists: false } }
+      ]
+    });
+    if (!entry) continue; // not found, wrong pantry, or already on an order — skip silently
+
+    const requested = (alloc.weight === undefined || alloc.weight === null)
+      ? entry.weight
+      : Number(alloc.weight);
+
+    if (!(requested > 0)) continue; // nothing meaningful to take
+
+    // Whole entry: requested covers (or exceeds) what's available
+    if (requested >= entry.weight) {
+      entry.orderId = order._id;
+      await entry.save();
+      continue;
+    }
+
+    // Partial: split the entry. Take `take` lbs into a new entry on the order,
+    // and reduce the original so the remainder stays available.
+    const take = round2(requested);
+    const ratio = take / entry.weight;
+    const takenQuantity = round2(entry.quantity * ratio);
+
+    const splitEntry = new HarvestEntry({
+      produceTypeId: entry.produceTypeId,
+      quantity: takenQuantity,
+      unit: entry.unit,
+      weight: take,
+      weightEstimated: entry.weightEstimated,
+      pantryId: entry.pantryId,
+      locationId: entry.locationId,
+      harvestDate: entry.harvestDate,
+      harvesterName: entry.harvesterName,
+      notes: entry.notes,
+      orderId: order._id
+    });
+    await splitEntry.save();
+
+    // Reduce the original by exactly what was taken so the two halves sum to the original
+    entry.weight = round2(entry.weight - take);
+    entry.quantity = round2(entry.quantity - takenQuantity);
+    await entry.save();
+  }
+}
+
 // Helper function to recalculate order totals based on harvest entries
 async function recalculateOrderTotals(orderId) {
   const harvestEntries = await HarvestEntry.find({ orderId })
@@ -97,8 +163,17 @@ async function createOrder(event, user) {
 
     await order.save();
 
-    // If harvest entry IDs were provided, assign them to this order
-    if (orderData.harvestEntryIds && orderData.harvestEntryIds.length > 0) {
+    // If harvest allocations were provided, assign them (supports taking part of an entry)
+    if (orderData.harvestAllocations && orderData.harvestAllocations.length > 0) {
+      await assignAllocationsToOrder(order, orderData.harvestAllocations, orderData.pantryId);
+
+      // Recalculate totals
+      const totals = await recalculateOrderTotals(order._id);
+      order.totalWeight = totals.totalWeight;
+      order.totalValue = totals.totalValue;
+      await order.save();
+    } else if (orderData.harvestEntryIds && orderData.harvestEntryIds.length > 0) {
+      // Backward-compatible path: assign whole entries
       await HarvestEntry.updateMany(
         {
           _id: { $in: orderData.harvestEntryIds },

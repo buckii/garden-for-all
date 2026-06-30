@@ -109,16 +109,16 @@
                 <div v-for="entry in availableEntries" :key="entry._id"
                   class="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
                   :class="{ 'bg-green-50 border-green-500': isEntrySelected(entry._id) }"
-                  @click="toggleEntry(entry._id)">
+                  @click="toggleEntry(entry)">
                   <div class="flex items-start justify-between">
                     <div class="flex-1">
                       <div class="flex items-center gap-3">
-                        <input type="checkbox" :checked="isEntrySelected(entry._id)" @click.stop="toggleEntry(entry._id)"
+                        <input type="checkbox" :checked="isEntrySelected(entry._id)" @click.stop="toggleEntry(entry)"
                           class="rounded border-gray-300 text-garden-green-600 focus:ring-garden-green-500">
                         <div>
                           <h4 class="font-medium text-gray-900">{{ entry.produceType.name }}</h4>
                           <div class="text-sm text-gray-600 mt-1">
-                            <span>{{ entry.weight.toFixed(1) }} lbs</span>
+                            <span>{{ entry.weight.toFixed(1) }} lbs available</span>
                             <span class="mx-2">•</span>
                             <span>{{ formatDate(entry.harvestDate) }}</span>
                           </div>
@@ -134,6 +134,25 @@
                       </div>
                     </div>
                   </div>
+
+                  <!-- Partial weight selector (shown when entry is selected) -->
+                  <div v-if="isEntrySelected(entry._id)" class="mt-3 pl-8" @click.stop>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">
+                      Weight to add (max {{ entry.weight.toFixed(1) }} lbs)
+                    </label>
+                    <div class="flex items-center gap-2">
+                      <input type="number" step="0.1" min="0.1" :max="entry.weight"
+                        :value="selectedAllocations[entry._id]"
+                        @input="updateAllocation(entry, $event)"
+                        @click.stop
+                        class="w-28 border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-garden-green-500 focus:border-garden-green-500">
+                      <span class="text-sm text-gray-500">lbs</span>
+                      <button type="button" @click.stop="setFullWeight(entry)"
+                        class="text-xs text-garden-green-600 hover:text-garden-green-700 hover:underline">
+                        Use all
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -147,7 +166,7 @@
             <div class="bg-white rounded-lg shadow-sm border p-6">
               <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
 
-              <div v-if="selectedEntries.length === 0" class="text-center py-8 text-gray-500">
+              <div v-if="selectedEntryIds.length === 0" class="text-center py-8 text-gray-500">
                 <svg class="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -178,7 +197,7 @@
 
                 <!-- Action Button -->
                 <div class="pt-4 border-t">
-                  <button type="button" @click="submitOrder" :disabled="loading || selectedEntries.length === 0"
+                  <button type="button" @click="submitOrder" :disabled="loading || selectedEntryIds.length === 0"
                     class="w-full px-4 py-3 bg-garden-green-600 text-white rounded-lg hover:bg-garden-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
                     <span v-if="loading">Creating Order...</span>
                     <span v-else>Create Order</span>
@@ -245,7 +264,7 @@
           </div>
           <h3 class="text-lg font-medium text-gray-900 mb-2">Order Created Successfully!</h3>
           <p class="text-sm text-gray-500 mb-6">
-            Order for {{ selectedPantryName }} has been created with {{ selectedEntries.length }} harvest entries.
+            Order for {{ selectedPantryName }} has been created with {{ selectedEntryIds.length }} harvest entries.
           </p>
           <div class="flex gap-3">
             <router-link to="/dashboard"
@@ -292,7 +311,9 @@ const form = ref({
 // Data
 const pantries = ref<any[]>([])
 const availableEntries = ref<any[]>([])
-const selectedEntries = ref<string[]>([])
+// Maps a harvest entry _id to the weight (lbs) being taken from it into this order.
+// A full entry uses its whole weight; a partial selection uses less than the entry's weight.
+const selectedAllocations = ref<Record<string, number>>({})
 const createdOrder = ref<any>(null)
 const plans = ref<any[]>([])
 const loadingPlans = ref(false)
@@ -303,14 +324,22 @@ const selectedPantryName = computed(() => {
   return pantry?.name || ''
 })
 
-const selectedEntriesFull = computed(() => {
-  return availableEntries.value.filter(e => selectedEntries.value.includes(e._id))
+const selectedEntryIds = computed(() => Object.keys(selectedAllocations.value))
+
+// Selected entries paired with the weight (lbs) being taken from each
+const selectedItems = computed(() => {
+  return availableEntries.value
+    .filter(e => e._id in selectedAllocations.value)
+    .map(e => ({
+      entry: e,
+      weight: selectedAllocations.value[e._id] || 0
+    }))
 })
 
 const groupedSelectedItems = computed(() => {
   const grouped = new Map()
 
-  selectedEntriesFull.value.forEach(entry => {
+  selectedItems.value.forEach(({ entry, weight }) => {
     const produceName = entry.produceType.name
     if (!grouped.has(produceName)) {
       grouped.set(produceName, {
@@ -318,24 +347,24 @@ const groupedSelectedItems = computed(() => {
         totalWeight: 0
       })
     }
-    grouped.get(produceName).totalWeight += entry.weight
+    grouped.get(produceName).totalWeight += weight
   })
 
   return Array.from(grouped.values())
 })
 
 const totalWeight = computed(() => {
-  return selectedEntriesFull.value.reduce((sum, entry) => sum + entry.weight, 0)
+  return selectedItems.value.reduce((sum, { weight }) => sum + weight, 0)
 })
 
 const totalValue = computed(() => {
-  return selectedEntriesFull.value.reduce((sum, entry) => {
-    return sum + (entry.weight * entry.produceType.pricePerLb)
+  return selectedItems.value.reduce((sum, { entry, weight }) => {
+    return sum + (weight * entry.produceType.pricePerLb)
   }, 0)
 })
 
 const uniqueProduceTypes = computed(() => {
-  const types = new Set(selectedEntriesFull.value.map(e => e.produceType.name))
+  const types = new Set(selectedItems.value.map(({ entry }) => entry.produceType.name))
   return types.size
 })
 
@@ -351,11 +380,11 @@ const planFulfillment = computed(() => {
   }))
 
   // Sort entries to ensure consistent allocation
-  const entries = [...selectedEntriesFull.value]
+  const items = [...selectedItems.value]
 
-  // Process each entry
-  entries.forEach(entry => {
-    let remainingWeight = entry.weight
+  // Process each selected item using the weight being taken (not the full entry weight)
+  items.forEach(({ entry, weight }) => {
+    let remainingWeight = weight
     const produceTypeId = entry.produceType._id
     const categoryId = entry.produceType.categoryId
 
@@ -420,20 +449,33 @@ const formatDate = (dateString: string) => {
 }
 
 const isEntrySelected = (entryId: string) => {
-  return selectedEntries.value.includes(entryId)
+  return entryId in selectedAllocations.value
 }
 
-const toggleEntry = (entryId: string) => {
-  const index = selectedEntries.value.indexOf(entryId)
-  if (index > -1) {
-    selectedEntries.value.splice(index, 1)
+const toggleEntry = (entry: any) => {
+  if (entry._id in selectedAllocations.value) {
+    delete selectedAllocations.value[entry._id]
   } else {
-    selectedEntries.value.push(entryId)
+    // Default to taking the full available weight
+    selectedAllocations.value[entry._id] = entry.weight
   }
 }
 
+// Clamp the typed weight to (0, entry.weight] and store it for this entry
+const updateAllocation = (entry: any, event: Event) => {
+  const raw = parseFloat((event.target as HTMLInputElement).value)
+  let val = isNaN(raw) ? 0 : raw
+  if (val < 0) val = 0
+  if (val > entry.weight) val = entry.weight
+  selectedAllocations.value[entry._id] = val
+}
+
+const setFullWeight = (entry: any) => {
+  selectedAllocations.value[entry._id] = entry.weight
+}
+
 const onPantryChange = async () => {
-  selectedEntries.value = []
+  selectedAllocations.value = {}
   if (form.value.pantryId) {
     await Promise.all([
       fetchAvailableEntries(),
@@ -462,13 +504,13 @@ const fetchAvailableEntries = async () => {
 
   loadingEntries.value = true
   try {
-    const response = await fetch(`${API_BASE}/harvest-list?limit=1000`, {
+    const response = await fetch(`${API_BASE}/harvest-list?pantryId=${form.value.pantryId}&includeUnallocated=1&limit=1000`, {
       headers: getAuthHeader()
     })
     const result = await response.json()
     const allEntries = result.data?.entries || []
 
-    // Show all entries that aren't assigned to an order (available inventory)
+    // Show entries allocated to this pantry that aren't yet assigned to an order
     availableEntries.value = allEntries.filter((entry: any) => {
       return !entry.orderId
     })
@@ -504,8 +546,13 @@ const fetchPlans = async () => {
 }
 
 const submitOrder = async () => {
-  if (selectedEntries.value.length === 0) {
-    error.value = 'Please select at least one harvest entry'
+  // Build allocations, keeping only entries with a positive weight to take
+  const harvestAllocations = Object.entries(selectedAllocations.value)
+    .filter(([, weight]) => weight > 0)
+    .map(([harvestEntryId, weight]) => ({ harvestEntryId, weight }))
+
+  if (harvestAllocations.length === 0) {
+    error.value = 'Please select at least one harvest entry with a weight greater than 0'
     return
   }
 
@@ -521,7 +568,7 @@ const submitOrder = async () => {
       packerName: form.value.packerName,
       orderType: form.value.orderType,
       notes: form.value.notes,
-      harvestEntryIds: selectedEntries.value,
+      harvestAllocations,
       status: 'ready'
     }
 
@@ -569,7 +616,7 @@ const createAnother = () => {
     notes: ''
   }
 
-  selectedEntries.value = []
+  selectedAllocations.value = {}
   setDefaultDate()
   fetchAvailableEntries()
 }
