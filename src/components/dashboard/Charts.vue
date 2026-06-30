@@ -493,7 +493,7 @@ const formatWeek = (date: Date) => {
 }
 
 const formatTimeAgo = (timestamp: string) => {
-  const now = new Date()
+  if (!timestamp) return ''
 
   // Parse date consistently to avoid timezone issues
   let date: Date
@@ -505,16 +505,16 @@ const formatTimeAgo = (timestamp: string) => {
     date = new Date(timestamp + 'T00:00:00')
   }
 
-  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+  // Harvest dates are meaningful only to the day, so compare calendar days in
+  // local time (ignore hours/minutes) and round to absorb DST 23h/25h days.
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  const msPerDay = 1000 * 60 * 60 * 24
+  const diffInDays = Math.round((startOfDay(date).getTime() - startOfDay(new Date()).getTime()) / msPerDay)
 
-  if (diffInHours < 1) {
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
-    return `${diffInMinutes}m ago`
-  } else if (diffInHours < 24) {
-    return `${diffInHours}h ago`
-  } else {
-    const diffInDays = Math.floor(diffInHours / 24)
-    return `${diffInDays}d ago`
-  }
+  if (diffInDays === 0) return 'today'
+  if (diffInDays === 1) return 'tomorrow'
+  if (diffInDays === -1) return 'yesterday'
+  if (diffInDays > 1) return `in ${diffInDays} days`
+  return `${Math.abs(diffInDays)} days ago`
 }
 </script>
