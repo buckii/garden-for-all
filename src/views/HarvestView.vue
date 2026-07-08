@@ -54,11 +54,23 @@
         </div>
       </div>
     </div>
+
+    <!-- Harvest Entry Edit Modal -->
+    <HarvestEditModal
+      ref="harvestEditModalRef"
+      :show="showHarvestEditModal"
+      :entry="selectedEntryForEdit"
+      :pantries="pantries"
+      :produce-types="produceTypes"
+      @close="closeHarvestEditModal"
+      @saved="handleHarvestEntrySaved"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import HarvestHistory from '@/components/harvest/HarvestHistory.vue'
+import HarvestEditModal from '@/components/harvest/HarvestEditModal.vue'
 import ProduceSelector from '@/components/harvest/ProduceSelector.vue'
 import QuantityInput from '@/components/harvest/QuantityInput.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
@@ -82,6 +94,9 @@ const selectedProduce = ref<ProduceType | null>(null)
 const submitting = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
+const showHarvestEditModal = ref(false)
+const selectedEntryForEdit = ref<any>(null)
+const harvestEditModalRef = ref<any>(null)
 
 // Access stores through computed properties to ensure reactivity
 const todaysEntries = computed(() => harvestStore.todaysEntries)
@@ -190,21 +205,54 @@ const handleHarvestSubmit = async (data: any) => {
 }
 
 const handleEditEntry = (entry: HarvestEntry) => {
-  // TODO: Implement edit functionality
-  console.log('Edit entry:', entry)
+  selectedEntryForEdit.value = entry
+  showHarvestEditModal.value = true
+}
+
+const closeHarvestEditModal = () => {
+  showHarvestEditModal.value = false
+  selectedEntryForEdit.value = null
+}
+
+const handleHarvestEntrySaved = async (data: any) => {
+  clearMessages()
+  try {
+    await harvestStore.updateHarvestEntry(data._id, {
+      produceTypeId: data.produceTypeId,
+      pantryId: data.pantryId,
+      quantity: data.quantity,
+      unit: data.unit,
+      weight: data.weight,
+      harvestDate: data.harvestDate,
+      harvesterName: data.harvesterName,
+      notes: data.notes
+    })
+    closeHarvestEditModal()
+    await refreshData()
+    successMessage.value = 'Entry updated successfully'
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000)
+  } catch (error: any) {
+    console.error('Failed to update entry:', error)
+    harvestEditModalRef.value?.setError(
+      error?.message || 'Failed to update harvest entry. Please try again.'
+    )
+  }
 }
 
 const handleDeleteEntry = async (entry: HarvestEntry) => {
   try {
-    await harvestStore.deleteHarvestEntry(entry.id)
+    await harvestStore.deleteHarvestEntry(entry._id)
+    await refreshData()
     successMessage.value = 'Entry deleted successfully'
 
     setTimeout(() => {
       successMessage.value = ''
     }, 3000)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to delete entry:', error)
-    errorMessage.value = 'Failed to delete entry. Please try again.'
+    errorMessage.value = error?.message || 'Failed to delete entry. Please try again.'
 
     setTimeout(() => {
       errorMessage.value = ''

@@ -5,6 +5,13 @@ import { computed, ref } from 'vue'
 // Harvest API functions
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
+// Attach the JWT when present so signed-in users can edit/delete previous
+// days' entries. Today's entries don't require it.
+const getAuthHeader = (): Record<string, string> => {
+  const token = localStorage.getItem('auth_token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 const api = {
   async getProduceTypes() {
     try {
@@ -48,15 +55,30 @@ const api = {
   },
   
   async updateHarvestEntry(id: string, data: any) {
-    // TODO: Implement harvest update function
-    console.warn('API not yet implemented: updateHarvestEntry')
-    return { data: null, error: null }
+    try {
+      const response = await fetch(`${API_BASE}/harvest-update?id=${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify(data)
+      })
+      const result = await response.json()
+      return { data: result.data || null, error: result.success ? null : (result.error || 'Failed to update harvest entry') }
+    } catch (error: any) {
+      return { data: null, error: error.message }
+    }
   },
-  
+
   async deleteHarvestEntry(id: string) {
-    // TODO: Implement harvest delete function
-    console.warn('API not yet implemented: deleteHarvestEntry')
-    return { error: null }
+    try {
+      const response = await fetch(`${API_BASE}/harvest-delete?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { ...getAuthHeader() }
+      })
+      const result = await response.json()
+      return { error: result.success ? null : (result.error || 'Failed to delete harvest entry') }
+    } catch (error: any) {
+      return { error: error.message }
+    }
   },
 
   async getPantryRecommendation(produceTypeId: string, harvestDate?: string) {
@@ -187,11 +209,11 @@ export const useHarvestStore = defineStore('harvest', () => {
     }
   }
 
-  const updateHarvestEntry = async (id: string, updates: Partial<HarvestEntry>) => {
+  const updateHarvestEntry = async (id: string, updates: Record<string, any>) => {
     try {
       const { data, error: updateError } = await api.updateHarvestEntry(id, updates)
-      
-      if (updateError) throw updateError
+
+      if (updateError) throw new Error(updateError)
       if (data) {
         const harvestIndex = harvestEntries.value.findIndex(e => e._id === id)
         if (harvestIndex !== -1) harvestEntries.value[harvestIndex] = data
@@ -209,8 +231,8 @@ export const useHarvestStore = defineStore('harvest', () => {
   const deleteHarvestEntry = async (id: string) => {
     try {
       const { error: deleteError } = await api.deleteHarvestEntry(id)
-      
-      if (deleteError) throw deleteError
+
+      if (deleteError) throw new Error(deleteError)
       harvestEntries.value = harvestEntries.value.filter(e => e._id !== id)
       recentEntries.value = recentEntries.value.filter(e => e._id !== id)
     } catch (err) {
