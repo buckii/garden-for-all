@@ -140,6 +140,10 @@ src/
 3. **Enter Quantity**: Use large numeric keypad or quick amount buttons
 4. **Add Details**: Optional harvester name and notes
 5. **Save Entry**: Data is immediately saved and visible on dashboard
+6. **Edit or Delete**: Today's entries can be corrected or removed inline
+   without logging in. Editing or deleting an entry from a **previous day
+   requires signing in** (enforced server-side) so historical records
+   can't be altered anonymously.
 
 ### For Monitoring (Dashboard)
 
