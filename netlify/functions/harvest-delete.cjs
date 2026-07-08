@@ -1,13 +1,17 @@
 const { connectDB } = require('./utils/db.js');
 const { HarvestEntry } = require('./utils/models.js');
 const { createResponse, createErrorResponse, handleCORS, extractToken, validateToken } = require('./utils/auth.js');
-const { getEasternDateString, toEasternDateString } = require('./utils/date.js');
+const { getEasternDateString } = require('./utils/date.js');
 
 // Entries from today can be edited/deleted freely (the frictionless harvester
 // flow). Touching a previous day's entry requires a signed-in user so that
 // historical records can't be altered anonymously.
 async function requireAuthForPastEntry(event, entry, action) {
-  const entryDate = toEasternDateString(entry.harvestDate);
+  // harvestDate is stored as UTC midnight of the harvest calendar day, so
+  // read it back as a UTC date (matching harvest-list). Rendering it in
+  // Eastern time would shift it to 8 PM the previous day and misclassify
+  // every entry from today as a past entry.
+  const entryDate = new Date(entry.harvestDate).toISOString().split('T')[0];
   if (entryDate === getEasternDateString()) {
     return null; // Today's entry — no auth required
   }
