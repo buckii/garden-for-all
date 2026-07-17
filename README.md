@@ -13,9 +13,10 @@ A comprehensive web application for tracking produce production and distribution
 - **Produce Tracking** - Record harvest quantities with automatic value calculations
 - **Order Packing** - Build pantry orders from available inventory, taking either a full harvest entry or just part of its weight (the remainder stays available)
 - **Pantry Management** - Track commitments and delivery progress for local food pantries
-- **Real-time Updates** - Live dashboard updates using Pusher
+- **Real-time Updates** - Live dashboard updates using Pusher, including harvest edits and deletions; after the initial load the dashboard refreshes in the background without a full-page spinner
 - **Excel Export** - Generate detailed reports for analysis and record-keeping
 - **Touch Optimization** - Large buttons and inputs designed for outdoor tablet use
+- **Mobile Typography** - All text scales up ~30% on phone-sized screens via a single `--font-scale` CSS variable (see `tailwind.config.js` and `src/assets/main.css`)
 
 ### 🔐 **Security & Authentication**
 - Admin authentication with Supabase Auth
@@ -252,6 +253,13 @@ For TV dashboard displays:
 **Real-time Updates Not Working**
 - Pusher credentials may be missing or invalid
 - Real-time features are optional - app works without them
+
+**Vite error "Failed to parse source for import analysis" on index.html in dev**
+- Caused by a stale `dist/_redirects` containing the SPA catch-all, which
+  `netlify dev` applies to 404'd module requests. The catch-all is only
+  appended to `dist/_redirects` by the deploy build command in `netlify.toml`
+  (never committed in `public/_redirects`), and `npm run dev` clears `dist/`
+  on startup. If it recurs, delete `dist/` and restart the dev server.
 
 **Excel Export Fails**
 - Check browser console for errors
