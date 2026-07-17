@@ -124,6 +124,13 @@ class NetlifyAuth {
     }
   }
 
+  // Adopt a token issued outside the password flow (e.g. QR code login)
+  // so subsequent requests and session restores use it
+  adoptSession(token: string, session: Session) {
+    this.setToken(token);
+    return { data: { session }, error: null };
+  }
+
   async signOut() {
     try {
       await this.makeRequest('auth-signout', { method: 'POST' });

@@ -104,6 +104,12 @@ const router = createRouter({
       component: () => import('../views/LoginView.vue'),
     },
     {
+      path: '/qr-authorize/:sessionId',
+      name: 'qr-authorize',
+      component: () => import('../views/QrAuthorizeView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/forgot-password',
       name: 'forgot-password',
       component: () => import('../views/ForgotPasswordView.vue'),

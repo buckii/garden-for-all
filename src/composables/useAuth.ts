@@ -45,6 +45,13 @@ export const useAuth = () => {
     return data
   }
 
+  // Log in with a token + session issued by the QR login flow
+  const signInWithSession = (token: string, newSession: Session) => {
+    supabase.auth.adoptSession(token, newSession)
+    user.value = newSession.user
+    session.value = newSession
+  }
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
@@ -105,6 +112,7 @@ export const useAuth = () => {
     isAdmin,
     loading: computed(() => loading.value),
     signIn,
+    signInWithSession,
     signOut,
     resetPassword,
     updatePassword,

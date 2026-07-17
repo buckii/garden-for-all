@@ -204,6 +204,18 @@ const orderSchema = new mongoose.Schema({
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
+// QR Login Session Schema
+// Short-lived, single-use sessions for logging in a second device by scanning
+// a QR code from an already-authenticated device.
+// Lifecycle: pending -> authorized (phone approved) -> claimed (new device got its JWT).
+const qrLoginSessionSchema = new mongoose.Schema({
+  sessionId: { type: String, required: true, unique: true },
+  status: { type: String, required: true, enum: ['pending', 'authorized', 'claimed'], default: 'pending' },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
+  // TTL: MongoDB deletes the document ~10 minutes after creation
+  createdAt: { type: Date, default: Date.now, expires: 600 }
+});
+
 // Create indexes
 produceCategorySchema.index({ displayOrder: 1 });
 produceTypeSchema.index({ categoryId: 1, name: 1 });
@@ -227,6 +239,7 @@ const PantryCommitment = mongoose.models.PantryCommitment || mongoose.model('Pan
 const HarvestEntry = mongoose.models.HarvestEntry || mongoose.model('HarvestEntry', harvestEntrySchema);
 const PantryDistribution = mongoose.models.PantryDistribution || mongoose.model('PantryDistribution', pantryDistributionSchema);
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
+const QrLoginSession = mongoose.models.QrLoginSession || mongoose.model('QrLoginSession', qrLoginSessionSchema);
 
 module.exports = {
   ProduceCategory,
@@ -237,5 +250,6 @@ module.exports = {
   PantryCommitment,
   HarvestEntry,
   PantryDistribution,
-  Order
+  Order,
+  QrLoginSession
 };
