@@ -61,14 +61,14 @@
     </div>
 
     <!-- Recently Used -->
-    <div v-if="recentlyUsed.length > 0 && !debouncedSearchQuery" class="space-y-2">
+    <div v-if="recentlyUsed.length > 0 && !searchQuery" class="space-y-2">
       <h3 class="text-base font-medium text-gray-900">Recently Used</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         <button
           v-for="produce in recentlyUsed"
           :key="`recent-${produce.id}`"
           @click="selectProduce(produce)"
-          class="bg-garden-green-50 border-2 border-garden-green-200 rounded-lg px-2 py-1.5 text-center hover:bg-garden-green-100 hover:border-garden-green-300 transition-colors min-h-[48px] flex flex-col justify-center"
+          class="bg-garden-green-50 border-2 border-garden-green-200 rounded-lg px-3 py-2 text-center hover:bg-garden-green-100 hover:border-garden-green-300 transition-colors min-h-[48px] flex flex-col justify-center"
         >
           <div class="text-base font-medium text-gray-900">{{ produce.name }}</div>
         </button>
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Frequently Used Produce -->
-    <div v-if="!debouncedSearchQuery" class="space-y-2">
+    <div v-if="!searchQuery" class="space-y-2">
       <h3 class="text-base font-medium text-gray-900">
         {{ selectedCategoryId ? `${getCategoryName(selectedCategoryId)} - Frequently Used` : 'Frequently Used' }}
         <span class="text-gray-500 font-normal">({{ filteredFrequentlyUsed.length }})</span>
@@ -90,12 +90,12 @@
         <p class="text-gray-500">No frequently used produce types</p>
       </div>
       
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
         <button
           v-for="produce in filteredFrequentlyUsed"
           :key="`freq-${produce.id}`"
           @click="selectProduce(produce)"
-          class="bg-white border-2 border-gray-200 rounded-lg px-2 py-1.5 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[56px] flex flex-col justify-center touch-manipulation"
+          class="bg-white border-2 border-gray-200 rounded-lg px-3 py-2 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[56px] flex flex-col justify-center touch-manipulation"
         >
           <div class="text-base font-medium text-gray-900">{{ produce.name }}</div>
           <div class="text-xs text-gray-500">{{ produce.unitType }} · <span class="text-garden-green-600">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</span></div>
@@ -104,7 +104,7 @@
     </div>
 
     <!-- Rarely Used Produce (Collapsible) -->
-    <div v-if="!debouncedSearchQuery && filteredRarelyUsed.length > 0" class="space-y-2">
+    <div v-if="!searchQuery && filteredRarelyUsed.length > 0" class="space-y-2">
       <div>
         <button
           @click="showUnusedProduce = !showUnusedProduce"
@@ -124,12 +124,12 @@
         </button>
       </div>
       
-      <div v-if="showUnusedProduce" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+      <div v-if="showUnusedProduce" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
         <button
           v-for="produce in filteredRarelyUsed"
           :key="`rare-${produce.id}`"
           @click="selectProduce(produce)"
-          class="bg-gray-50 border-2 border-gray-200 rounded-lg px-2 py-1.5 text-center hover:border-garden-green-300 hover:shadow-md hover:bg-white transition-all min-h-[56px] flex flex-col justify-center touch-manipulation"
+          class="bg-gray-50 border-2 border-gray-200 rounded-lg px-3 py-2 text-center hover:border-garden-green-300 hover:shadow-md hover:bg-white transition-all min-h-[56px] flex flex-col justify-center touch-manipulation"
         >
           <div class="text-base font-medium text-gray-700">{{ produce.name }}</div>
           <div class="text-xs text-gray-500">{{ produce.unitType }} · <span class="text-garden-green-600">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</span></div>
@@ -138,7 +138,7 @@
     </div>
 
     <!-- Search Results (All Produce) -->
-    <div v-if="debouncedSearchQuery" class="space-y-2">
+    <div v-if="searchQuery" class="space-y-2">
       <h3 class="text-base font-medium text-gray-900">
         Search Results
         <span class="text-gray-500 font-normal">({{ filteredProduce.length }})</span>
@@ -153,12 +153,12 @@
         </p>
       </div>
       
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
         <button
           v-for="produce in filteredProduce"
           :key="`search-${produce.id}`"
           @click="selectProduce(produce)"
-          class="bg-white border-2 border-gray-200 rounded-lg px-2 py-1.5 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[56px] flex flex-col justify-center touch-manipulation"
+          class="bg-white border-2 border-gray-200 rounded-lg px-3 py-2 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[56px] flex flex-col justify-center touch-manipulation"
         >
           <div class="text-base font-medium text-gray-900">{{ produce.name }}</div>
           <div class="text-xs text-gray-500">{{ produce.unitType }} · <span class="text-garden-green-600">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</span></div>
@@ -169,7 +169,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import type { Database } from '@/types/database'
 
 type ProduceType = Database['public']['Tables']['produce_types']['Row']
@@ -196,16 +196,7 @@ const emit = defineEmits<Emits>()
 
 const selectedCategoryId = ref<string | null>(null)
 const searchQuery = ref('')
-const debouncedSearchQuery = ref('')
 const showUnusedProduce = ref(false)
-
-let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined
-watch(searchQuery, (value) => {
-  clearTimeout(searchDebounceTimer)
-  searchDebounceTimer = setTimeout(() => {
-    debouncedSearchQuery.value = value
-  }, 100)
-})
 
 // Analyze produce usage in the past 12 months
 const produceUsageAnalysis = computed(() => {
@@ -258,8 +249,8 @@ const filteredFrequentlyUsed = computed(() => {
   }
 
   // Filter by search query
-  if (debouncedSearchQuery.value) {
-    const query = debouncedSearchQuery.value.toLowerCase()
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(query) ||
       getCategoryName(p.category_id).toLowerCase().includes(query)
@@ -283,8 +274,8 @@ const filteredRarelyUsed = computed(() => {
   }
 
   // Filter by search query
-  if (debouncedSearchQuery.value) {
-    const query = debouncedSearchQuery.value.toLowerCase()
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(query) ||
       getCategoryName(p.category_id).toLowerCase().includes(query)
