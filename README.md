@@ -21,6 +21,8 @@ A comprehensive web application for tracking produce production and distribution
 
 ### 🔐 **Security & Authentication**
 - Admin authentication with Supabase Auth
+- QR code login: scan from an already-authenticated device to sign in a second
+  device (short-lived, single-use sessions with a 10-minute TTL)
 - Row Level Security (RLS) policies
 - Server-side API calls only
 - No client-side data storage
@@ -219,6 +221,18 @@ The system uses 5 main tables:
 - **`pantry_distributions`** - Tracking deliveries to pantries
 
 See `database_schema.sql` for the complete schema with sample data.
+
+### QR login sessions
+
+`QrLoginSession` (MongoDB) backs the QR code login flow. Documents are
+short-lived and single-use, moving through `pending → authorized → claimed`, and
+are auto-removed ~10 minutes after creation via a TTL index. The flow is served
+by three Netlify functions:
+
+- **`qr-login-create`** - a new device requests a session and renders its QR code
+- **`qr-login-authorize`** - the already-authenticated device approves the session
+  (via `/qr-authorize/:sessionId`)
+- **`qr-login-claim`** - the new device exchanges the authorized session for a JWT
 
 ## Deployment
 
