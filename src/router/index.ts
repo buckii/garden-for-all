@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useKiosk, KIOSK_ROUTE_NAMES } from '@/composables/useKiosk'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -133,6 +134,13 @@ router.beforeEach(async (to, from, next) => {
     await new Promise(resolve => setTimeout(resolve, 50))
   }
   
+  // Kiosk mode: lock navigation to the harvest pages only
+  const { isKiosk } = useKiosk()
+  if (isKiosk.value && !KIOSK_ROUTE_NAMES.includes(to.name as string)) {
+    next({ name: 'harvest-history' })
+    return
+  }
+
   // Check if route requires authentication
   if (to.meta.requiresAuth && !isAuthenticated.value) {
     next({ name: 'login', query: { redirect: to.fullPath } })

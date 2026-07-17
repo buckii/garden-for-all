@@ -7,13 +7,15 @@
 
 @layer base {
   /* Global type scale multiplier consumed by the fontSize scale in
-     tailwind.config.js. Bumped on mobile so all text-* utilities (and body
-     text below) grow ~30% without touching individual components. */
+     tailwind.config.js. Bumped on phones AND tablets so all text-* utilities
+     (and body text) grow ~30% without touching individual components.
+     1024px inclusive so an iPad in landscape stays scaled when rotated;
+     desktop/laptop screens (>1024px) are unchanged. */
   :root {
     --font-scale: 1;
   }
 
-  @media (max-width: 639px) {
+  @media (max-width: 1024px) {
     :root {
       --font-scale: 1.3;
     }
