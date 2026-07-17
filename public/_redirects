@@ -1,8 +1,10 @@
 # API URL abstraction - rewrite /api/* to /.netlify/functions/*
-/api/*  /.netlify/functions/:splat  200
+# 200! (forced) so the SPA fallback / dev server can never shadow API routes
+/api/*  /.netlify/functions/:splat  200!
 
-# SPA fallback — serve index.html for all other routes so direct navigation
-# and refresh work on every client-side route. Listed after /api/* so those
-# match first; real static assets are served before this 200 rewrite applies.
-# Lives here (not netlify.toml) so it does NOT interfere with `netlify dev`.
-/*  /index.html  200
+# NOTE: The SPA catch-all (/* /index.html 200) must NOT live in this file.
+# Vite copies public/_redirects into dist/, and `netlify dev` reads
+# dist/_redirects — so a catch-all here gets applied in dev, where it rewrites
+# 404'd module requests to /index.html and Vite fails parsing HTML as JS.
+# Instead it is appended to dist/_redirects by the build command in netlify.toml,
+# so it only exists in deployed builds.

@@ -1,14 +1,22 @@
+# The SPA catch-all is appended to dist/_redirects here at deploy build time,
+# NOT kept in public/_redirects: Vite copies public/ into dist/, and
+# `netlify dev` reads dist/_redirects, so a committed catch-all breaks the dev
+# server by rewriting 404'd module requests to /index.html.
 [build]
   functions = "netlify/functions"
   publish = "dist"
-  command = "npm run build"
+  command = "npm run build && echo '/*  /index.html  200' >> dist/_redirects"
 
 [build.environment]
   NODE_VERSION = "20"
 
+# targetPort is pinned off Vite's default (5173) because other local services
+# (e.g. Docker containers) may already hold 5173 — netlify dev would see that
+# port answering and proxy to the wrong app. --strictPort makes Vite fail loudly
+# instead of silently drifting to another port netlify dev isn't watching.
 [dev]
-  command = "vite"
-  targetPort = 5173
+  command = "vite --port 5199 --strictPort"
+  targetPort = 5199
   port = 8888
   autoLaunch = false
 
@@ -31,18 +39,24 @@
     Access-Control-Allow-Headers = "Content-Type, Authorization"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
 
-# Redirect API calls to functions
+# Redirect API calls to functions. `force = true` is required: without it these
+# 200 rewrites are "shadowed" whenever the origin answers the path, and in
+# `netlify dev` the Vite SPA fallback answers EVERY path with index.html — so
+# /api/* requests were returning the app shell instead of hitting functions.
 [[redirects]]
   from = "/api/auth/*"
   to = "/.netlify/functions/:splat"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+  force = true
 
-# NOTE: The SPA catch-all lives in public/_redirects (built into dist/), NOT here.
-# A catch-all in netlify.toml is also applied by `netlify dev`, where it rewrites
-# Vite's own module requests to /index.html and breaks the dev server. In dev,
-# Vite already serves index.html for client-side routes, so no rule is needed.
+# NOTE: The SPA catch-all is appended to dist/_redirects by the build command
+# above, NOT declared here and NOT committed in public/_redirects — both of
+# those locations are read by `netlify dev`, where the catch-all rewrites 404'd
+# module requests to /index.html and breaks the dev server. In dev, Vite
+# already serves index.html for client-side routes, so no rule is needed.

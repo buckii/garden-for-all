@@ -7,7 +7,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "dev": "netlify dev",
+    "dev": "rm -rf dist && netlify dev",
     "build": "vite build",
     "build-check": "run-p type-check \"build {@}\" --",
     "preview": "vite preview",
