@@ -5,14 +5,18 @@
     <!-- Dashboard Content -->
     <div class="max-w-7xl mx-auto px-4 py-6">
       <!-- Dashboard Header with Refresh -->
-      <div class="mb-6 flex justify-between items-center">
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
           <p class="text-gray-600">Garden For All Production Overview</p>
         </div>
-        <div class="flex items-center space-x-4">
-          <RecordHarvestQR />
-          <div class="text-sm text-gray-500">
+        <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+          <!-- The QR exists so a phone can scan the TV dashboard; on a phone
+               itself it's unscannable dead weight, so hide it below sm -->
+          <div class="hidden sm:block">
+            <RecordHarvestQR />
+          </div>
+          <div class="text-sm text-gray-500 whitespace-nowrap">
             Last updated: {{ formattedLastUpdated }}
           </div>
           <button @click="refreshData" :disabled="loading || refreshing"
@@ -28,9 +32,11 @@
       </div>
 
       <!-- Date/Time Display -->
-      <div class="mb-8 text-center">
-        <h2 class="text-3xl font-bold text-gray-900">{{ currentDate }}</h2>
-        <p class="text-lg text-gray-600">{{ currentTime }}</p>
+      <!-- max-sm: variants (not sm:text-3xl) so the .text-3xl/.text-lg classes
+           stay present for the 1920px TV-display remap in <style> below -->
+      <div class="mb-6 sm:mb-8 text-center">
+        <h2 class="max-sm:text-xl text-3xl font-bold text-gray-900">{{ currentDate }}</h2>
+        <p class="max-sm:text-base text-lg text-gray-600">{{ currentTime }}</p>
       </div>
 
       <!-- Error Message -->

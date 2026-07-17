@@ -1,6 +1,6 @@
 <template>
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white rounded-lg shadow-sm border p-6">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
       <div class="flex items-center">
         <div class="flex-shrink-0 hidden lg:block">
           <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -12,8 +12,8 @@
         <div class="lg:ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">Today</div>
           <div class="text-xs text-gray-400 mb-1">{{ todayDate }}</div>
-          <div class="text-2xl font-bold text-gray-900">
-            {{ formatWeight(summary.today.quantity) }} <span class="text-lg text-gray-500">lbs</span>
+          <div class="text-xl sm:text-2xl font-bold text-gray-900">
+            {{ formatWeight(summary.today.quantity) }} <span class="text-sm sm:text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
             {{ formatCurrency(summary.today.value) }} value
@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm border p-6">
+    <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
       <div class="flex items-center">
         <div class="flex-shrink-0 hidden lg:block">
           <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -34,8 +34,8 @@
         <div class="lg:ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">This Week</div>
           <div class="text-xs text-gray-400 mb-1">{{ weekRange }}</div>
-          <div class="text-2xl font-bold text-gray-900">
-            {{ formatWeight(summary.week.quantity) }} <span class="text-lg text-gray-500">lbs</span>
+          <div class="text-xl sm:text-2xl font-bold text-gray-900">
+            {{ formatWeight(summary.week.quantity) }} <span class="text-sm sm:text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
             {{ formatCurrency(summary.week.value) }} value
@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm border p-6">
+    <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
       <div class="flex items-center">
         <div class="flex-shrink-0 hidden lg:block">
           <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -56,8 +56,8 @@
         <div class="lg:ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">This Month</div>
           <div class="text-xs text-gray-400 mb-1">{{ monthRange }}</div>
-          <div class="text-2xl font-bold text-gray-900">
-            {{ formatWeight(summary.month.quantity) }} <span class="text-lg text-gray-500">lbs</span>
+          <div class="text-xl sm:text-2xl font-bold text-gray-900">
+            {{ formatWeight(summary.month.quantity) }} <span class="text-sm sm:text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
             {{ formatCurrency(summary.month.value) }} value
@@ -66,7 +66,7 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm border p-6">
+    <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
       <div class="flex items-center">
         <div class="flex-shrink-0 hidden lg:block">
           <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
@@ -78,8 +78,8 @@
         <div class="lg:ml-4 flex-1">
           <div class="text-sm font-medium text-gray-500">Year to Date</div>
           <div class="text-xs text-gray-400 mb-1">{{ yearRange }}</div>
-          <div class="text-2xl font-bold text-gray-900">
-            {{ formatWeight(summary.year.quantity) }} <span class="text-lg text-gray-500">lbs</span>
+          <div class="text-xl sm:text-2xl font-bold text-gray-900">
+            {{ formatWeight(summary.year.quantity) }} <span class="text-sm sm:text-lg text-gray-500">lbs</span>
           </div>
           <div class="text-sm text-gray-500 font-medium">
             {{ formatCurrency(summary.year.value) }} value

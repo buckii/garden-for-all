@@ -2,23 +2,24 @@
   <nav class="bg-gray-900 shadow-lg sticky top-0 z-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
-        <div class="flex items-center">
-          <router-link :to="isKiosk ? '/harvest-history' : '/'" class="flex items-center">
+        <div class="flex items-center min-w-0">
+          <router-link :to="isKiosk ? '/harvest-history' : '/'" class="flex items-center min-w-0">
             <img
               src="https://content.app-sources.com/s/79642463807075583/uploads/logo_options/2025_Horizontal_Logo_Color_-9406719.png?format=webp"
-              alt="Garden For All" class="h-10 w-auto" />
+              alt="Garden For All" class="h-8 sm:h-10 w-auto max-w-[44vw] object-contain object-left" />
           </router-link>
         </div>
 
         <!-- Kiosk Mode: simplified navigation locked to the harvest pages -->
         <template v-if="isKiosk">
-          <div class="flex items-center gap-2 sm:gap-3">
+          <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
             <router-link to="/harvest-history"
-              class="text-gray-100 hover:text-white px-3 py-2 sm:px-4 rounded-md text-base font-semibold bg-gray-800 hover:bg-gray-700 transition-colors">
-              Today's Harvest
+              class="text-gray-100 hover:text-white px-2.5 py-2 sm:px-4 rounded-md text-sm sm:text-base font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-700 transition-colors">
+              <span class="sm:hidden">Today</span>
+              <span class="hidden sm:inline">Today's Harvest</span>
             </router-link>
             <router-link to="/harvest"
-              class="text-white px-3 py-2 sm:px-4 rounded-md text-base font-semibold bg-garden-green-600 hover:bg-garden-green-700 transition-colors">
+              class="text-white px-2.5 py-2 sm:px-4 rounded-md text-sm sm:text-base font-semibold whitespace-nowrap bg-garden-green-600 hover:bg-garden-green-700 transition-colors">
               + Harvest
             </router-link>
 
@@ -102,9 +103,9 @@
           </div>
 
           <!-- Mobile: always-visible Today's Harvest link + menu button -->
-          <div class="md:hidden flex items-center gap-2">
+          <div class="md:hidden flex items-center gap-1.5 flex-shrink-0">
             <router-link to="/harvest-history"
-              class="text-gray-100 hover:text-white px-3 py-2 rounded-md text-sm font-semibold bg-gray-800 hover:bg-gray-700 transition-colors">
+              class="text-gray-100 hover:text-white px-2.5 py-2 rounded-md text-sm font-semibold whitespace-nowrap bg-gray-800 hover:bg-gray-700 transition-colors">
               Today's Harvest
             </router-link>
             <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-300 hover:text-white p-2 rounded-md" aria-label="Menu">
