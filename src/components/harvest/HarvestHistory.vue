@@ -26,6 +26,15 @@
       </div>
     </div>
 
+    <!-- Add Harvest Button (top) -->
+    <button v-if="showTopAddButton" @click="$emit('add-another')"
+      class="w-full py-4 px-6 bg-garden-green-600 text-white rounded-lg text-lg font-medium hover:bg-garden-green-700 transition-colors min-h-[60px] flex items-center justify-center space-x-2">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span>Add Harvest</span>
+    </button>
+
     <!-- Entries List -->
     <div class="space-y-3">
       <div v-if="loading" class="flex justify-center py-8">
@@ -47,10 +56,10 @@
       <div v-else class="space-y-3">
         <div v-for="entry in todaysEntries" :key="entry.id"
           class="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
-          <div class="flex justify-between items-start">
-            <div class="flex-1">
-              <div class="flex items-center space-x-3 mb-2">
-                <div class="w-10 h-10 bg-garden-green-100 rounded-full flex items-center justify-center">
+          <div>
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex items-center space-x-3 min-w-0">
+                <div class="w-10 h-10 bg-garden-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <svg class="w-6 h-6 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -62,55 +71,60 @@
                 </div>
               </div>
 
-              <div class="space-y-2 text-sm">
-                <div class="flex flex-wrap gap-x-6 gap-y-2">
-                  <div v-if="entry.unit !== 'pounds'" class="flex items-center">
-                    <span class="text-gray-500">Quantity:</span>
-                    <span class="font-medium ml-1 whitespace-nowrap">{{ entry.quantity }} {{ entry.unit }}</span>
-                  </div>
-                  <div class="flex items-center">
-                    <span class="text-gray-500">Weight:</span>
-                    <span class="font-medium ml-1 whitespace-nowrap">{{ getEntryWeight(entry).toFixed(2) }} lbs</span>
-                  </div>
-                  <div class="flex items-center">
-                    <span class="text-gray-500">Value:</span>
-                    <span class="font-medium text-garden-green-600 ml-1 whitespace-nowrap">${{
-                      getEntryValue(entry).toFixed(2) }}</span>
-                  </div>
-                  <div class="flex items-center">
-                    <span class="text-gray-500">Time:</span>
-                    <span class="font-medium ml-1 whitespace-nowrap">{{ formatTime(entry.created_at) }}</span>
-                  </div>
-                </div>
-                <div v-if="entry.harvester_name" class="flex items-center">
-                  <span class="text-gray-500">Harvester:</span>
-                  <span class="font-medium ml-1">{{ entry.harvester_name }}</span>
-                </div>
-              </div>
-
-              <div v-if="entry.notes" class="mt-3 p-2 bg-gray-50 rounded text-sm text-gray-700">
-                <span class="text-gray-500">Notes:</span> {{ entry.notes }}
+              <!-- Action Buttons -->
+              <div class="flex space-x-2 ml-4">
+                <button @click="editEntry(entry)"
+                  class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors min-h-[44px] min-w-[44px]"
+                  title="Edit">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button @click="deleteEntry(entry)"
+                  class="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors min-h-[44px] min-w-[44px]"
+                  title="Delete">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
               </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex space-x-2 ml-4">
-              <button @click="editEntry(entry)"
-                class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors min-h-[44px] min-w-[44px]"
-                title="Edit">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </button>
-              <button @click="deleteEntry(entry)"
-                class="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors min-h-[44px] min-w-[44px]"
-                title="Delete">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+            <div class="space-y-2 text-sm">
+              <div class="flex flex-wrap gap-x-6 gap-y-2">
+                <div v-if="entry.unit !== 'pounds'" class="flex items-center">
+                  <span class="text-gray-500">Quantity:</span>
+                  <span class="font-medium ml-1 whitespace-nowrap">{{ entry.quantity }} {{ entry.unit }}</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="text-gray-500">Weight:</span>
+                  <span class="font-medium ml-1 whitespace-nowrap">{{ getEntryWeight(entry).toFixed(2) }} lbs</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="text-gray-500">Value:</span>
+                  <span class="font-medium text-garden-green-600 ml-1 whitespace-nowrap">${{
+                    getEntryValue(entry).toFixed(2) }}</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="text-gray-500">Time:</span>
+                  <span class="font-medium ml-1 whitespace-nowrap">{{ formatTime(entry.created_at) }}</span>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <span class="text-gray-500">Pantry:</span>
+                <span v-if="entry.pantry?.name" class="font-medium ml-1">{{ entry.pantry.name }}</span>
+                <span v-else class="ml-1 text-gray-400 italic">Unallocated</span>
+              </div>
+              <div v-if="entry.harvester_name" class="flex items-center">
+                <span class="text-gray-500">Harvester:</span>
+                <span class="font-medium ml-1">{{ entry.harvester_name }}</span>
+              </div>
+            </div>
+
+            <div v-if="entry.notes" class="mt-3 p-2 bg-gray-50 rounded text-sm text-gray-700">
+              <span class="text-gray-500">Notes:</span> {{ entry.notes }}
             </div>
           </div>
         </div>
@@ -141,6 +155,7 @@ interface Props {
   todaysEntries: HarvestEntry[]
   produceTypes: ProduceType[]
   loading: boolean
+  showTopAddButton?: boolean
 }
 
 interface Emits {

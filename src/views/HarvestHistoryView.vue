@@ -13,18 +13,15 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Left Column: Today's Harvest -->
         <div>
-          <div class="mb-4 flex justify-between items-center">
+          <div class="mb-4">
             <h2 class="text-xl font-semibold text-gray-900">Today's Harvest</h2>
-            <router-link to="/harvest"
-              class="px-3 py-1.5 bg-garden-green-600 text-white text-sm rounded-lg hover:bg-garden-green-700 transition-colors">
-              + Add Harvest
-            </router-link>
           </div>
 
           <HarvestHistory
             :todays-entries="todaysEntries"
             :produce-types="produceTypes"
             :loading="harvestLoading"
+            :show-top-add-button="true"
             @edit="handleEditEntry"
             @delete="handleDeleteEntry"
             @add-another="handleAddAnother"
