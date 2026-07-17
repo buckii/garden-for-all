@@ -82,7 +82,8 @@ body {
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 15px;
+  /* Scaled by --font-scale (see main.css) so mobile text grows globally */
+  font-size: calc(15px * var(--font-scale, 1));
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -6,6 +6,43 @@
 @tailwind utilities;
 
 @layer base {
+  /* Global type scale multiplier consumed by the fontSize scale in
+     tailwind.config.js. Bumped on mobile so all text-* utilities (and body
+     text below) grow ~30% without touching individual components. */
+  :root {
+    --font-scale: 1;
+  }
+
+  @media (max-width: 639px) {
+    :root {
+      --font-scale: 1.3;
+    }
+  }
+
+  /* @tailwindcss/forms hardcodes font-size: 1rem on form controls, so they
+     don't inherit the scaled body size. Repeat its selector list (same
+     specificity, declared later) to apply the multiplier. Controls with an
+     explicit text-* utility still win via the utilities layer. */
+  [type='text'],
+  input:where(:not([type])),
+  [type='email'],
+  [type='url'],
+  [type='password'],
+  [type='number'],
+  [type='date'],
+  [type='datetime-local'],
+  [type='month'],
+  [type='search'],
+  [type='tel'],
+  [type='time'],
+  [type='week'],
+  [multiple],
+  textarea,
+  select {
+    font-size: calc(1rem * var(--font-scale, 1));
+    line-height: calc(1.5rem * var(--font-scale, 1));
+  }
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
   }
