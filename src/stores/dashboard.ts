@@ -292,6 +292,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const commitmentData = ref<any>(null)
   const countyStatsData = ref<any>(null)
   const loading = ref(false)
+  const lastUpdated = ref<Date | null>(null)
   const error = ref<string | null>(null)
 
   const totalHarvestedToday = computed(() => summary.value.daily.totalQuantity)
@@ -428,8 +429,12 @@ export const useDashboardStore = defineStore('dashboard', () => {
     }
   }
 
+  // The full-page spinner only shows on the initial load (before any data has
+  // arrived). Every later call — Pusher events, the refresh button — updates
+  // the data in the background so charts re-render in place.
   const fetchAll = async () => {
-    loading.value = true
+    const initialLoad = lastUpdated.value === null
+    if (initialLoad) loading.value = true
     error.value = null
 
     try {
@@ -442,10 +447,11 @@ export const useDashboardStore = defineStore('dashboard', () => {
         fetchCommitments(),
         fetchCountyStats()
       ])
+      lastUpdated.value = new Date()
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error'
     } finally {
-      loading.value = false
+      if (initialLoad) loading.value = false
     }
   }
 
@@ -460,6 +466,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     pantryProgress,
     commitmentData,
     loading,
+    lastUpdated,
     error,
 
     // Chart data

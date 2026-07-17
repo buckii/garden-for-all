@@ -273,7 +273,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useDashboardStore } from '@/stores/dashboard'
 
 interface AnnualCommitmentItem {
   produceType: string
@@ -447,8 +448,18 @@ const fetchAnnualData = async () => {
   }
 }
 
-// Fetch data on mount
-onMounted(() => {
+const dashboardStore = useDashboardStore()
+
+// Refetch whenever the dashboard store refreshes (initial load, Pusher events,
+// manual refresh). On mount, only fetch if the store already has data —
+// otherwise the imminent lastUpdated change would trigger a duplicate fetch.
+watch(() => dashboardStore.lastUpdated, () => {
   fetchAnnualData()
+})
+
+onMounted(() => {
+  if (dashboardStore.lastUpdated) {
+    fetchAnnualData()
+  }
 })
 </script>

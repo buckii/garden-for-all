@@ -15,10 +15,10 @@
           <div class="text-sm text-gray-500">
             Last updated: {{ formattedLastUpdated }}
           </div>
-          <button @click="refreshData" :disabled="loading"
+          <button @click="refreshData" :disabled="loading || refreshing"
             class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors border border-gray-300"
             title="Refresh Data">
-            <svg :class="['w-5 h-5', { 'animate-spin': loading }]" fill="none" stroke="currentColor"
+            <svg :class="['w-5 h-5', { 'animate-spin': loading || refreshing }]" fill="none" stroke="currentColor"
               viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -159,7 +159,8 @@ const currentDate = computed(() => {
 
 // Formatted last updated timestamp
 const formattedLastUpdated = computed(() => {
-  return new Date().toLocaleTimeString('en-US', {
+  if (!dashboardStore.lastUpdated) return '—'
+  return dashboardStore.lastUpdated.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
     second: '2-digit',
@@ -194,8 +195,14 @@ onUnmounted(() => {
   // No polling intervals to clean up anymore
 })
 
+const refreshing = ref(false)
 const refreshData = async () => {
-  await dashboardStore.fetchAll()
+  refreshing.value = true
+  try {
+    await dashboardStore.fetchAll()
+  } finally {
+    refreshing.value = false
+  }
 }
 
 const toggleFullscreen = () => {
