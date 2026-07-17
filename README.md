@@ -16,7 +16,8 @@ A comprehensive web application for tracking produce production and distribution
 - **Real-time Updates** - Live dashboard updates using Pusher, including harvest edits and deletions; after the initial load the dashboard refreshes in the background without a full-page spinner
 - **Excel Export** - Generate detailed reports for analysis and record-keeping
 - **Touch Optimization** - Large buttons and inputs designed for outdoor tablet use
-- **Mobile Typography** - All text scales up ~30% on phone-sized screens via a single `--font-scale` CSS variable (see `tailwind.config.js` and `src/assets/main.css`)
+- **Kiosk Mode** - A header toggle (persisted in `localStorage`) that locks the app to the Today's Harvest and harvest entry pages, enforced by a router guard, for a dedicated tablet or phone at the garden. Turn it off from the header menu. The header also carries an always-visible "Today's Harvest" link for quick access on mobile.
+- **Mobile Typography** - All text scales up ~30% on phone and tablet screens (up to 1024px, so an iPad in landscape stays scaled) via a single `--font-scale` CSS variable (see `tailwind.config.js` and `src/assets/main.css`)
 
 ### 🔐 **Security & Authentication**
 - Admin authentication with Supabase Auth
