@@ -2,6 +2,7 @@ const Joi = require('joi');
 const { connectDB } = require('./utils/db.js');
 const { HarvestEntry, ProduceType, FoodPantry } = require('./utils/models.js');
 const { createResponse, createErrorResponse, handleCORS, extractToken, validateToken } = require('./utils/auth.js');
+const { harvestUpdates } = require('./utils/pusher.js');
 const { getEasternDateString } = require('./utils/date.js');
 
 // Entries from today can be edited/deleted freely (the frictionless harvester
@@ -173,6 +174,9 @@ exports.handler = async function(event, context) {
         name: updatedEntry.pantryId.name
       } : null
     };
+
+    // Send real-time update
+    await harvestUpdates.updated(transformedEntry);
 
     return createResponse(200, {
       success: true,

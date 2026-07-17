@@ -1,6 +1,7 @@
 const { connectDB } = require('./utils/db.js');
 const { HarvestEntry } = require('./utils/models.js');
 const { createResponse, createErrorResponse, handleCORS, extractToken, validateToken } = require('./utils/auth.js');
+const { harvestUpdates } = require('./utils/pusher.js');
 const { getEasternDateString } = require('./utils/date.js');
 
 // Entries from today can be edited/deleted freely (the frictionless harvester
@@ -68,6 +69,9 @@ exports.handler = async function(event, context) {
     }
 
     await HarvestEntry.deleteOne({ _id: existingEntry._id });
+
+    // Send real-time update
+    await harvestUpdates.deleted(existingEntry._id.toString());
 
     return createResponse(200, {
       success: true,
