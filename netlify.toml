@@ -5,7 +5,10 @@
 [build]
   functions = "netlify/functions"
   publish = "dist"
-  command = "npm run build && echo '/*  /index.html  200' >> dist/_redirects"
+  # printf with a leading \n so the rule lands on its own line even if
+  # dist/_redirects lacks a trailing newline (a bare `echo >>` once glued the
+  # rule onto the final comment line, silently disabling the SPA fallback).
+  command = "npm run build && printf '\\n/*  /index.html  200\\n' >> dist/_redirects"
 
 [build.environment]
   NODE_VERSION = "20"
