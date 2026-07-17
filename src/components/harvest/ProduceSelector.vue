@@ -1,7 +1,7 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-3">
     <!-- Category Filter -->
-    <div class="space-y-3">
+    <div class="space-y-2">
       <!-- Desktop Category Filter -->
       <div class="hidden sm:flex flex-wrap gap-2">
         <button
@@ -35,7 +35,7 @@
         <select
           :value="selectedCategoryId || ''"
           @change="handleCategoryChange"
-          class="block w-full rounded-lg border-2 border-gray-200 py-3 pl-4 pr-10 text-base focus:border-garden-green-500 focus:ring-garden-green-500 text-gray-900"
+          class="block w-full rounded-lg border-2 border-gray-200 py-2 pl-3 pr-10 text-base focus:border-garden-green-500 focus:ring-garden-green-500 text-gray-900"
         >
           <option value="">All Categories</option>
           <option v-for="category in categories" :key="category.id || category._id" :value="String(category.id || category._id)">
@@ -48,7 +48,7 @@
     <!-- Search -->
     <div class="relative">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
       </div>
@@ -56,29 +56,28 @@
         v-model="searchQuery"
         type="text"
         placeholder="Search produce..."
-        class="block w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
+        class="block w-full pl-10 pr-4 py-2 text-base border-2 border-gray-200 rounded-lg focus:ring-garden-green-500 focus:border-garden-green-500 text-gray-900"
       />
     </div>
 
     <!-- Recently Used -->
-    <div v-if="recentlyUsed.length > 0 && !searchQuery" class="space-y-3">
-      <h3 class="text-lg font-medium text-gray-900">Recently Used</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+    <div v-if="recentlyUsed.length > 0 && !debouncedSearchQuery" class="space-y-2">
+      <h3 class="text-base font-medium text-gray-900">Recently Used</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
         <button
           v-for="produce in recentlyUsed"
           :key="`recent-${produce.id}`"
           @click="selectProduce(produce)"
-          class="bg-garden-green-50 border-2 border-garden-green-200 rounded-lg p-3 text-center hover:bg-garden-green-100 hover:border-garden-green-300 transition-colors min-h-[70px] flex flex-col justify-center"
+          class="bg-garden-green-50 border-2 border-garden-green-200 rounded-lg px-2 py-1.5 text-center hover:bg-garden-green-100 hover:border-garden-green-300 transition-colors min-h-[48px] flex flex-col justify-center"
         >
           <div class="text-base font-medium text-gray-900">{{ produce.name }}</div>
-          <div class="text-sm text-gray-500">{{ produce.unit_type }}</div>
         </button>
       </div>
     </div>
 
     <!-- Frequently Used Produce -->
-    <div v-if="!searchQuery" class="space-y-3">
-      <h3 class="text-lg font-medium text-gray-900">
+    <div v-if="!debouncedSearchQuery" class="space-y-2">
+      <h3 class="text-base font-medium text-gray-900">
         {{ selectedCategoryId ? `${getCategoryName(selectedCategoryId)} - Frequently Used` : 'Frequently Used' }}
         <span class="text-gray-500 font-normal">({{ filteredFrequentlyUsed.length }})</span>
       </h3>
@@ -91,22 +90,21 @@
         <p class="text-gray-500">No frequently used produce types</p>
       </div>
       
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
         <button
           v-for="produce in filteredFrequentlyUsed"
           :key="`freq-${produce.id}`"
           @click="selectProduce(produce)"
-          class="bg-white border-2 border-gray-200 rounded-lg p-4 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[80px] flex flex-col justify-center touch-manipulation"
+          class="bg-white border-2 border-gray-200 rounded-lg px-2 py-1.5 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[56px] flex flex-col justify-center touch-manipulation"
         >
-          <div class="text-lg font-medium text-gray-900">{{ produce.name }}</div>
-          <div class="text-sm text-gray-500">{{ produce.unitType }}</div>
-          <div class="text-xs text-garden-green-600 mt-1">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</div>
+          <div class="text-base font-medium text-gray-900">{{ produce.name }}</div>
+          <div class="text-xs text-gray-500">{{ produce.unitType }} · <span class="text-garden-green-600">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</span></div>
         </button>
       </div>
     </div>
 
     <!-- Rarely Used Produce (Collapsible) -->
-    <div v-if="!searchQuery && filteredRarelyUsed.length > 0" class="space-y-3">
+    <div v-if="!debouncedSearchQuery && filteredRarelyUsed.length > 0" class="space-y-2">
       <div>
         <button
           @click="showUnusedProduce = !showUnusedProduce"
@@ -120,29 +118,28 @@
           >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
-          <span class="text-lg font-medium">
+          <span class="text-base font-medium">
             More produce types ({{ filteredRarelyUsed.length }} unused in past year)
           </span>
         </button>
       </div>
       
-      <div v-if="showUnusedProduce" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div v-if="showUnusedProduce" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
         <button
           v-for="produce in filteredRarelyUsed"
           :key="`rare-${produce.id}`"
           @click="selectProduce(produce)"
-          class="bg-gray-50 border-2 border-gray-200 rounded-lg p-4 text-center hover:border-garden-green-300 hover:shadow-md hover:bg-white transition-all min-h-[80px] flex flex-col justify-center touch-manipulation"
+          class="bg-gray-50 border-2 border-gray-200 rounded-lg px-2 py-1.5 text-center hover:border-garden-green-300 hover:shadow-md hover:bg-white transition-all min-h-[56px] flex flex-col justify-center touch-manipulation"
         >
-          <div class="text-lg font-medium text-gray-700">{{ produce.name }}</div>
-          <div class="text-sm text-gray-500">{{ produce.unitType }}</div>
-          <div class="text-xs text-garden-green-600 mt-1">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</div>
+          <div class="text-base font-medium text-gray-700">{{ produce.name }}</div>
+          <div class="text-xs text-gray-500">{{ produce.unitType }} · <span class="text-garden-green-600">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</span></div>
         </button>
       </div>
     </div>
 
     <!-- Search Results (All Produce) -->
-    <div v-if="searchQuery" class="space-y-3">
-      <h3 class="text-lg font-medium text-gray-900">
+    <div v-if="debouncedSearchQuery" class="space-y-2">
+      <h3 class="text-base font-medium text-gray-900">
         Search Results
         <span class="text-gray-500 font-normal">({{ filteredProduce.length }})</span>
       </h3>
@@ -156,16 +153,15 @@
         </p>
       </div>
       
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
         <button
           v-for="produce in filteredProduce"
           :key="`search-${produce.id}`"
           @click="selectProduce(produce)"
-          class="bg-white border-2 border-gray-200 rounded-lg p-4 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[80px] flex flex-col justify-center touch-manipulation"
+          class="bg-white border-2 border-gray-200 rounded-lg px-2 py-1.5 text-center hover:border-garden-green-300 hover:shadow-md transition-all min-h-[56px] flex flex-col justify-center touch-manipulation"
         >
-          <div class="text-lg font-medium text-gray-900">{{ produce.name }}</div>
-          <div class="text-sm text-gray-500">{{ produce.unitType }}</div>
-          <div class="text-xs text-garden-green-600 mt-1">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</div>
+          <div class="text-base font-medium text-gray-900">{{ produce.name }}</div>
+          <div class="text-xs text-gray-500">{{ produce.unitType }} · <span class="text-garden-green-600">${{ (produce.pricePerLb || 0).toFixed(2) }}/{{ getUnitAbbr(produce.unitType) }}</span></div>
         </button>
       </div>
     </div>
@@ -200,7 +196,16 @@ const emit = defineEmits<Emits>()
 
 const selectedCategoryId = ref<string | null>(null)
 const searchQuery = ref('')
+const debouncedSearchQuery = ref('')
 const showUnusedProduce = ref(false)
+
+let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined
+watch(searchQuery, (value) => {
+  clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    debouncedSearchQuery.value = value
+  }, 100)
+})
 
 // Analyze produce usage in the past 12 months
 const produceUsageAnalysis = computed(() => {
@@ -253,9 +258,9 @@ const filteredFrequentlyUsed = computed(() => {
   }
 
   // Filter by search query
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(p => 
+  if (debouncedSearchQuery.value) {
+    const query = debouncedSearchQuery.value.toLowerCase()
+    filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(query) ||
       getCategoryName(p.category_id).toLowerCase().includes(query)
     )
@@ -278,9 +283,9 @@ const filteredRarelyUsed = computed(() => {
   }
 
   // Filter by search query
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(p => 
+  if (debouncedSearchQuery.value) {
+    const query = debouncedSearchQuery.value.toLowerCase()
+    filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(query) ||
       getCategoryName(p.category_id).toLowerCase().includes(query)
     )

@@ -38,7 +38,7 @@
       <!-- Main Content -->
       <div class="space-y-6">
         <!-- Step Content -->
-        <div class="bg-white rounded-lg shadow-sm border p-6">
+        <div class="bg-white rounded-lg shadow-sm border p-3 sm:p-4">
           <!-- Step 1: Select Produce -->
           <ProduceSelector v-if="currentStep === 'select'" :produce-types="produceTypes" :categories="categories"
             :loading="loading" :recently-used="recentlyUsedProduce" :harvest-entries="recentEntries" @select="handleProduceSelect" />
