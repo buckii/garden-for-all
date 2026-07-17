@@ -1,27 +1,21 @@
 <template>
-  <div class="space-y-6">
-    <!-- Header with Summary -->
-    <div class="bg-white rounded-lg shadow-sm border p-6">
-      <div class="flex justify-between items-center mb-4">
-        <div>
-          <h2 class="text-xl font-bold text-gray-900">Today's Harvest</h2>
-          <p class="text-sm text-gray-500 mt-1">{{ formatTodaysDate }}</p>
+  <div class="space-y-4">
+    <!-- Compact Summary -->
+    <div class="bg-white rounded-lg shadow-sm border p-3 sm:p-4">
+      <div class="grid grid-cols-3 gap-2 sm:gap-3">
+        <div class="text-center bg-garden-green-50 rounded-lg py-3 px-1">
+          <p class="text-xs text-gray-500">Entries</p>
+          <p class="text-lg sm:text-xl font-bold text-garden-green-600">{{ todaysEntries.length }}</p>
         </div>
-        <div class="text-right">
-          <p class="text-sm text-gray-500">Total Entries</p>
-          <p class="text-2xl font-bold text-garden-green-600">{{ todaysEntries.length }}</p>
+        <div class="text-center bg-garden-green-50 rounded-lg py-3 px-1">
+          <p class="text-xs text-gray-500">Quantity</p>
+          <p class="text-lg sm:text-xl font-bold text-garden-green-600">
+            {{ totalQuantity.toLocaleString('en-US', { maximumFractionDigits: 0 }) }}<span class="text-xs font-normal text-gray-500"> lbs</span>
+          </p>
         </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div class="text-center bg-garden-green-50 rounded-lg p-4">
-          <p class="text-sm text-gray-600">Total Quantity</p>
-          <p class="text-xl font-bold text-garden-green-600">{{ totalQuantity.toFixed(1) }}</p>
-          <p class="text-xs text-gray-500">lbs</p>
-        </div>
-        <div class="text-center bg-garden-green-50 rounded-lg p-4">
-          <p class="text-sm text-gray-600">Estimated Value</p>
-          <p class="text-xl font-bold text-garden-green-600">${{ totalValue.toFixed(2) }}</p>
+        <div class="text-center bg-garden-green-50 rounded-lg py-3 px-1">
+          <p class="text-xs text-gray-500">Value</p>
+          <p class="text-lg sm:text-xl font-bold text-garden-green-600">${{ totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 }) }}</p>
         </div>
       </div>
     </div>
@@ -54,77 +48,81 @@
       </div>
 
       <div v-else class="space-y-3">
-        <div v-for="entry in todaysEntries" :key="entry.id"
-          class="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
-          <div>
-            <div class="flex items-start justify-between mb-2">
-              <div class="flex items-center space-x-3 min-w-0">
-                <div class="w-10 h-10 bg-garden-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg class="w-6 h-6 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="font-semibold text-gray-900">{{ getProduceName(entry.produce_type_id) }}</h3>
-                  <p class="text-sm text-gray-500">{{ getCategoryName(entry) }}</p>
-                </div>
-              </div>
+        <div v-for="entry in sortedEntries" :key="entryKey(entry)"
+          class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow overflow-hidden">
 
-              <!-- Action Buttons -->
-              <div class="flex space-x-2 ml-4">
-                <button @click="editEntry(entry)"
-                  class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors min-h-[44px] min-w-[44px]"
-                  title="Edit">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </button>
-                <button @click="deleteEntry(entry)"
-                  class="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors min-h-[44px] min-w-[44px]"
-                  title="Delete">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
+          <!-- Collapsed summary row: produce, pantry, weight are the priority.
+               The whole row is the toggle so it's an easy touch target. -->
+          <button type="button" @click="toggleEntry(entry)"
+            class="w-full flex items-center gap-2.5 p-3.5 text-left">
+            <div class="w-9 h-9 bg-garden-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-garden-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h3 class="text-base sm:text-lg font-bold text-gray-900">
+                {{ getProduceName(entry.produce_type_id) }}
+              </h3>
+              <div class="flex items-baseline justify-between gap-2">
+                <p class="text-sm sm:text-base text-gray-600 truncate">
+                  <span v-if="entry.pantry?.name">{{ entry.pantry.name }}</span>
+                  <span v-else class="text-gray-400 italic">Unallocated</span>
+                </p>
+                <span class="text-lg font-bold text-garden-green-600 whitespace-nowrap flex-shrink-0">
+                  {{ getEntryWeight(entry).toLocaleString('en-US', { maximumFractionDigits: 1 }) }}<span class="text-sm font-medium text-gray-500"> lbs</span>
+                </span>
               </div>
             </div>
+            <svg class="w-5 h-5 text-gray-400 flex-shrink-0 transition-transform"
+              :class="{ 'rotate-180': isExpanded(entry) }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
 
-            <div class="space-y-2 text-sm">
-              <div class="flex flex-wrap gap-x-6 gap-y-2">
-                <div v-if="entry.unit !== 'pounds'" class="flex items-center">
-                  <span class="text-gray-500">Quantity:</span>
-                  <span class="font-medium ml-1 whitespace-nowrap">{{ entry.quantity }} {{ entry.unit }}</span>
-                </div>
-                <div class="flex items-center">
-                  <span class="text-gray-500">Weight:</span>
-                  <span class="font-medium ml-1 whitespace-nowrap">{{ getEntryWeight(entry).toFixed(2) }} lbs</span>
-                </div>
-                <div class="flex items-center">
-                  <span class="text-gray-500">Value:</span>
-                  <span class="font-medium text-garden-green-600 ml-1 whitespace-nowrap">${{
-                    getEntryValue(entry).toFixed(2) }}</span>
-                </div>
-                <div class="flex items-center">
-                  <span class="text-gray-500">Time:</span>
-                  <span class="font-medium ml-1 whitespace-nowrap">{{ formatTime(entry.created_at) }}</span>
-                </div>
+          <!-- Expanded detail: discreet secondary info with small labels above values -->
+          <div v-if="isExpanded(entry)" class="px-4 pb-4">
+            <div class="pt-3 border-t border-gray-100 grid grid-cols-3 gap-3">
+              <div>
+                <p class="text-xs text-gray-400">Value</p>
+                <p class="text-sm font-medium text-garden-green-600">${{ getEntryValue(entry).toFixed(2) }}</p>
               </div>
-              <div class="flex items-center">
-                <span class="text-gray-500">Pantry:</span>
-                <span v-if="entry.pantry?.name" class="font-medium ml-1">{{ entry.pantry.name }}</span>
-                <span v-else class="ml-1 text-gray-400 italic">Unallocated</span>
+              <div>
+                <p class="text-xs text-gray-400">Time</p>
+                <p class="text-sm font-medium text-gray-700">{{ formatTime(entry.created_at) }}</p>
               </div>
-              <div v-if="entry.harvester_name" class="flex items-center">
-                <span class="text-gray-500">Harvester:</span>
-                <span class="font-medium ml-1">{{ entry.harvester_name }}</span>
+              <div v-if="entry.unit !== 'pounds'">
+                <p class="text-xs text-gray-400">Quantity</p>
+                <p class="text-sm font-medium text-gray-700 whitespace-nowrap">{{ entry.quantity }} {{ entry.unit }}</p>
+              </div>
+              <div v-if="entry.harvester_name">
+                <p class="text-xs text-gray-400">Harvester</p>
+                <p class="text-sm font-medium text-gray-700 truncate">{{ entry.harvester_name }}</p>
               </div>
             </div>
 
             <div v-if="entry.notes" class="mt-3 p-2 bg-gray-50 rounded text-sm text-gray-700">
               <span class="text-gray-500">Notes:</span> {{ entry.notes }}
+            </div>
+
+            <div class="mt-3 flex gap-2">
+              <button @click.stop="editEntry(entry)"
+                class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit
+              </button>
+              <button @click.stop="deleteEntry(entry)"
+                class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -145,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 
 type HarvestEntry = Database['public']['Tables']['harvest_entries']['Row']
@@ -168,12 +166,28 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const formatTodaysDate = computed(() => {
-  return new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+// Entries render collapsed by default; tapping a card toggles its detail.
+// Reassign a new Set each change so the ref stays reactive.
+const expandedEntries = ref<Set<string>>(new Set())
+
+const entryKey = (entry: HarvestEntry) => String(entry.id ?? entry._id ?? '')
+
+const isExpanded = (entry: HarvestEntry) => expandedEntries.value.has(entryKey(entry))
+
+const toggleEntry = (entry: HarvestEntry) => {
+  const key = entryKey(entry)
+  const next = new Set(expandedEntries.value)
+  next.has(key) ? next.delete(key) : next.add(key)
+  expandedEntries.value = next
+}
+
+// Newest harvest first. Fall back to 0 for entries missing a timestamp so they
+// sort to the bottom rather than throwing off the order.
+const sortedEntries = computed(() => {
+  return [...props.todaysEntries].sort((a, b) => {
+    const aTime = a.created_at ? new Date(a.created_at).getTime() : 0
+    const bTime = b.created_at ? new Date(b.created_at).getTime() : 0
+    return bTime - aTime
   })
 })
 
@@ -199,34 +213,6 @@ const totalValue = computed(() => {
 const getProduceName = (produceTypeId: string) => {
   const produceType = props.produceTypes.find(p => p.id === produceTypeId)
   return produceType?.name || 'Unknown'
-}
-
-const getCategoryName = (entry: HarvestEntry) => {
-  // First try to get category from the populated produceType
-  if (entry.produceType?.category?.name) {
-    return entry.produceType.category.name
-  }
-
-  // Fallback to finding the produce type and getting its category
-  const produceType = props.produceTypes.find(p => p.id === entry.produce_type_id || p._id === entry.produceTypeId)
-  if (produceType?.category?.name) {
-    return produceType.category.name
-  }
-
-  // Map category ID to name if category object is not populated
-  if (produceType?.category_id || produceType?.categoryId) {
-    const categoryId = produceType.category_id || produceType.categoryId
-    // Common category mappings based on the seed data
-    const categoryMap: Record<string, string> = {
-      'fruit': 'Fruit',
-      'greens': 'Greens',
-      'herbs': 'Herbs',
-      'vegetables': 'Vegetables'
-    }
-    return categoryMap[categoryId] || 'Produce'
-  }
-
-  return 'Produce'
 }
 
 const getEntryWeight = (entry: HarvestEntry) => {

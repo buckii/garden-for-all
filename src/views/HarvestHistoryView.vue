@@ -2,15 +2,15 @@
   <div class="min-h-screen bg-gray-50">
     <AppHeader />
 
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto px-4 py-5 sm:py-8">
       <!-- Page Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2 font-poppins">Today</h1>
-        <p class="text-gray-600">Today's harvests and upcoming orders</p>
+      <div class="mb-5 sm:mb-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 font-poppins">Today</h1>
+        <p class="text-sm text-gray-500 mt-1">{{ formatTodaysDate }}</p>
       </div>
 
       <!-- Three Column Layout -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         <!-- Left Column: Today's Harvest -->
         <div>
           <div class="mb-4">
@@ -403,6 +403,15 @@ const produceTypes = computed(() => harvestStore.produceTypes)
 const harvestLoading = computed(() => harvestStore.loading)
 const adminLoading = computed(() => adminStore.loading)
 const adminPantries = computed(() => adminStore.foodPantries)
+
+const formatTodaysDate = computed(() => {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+})
 
 // Plans and Orders state
 const todaysPlans = ref<any[]>([])
